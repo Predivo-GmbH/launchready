@@ -42,7 +42,8 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { url } = await req.json()
+    const body = await req.json()
+    const { url, monitoring_site_id } = body
 
     if (!url || typeof url !== 'string') {
       return new Response(JSON.stringify({ error: 'URL is required' }), {
@@ -67,27 +68,57 @@ serve(async (req: Request) => {
       })
     }
 
-    const result = await runAudit(normalizedUrl)
-
-    // Save to Supabase if user is authenticated
+    // Determine user and plan for AI fix gating
     const authHeader = req.headers.get('authorization')
+    let userId: string | null = null
+    let userPlan = 'free'
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const db = createClient(supabaseUrl, supabaseServiceKey)
+
     if (authHeader?.startsWith('Bearer ')) {
       try {
-        const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-        const db = createClient(supabaseUrl, supabaseServiceKey)
         const token = authHeader.slice(7)
         const { data: { user } } = await db.auth.getUser(token)
-
         if (user) {
-          await db.from('audits').insert({
-            user_id: user.id,
-            url: result.url,
-            overall_score: result.overall_score,
-            checks: result.checks,
-            pages_crawled: result.pages_crawled,
-          })
+          userId = user.id
+          const { data: planData } = await db
+            .from('user_plans')
+            .select('plan')
+            .eq('user_id', user.id)
+            .single()
+          userPlan = planData?.plan || 'free'
         }
+      } catch {
+        // Auth failed — treat as free
+      }
+    }
+
+    // Only generate AI fixes for paid users (saves API cost)
+    const shouldGenerateFixes = userPlan !== 'free'
+    const result = await runAudit(normalizedUrl, shouldGenerateFixes)
+
+    // For free users, strip fix code from the response
+    if (userPlan === 'free') {
+      for (const check of result.checks) {
+        delete check.fix_code
+        delete check.fix_explanation
+        delete check.fix_location
+      }
+    }
+
+    // Save to Supabase if user is authenticated
+    if (userId) {
+      try {
+        await db.from('audits').insert({
+          user_id: userId,
+          url: result.url,
+          overall_score: result.overall_score,
+          checks: result.checks,
+          pages_crawled: result.pages_crawled,
+          is_monitoring: !!monitoring_site_id,
+          monitored_site_id: monitoring_site_id || null,
+        })
       } catch {
         // Saving failed — still return the audit result
       }
@@ -107,7 +138,7 @@ serve(async (req: Request) => {
 
 // ─── Audit Engine ───────────────────────────────────────────
 
-async function runAudit(url: string) {
+async function runAudit(url: string, shouldGenerateFixes = true) {
   const checks: AuditCheck[] = []
   const parsed = new URL(url)
   const baseUrl = `${parsed.protocol}//${parsed.host}`
@@ -136,10 +167,10 @@ async function runAudit(url: string) {
   checks.push(...checkHttps(url))
   checks.push(...checkViewport($))
 
-  // AI Fixes
+  // AI Fixes (only for paid users to save API cost)
   const failed = checks.filter(c => c.status === 'fail')
   const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY')
-  if (failed.length > 0 && anthropicKey) {
+  if (shouldGenerateFixes && failed.length > 0 && anthropicKey) {
     try {
       const fixes = await generateFixes(anthropicKey, url, html, failed)
       const fixMap = new Map(fixes.map(f => [f.id, f]))

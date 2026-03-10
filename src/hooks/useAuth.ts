@@ -3,9 +3,11 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { User, Session } from '@supabase/supabase-js'
+import type { PlanId } from '@/lib/plans'
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
+  const [plan, setPlan] = useState<PlanId>('free')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -23,6 +25,22 @@ export function useAuth() {
     return () => subscription.unsubscribe()
   }, [])
 
+  // Fetch user plan when user changes
+  useEffect(() => {
+    if (!user) {
+      setPlan('free')
+      return
+    }
+    supabase
+      .from('user_plans')
+      .select('plan')
+      .eq('user_id', user.id)
+      .single()
+      .then(({ data }) => {
+        setPlan((data?.plan as PlanId) || 'free')
+      })
+  }, [user])
+
   const signIn = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
@@ -37,5 +55,5 @@ export function useAuth() {
     await supabase.auth.signOut()
   }, [])
 
-  return { user, loading, signIn, signUp, signOut }
+  return { user, plan, loading, signIn, signUp, signOut }
 }

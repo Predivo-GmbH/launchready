@@ -4,9 +4,12 @@ import { useState, useTransition } from 'react'
 import { Globe, Loader2 } from 'lucide-react'
 import type { AuditResult } from '@/lib/types'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/hooks/useAuth'
+import { PLAN_LIMITS } from '@/lib/plans'
 import { AuditResults } from './AuditResults'
 
 export function AuditForm() {
+  const { user, plan } = useAuth()
   const [url, setUrl] = useState('')
   const [result, setResult] = useState<AuditResult | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -22,6 +25,24 @@ export function AuditForm() {
 
     startTransition(async () => {
       try {
+        // Check audit limit for free users
+        const limits = PLAN_LIMITS[plan]
+        if (user && limits.auditsPerMonth > 0) {
+          const startOfMonth = new Date()
+          startOfMonth.setDate(1)
+          startOfMonth.setHours(0, 0, 0, 0)
+
+          const { count } = await supabase
+            .from('audits')
+            .select('id', { count: 'exact', head: true })
+            .gte('created_at', startOfMonth.toISOString())
+
+          if ((count ?? 0) >= limits.auditsPerMonth) {
+            setError(`Free plan limit reached (${limits.auditsPerMonth} audit/month). Upgrade for unlimited audits.`)
+            return
+          }
+        }
+
         // Pass auth token if logged in so the audit gets saved
         const headers: Record<string, string> = { 'Content-Type': 'application/json' }
         const { data: { session } } = await supabase.auth.getSession()
@@ -50,7 +71,7 @@ export function AuditForm() {
         <div className="max-w-4xl mx-auto mb-8">
           <button onClick={() => { setResult(null); setUrl('') }} className="text-sm text-zinc-400 hover:text-white transition-colors">&larr; New audit</button>
         </div>
-        <AuditResults audit={result} />
+        <AuditResults audit={result} plan={plan} />
       </div>
     )
   }
@@ -78,7 +99,12 @@ export function AuditForm() {
 
       {error && (
         <div className="max-w-2xl mx-auto mt-4">
-          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-sm text-red-400">{error}</div>
+          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-sm text-red-400">
+            {error}
+            {error.includes('Upgrade') && (
+              <a href="/pricing" className="ml-2 text-blue-400 hover:text-blue-300 underline">View plans</a>
+            )}
+          </div>
         </div>
       )}
     </>

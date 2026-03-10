@@ -31,7 +31,7 @@ export function Comparison() {
                   <td className="py-3 text-center">{r.sr ? <Check className="w-4 h-4 mx-auto text-green-500" /> : <X className="w-4 h-4 mx-auto text-zinc-600" />}</td>
                 </tr>
               ))}
-              <tr><td className="py-3 text-zinc-300 font-medium">Price</td><td className="py-3 text-center text-blue-400 font-semibold">$9</td><td className="py-3 text-center text-zinc-400">Free</td><td className="py-3 text-center text-zinc-400">$140/mo</td></tr>
+              <tr><td className="py-3 text-zinc-300 font-medium">Price</td><td className="py-3 text-center text-blue-400 font-semibold">From $19/mo</td><td className="py-3 text-center text-zinc-400">Free</td><td className="py-3 text-center text-zinc-400">$140/mo</td></tr>
             </tbody>
           </table>
         </div>

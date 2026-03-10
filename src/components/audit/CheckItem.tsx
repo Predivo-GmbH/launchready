@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { CheckCircle, XCircle, AlertTriangle, MinusCircle, ChevronDown, ChevronUp } from 'lucide-react'
+import { CheckCircle, XCircle, AlertTriangle, MinusCircle, ChevronDown, ChevronUp, Lock } from 'lucide-react'
 import type { AuditCheck } from '@/lib/types'
 import { CopyButton } from '@/components/ui/CopyButton'
 
@@ -12,7 +12,7 @@ const cfg = {
   skip: { icon: MinusCircle, color: 'text-zinc-500', bg: 'bg-zinc-500/10' },
 } as const
 
-export function CheckItem({ check }: { check: AuditCheck }) {
+export function CheckItem({ check, locked = false }: { check: AuditCheck; locked?: boolean }) {
   const [open, setOpen] = useState(check.status === 'fail')
   const { icon: Icon, color, bg } = cfg[check.status]
   const hasExtra = check.fix_code || check.fix_explanation || check.details
@@ -31,21 +31,53 @@ export function CheckItem({ check }: { check: AuditCheck }) {
       {open && hasExtra && (
         <div className="px-4 pb-4 space-y-3 border-t border-zinc-800">
           {check.details && <p className="text-sm text-zinc-300 mt-3">{check.details}</p>}
-          {check.fix_explanation && (
-            <div className="mt-3">
-              <p className="text-xs font-medium text-blue-400 uppercase tracking-wide mb-1">How to fix</p>
-              <p className="text-sm text-zinc-300">{check.fix_explanation}</p>
-            </div>
-          )}
-          {check.fix_location && <p className="text-xs text-zinc-500">Where: <span className="text-zinc-400 font-mono">{check.fix_location}</span></p>}
-          {check.fix_code && (
-            <div className="mt-2">
-              <div className="flex items-center justify-between mb-1">
-                <p className="text-xs font-medium text-green-400 uppercase tracking-wide">Copy-paste fix</p>
-                <CopyButton text={check.fix_code} />
+
+          {locked && (check.fix_code || check.fix_explanation) ? (
+            <div className="mt-3 relative">
+              {/* Blurred preview */}
+              <div className="select-none pointer-events-none blur-sm opacity-50">
+                {check.fix_explanation && (
+                  <div>
+                    <p className="text-xs font-medium text-blue-400 uppercase tracking-wide mb-1">How to fix</p>
+                    <p className="text-sm text-zinc-300">Upgrade to see the AI-generated explanation and fix code for this issue.</p>
+                  </div>
+                )}
+                {check.fix_code && (
+                  <div className="mt-2">
+                    <pre className="bg-zinc-950 rounded-lg p-4 text-xs text-zinc-300 font-mono border border-zinc-800"><code>{'// Fix code hidden — upgrade to reveal'}</code></pre>
+                  </div>
+                )}
               </div>
-              <pre className="bg-zinc-950 rounded-lg p-4 overflow-x-auto text-xs text-zinc-300 font-mono leading-relaxed border border-zinc-800"><code>{check.fix_code}</code></pre>
+              {/* Overlay CTA */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <a
+                  href="/pricing"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-lg transition-colors shadow-lg"
+                >
+                  <Lock className="w-4 h-4" />
+                  Unlock Fix Code
+                </a>
+              </div>
             </div>
+          ) : (
+            <>
+              {check.fix_explanation && (
+                <div className="mt-3">
+                  <p className="text-xs font-medium text-blue-400 uppercase tracking-wide mb-1">How to fix</p>
+                  <p className="text-sm text-zinc-300">{check.fix_explanation}</p>
+                </div>
+              )}
+              {check.fix_location && <p className="text-xs text-zinc-500">Where: <span className="text-zinc-400 font-mono">{check.fix_location}</span></p>}
+              {check.fix_code && (
+                <div className="mt-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-xs font-medium text-green-400 uppercase tracking-wide">Copy-paste fix</p>
+                    <CopyButton text={check.fix_code} />
+                  </div>
+                  <pre className="bg-zinc-950 rounded-lg p-4 overflow-x-auto text-xs text-zinc-300 font-mono leading-relaxed border border-zinc-800"><code>{check.fix_code}</code></pre>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

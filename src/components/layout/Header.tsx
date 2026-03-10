@@ -25,6 +25,7 @@ export function Header() {
           </a>
           <nav className="flex items-center gap-3">
             <a href="/#how-it-works" className="text-sm text-zinc-400 hover:text-white transition-colors">How it works</a>
+            <a href="/pricing" className="text-sm text-zinc-400 hover:text-white transition-colors">Pricing</a>
 
             {loading ? null : user ? (
               <>
