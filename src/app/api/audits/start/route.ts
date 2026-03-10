@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { runAudit } from '@/lib/audit-engine'
+import { createServerClient } from '@/lib/supabase'
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,6 +24,29 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await runAudit(normalizedUrl)
+
+    // Save to Supabase if user is authenticated
+    const authHeader = req.headers.get('authorization')
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const db = createServerClient()
+        const token = authHeader.slice(7)
+        const { data: { user } } = await db.auth.getUser(token)
+
+        if (user) {
+          await db.from('audits').insert({
+            user_id: user.id,
+            url: result.url,
+            overall_score: result.overall_score,
+            checks: result.checks,
+            pages_crawled: result.pages_crawled,
+          })
+        }
+      } catch {
+        // Saving failed — still return the audit result
+      }
+    }
+
     return NextResponse.json(result)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Audit failed'

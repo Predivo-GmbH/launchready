@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { Globe, Loader2 } from 'lucide-react'
 import type { AuditResult } from '@/lib/types'
+import { supabase } from '@/lib/supabase'
 import { AuditResults } from './AuditResults'
 
 export function AuditForm() {
@@ -21,9 +22,16 @@ export function AuditForm() {
 
     startTransition(async () => {
       try {
+        // Pass auth token if logged in so the audit gets saved
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.access_token) {
+          headers['Authorization'] = `Bearer ${session.access_token}`
+        }
+
         const resp = await fetch('/api/audits/start', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({ url: trimmed }),
         })
         const data = await resp.json()
