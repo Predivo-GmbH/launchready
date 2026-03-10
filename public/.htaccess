@@ -1,8 +1,11 @@
 RewriteEngine On
 
-# If the request is not for an existing file or directory,
-# try appending .html
+# Prevent Apache from appending trailing slash to directories
+# when a matching .html file exists (Next.js static export creates both)
+DirectorySlash Off
+
+# If the request matches an existing .html file, serve it
+# This handles /dashboard → dashboard.html even though dashboard/ exists
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.html -f
 RewriteRule ^(.+)$ $1.html [L]
