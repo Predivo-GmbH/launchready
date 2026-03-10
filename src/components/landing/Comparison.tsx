@@ -19,9 +19,9 @@ export function Comparison() {
       <div className="max-w-3xl mx-auto">
         <h2 className="text-2xl font-bold text-white text-center mb-4">Why not just use Lighthouse or Semrush?</h2>
         <p className="text-zinc-400 text-center text-sm mb-10">They report problems. We generate the fixes.</p>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead><tr className="border-b border-zinc-800"><th /><th className="py-3 text-blue-400 font-semibold">LaunchReady</th><th className="py-3 text-zinc-400">Lighthouse</th><th className="py-3 text-zinc-400">Semrush</th></tr></thead>
+        <div className="overflow-x-auto -mx-4 px-4">
+          <table className="w-full text-sm min-w-[480px]">
+            <thead><tr className="border-b border-zinc-800"><th className="text-left" /><th className="py-3 text-blue-400 font-semibold whitespace-nowrap">LaunchReady</th><th className="py-3 text-zinc-400 whitespace-nowrap">Lighthouse</th><th className="py-3 text-zinc-400 whitespace-nowrap">Semrush</th></tr></thead>
             <tbody>
               {rows.map((r, i) => (
                 <tr key={i} className="border-b border-zinc-800/50">

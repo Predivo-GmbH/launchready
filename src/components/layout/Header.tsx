@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Zap, User, LogOut, History } from 'lucide-react'
+import { Zap, LogOut, History, Menu, X } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { AuthModal } from '@/components/auth/AuthModal'
 
@@ -9,10 +9,12 @@ export function Header() {
   const { user, loading, signOut } = useAuth()
   const [showAuth, setShowAuth] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   function openAuth(mode: 'login' | 'signup') {
     setAuthMode(mode)
     setShowAuth(true)
+    setMobileOpen(false)
   }
 
   return (
@@ -23,7 +25,9 @@ export function Header() {
             <Zap className="w-5 h-5 text-blue-500" />
             LaunchReady
           </a>
-          <nav className="flex items-center gap-3">
+
+          {/* Desktop nav */}
+          <nav className="hidden sm:flex items-center gap-3">
             <a href="/#how-it-works" className="text-sm text-zinc-400 hover:text-white transition-colors">How it works</a>
             <a href="/pricing" className="text-sm text-zinc-400 hover:text-white transition-colors">Pricing</a>
 
@@ -47,7 +51,37 @@ export function Header() {
               <a href="/#audit" className="text-sm px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium">Free Audit</a>
             )}
           </nav>
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="sm:hidden p-2 text-zinc-400 hover:text-white transition-colors"
+          >
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
+
+        {/* Mobile dropdown */}
+        {mobileOpen && (
+          <nav className="sm:hidden border-t border-zinc-800 px-4 py-4 space-y-3 bg-zinc-950">
+            <a href="/#how-it-works" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors">How it works</a>
+            <a href="/pricing" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors">Pricing</a>
+
+            {loading ? null : user ? (
+              <>
+                <a href="/dashboard" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors">My Audits</a>
+                <button onClick={() => { signOut(); setMobileOpen(false) }} className="block text-sm text-zinc-400 hover:text-white transition-colors">Sign out</button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => openAuth('login')} className="block text-sm text-zinc-400 hover:text-white transition-colors">Log in</button>
+                <button onClick={() => openAuth('signup')} className="block text-sm text-zinc-400 hover:text-white transition-colors">Sign up</button>
+              </>
+            )}
+
+            <a href="/#audit" onClick={() => setMobileOpen(false)} className="block text-sm px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium text-center">Free Audit</a>
+          </nav>
+        )}
       </header>
 
       {showAuth && <AuthModal initialMode={authMode} onClose={() => setShowAuth(false)} onSuccess={() => setShowAuth(false)} />}
