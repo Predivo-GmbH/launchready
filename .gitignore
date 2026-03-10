@@ -1,4 +1,7 @@
 node_modules/
 .next/
+out/
 .env
 .env.local
+docs/credentials.txt
+supabase/.temp/
