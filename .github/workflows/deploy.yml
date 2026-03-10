@@ -2,7 +2,7 @@ name: Build & Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [master]
 
 jobs:
   deploy:
@@ -31,7 +31,7 @@ jobs:
           # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
           lftp -e "
             $FTP_CONN
-            mirror --reverse --no-perms --verbose ./out/_next/ /httpdocs/_next/;
+            mirror --reverse --no-perms --verbose ./out/_next/ /launchready.predivo.ch/_next/;
             quit;
           "
 
@@ -39,6 +39,6 @@ jobs:
           # --delete removes stale files on server.
           lftp -e "
             $FTP_CONN
-            mirror --reverse --delete --no-perms --verbose ./out/ /httpdocs/;
+            mirror --reverse --delete --no-perms --verbose ./out/ /launchready.predivo.ch/;
             quit;
           "
