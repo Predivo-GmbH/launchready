@@ -1,0 +1,44 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build static export
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Deploy via FTP (zero-downtime)
+        run: |
+          sudo apt-get install -y lftp
+          FTP_CONN="set ftp:ssl-allow no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5; open -u ${{ secrets.FTP_USER }},${{ secrets.FTP_PASS }} ${{ secrets.FTP_HOST }};"
+
+          # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
+          lftp -e "
+            $FTP_CONN
+            mirror --reverse --no-perms --verbose ./out/_next/ /httpdocs/_next/;
+            quit;
+          "
+
+          # Step 2: Full mirror of everything (HTML, images, etc.)
+          # --delete removes stale files on server.
+          lftp -e "
+            $FTP_CONN
+            mirror --reverse --delete --no-perms --verbose ./out/ /httpdocs/;
+            quit;
+          "

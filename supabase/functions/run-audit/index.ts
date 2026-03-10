@@ -1,10 +1,114 @@
-import * as cheerio from 'cheerio'
-import type { AuditCheck, AuditResult } from './types'
-import { generateFixes } from './ai-fixes'
+import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
+import * as cheerio from 'https://esm.sh/cheerio@1.0.0'
 
-export async function runAudit(url: string): Promise<AuditResult> {
+// ─── Types ──────────────────────────────────────────────────
+
+type CheckStatus = 'pass' | 'fail' | 'warn' | 'skip'
+type CheckCategory = 'meta' | 'social' | 'indexability' | 'performance' | 'accessibility' | 'security' | 'structure'
+
+interface AuditCheck {
+  id: string
+  category: CheckCategory
+  name: string
+  status: CheckStatus
+  description: string
+  details?: string
+  fix_code?: string
+  fix_explanation?: string
+  fix_location?: string
+}
+
+interface Fix {
+  id: string
+  fix_code?: string
+  fix_explanation?: string
+  fix_location?: string
+}
+
+// ─── CORS ───────────────────────────────────────────────────
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
+// ─── Handler ────────────────────────────────────────────────
+
+serve(async (req: Request) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: CORS_HEADERS })
+  }
+
+  try {
+    const { url } = await req.json()
+
+    if (!url || typeof url !== 'string') {
+      return new Response(JSON.stringify({ error: 'URL is required' }), {
+        status: 400,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Normalize
+    let normalizedUrl = url.trim()
+    if (!normalizedUrl.match(/^https?:\/\//)) {
+      normalizedUrl = `https://${normalizedUrl}`
+    }
+
+    // Validate
+    try {
+      new URL(normalizedUrl)
+    } catch {
+      return new Response(JSON.stringify({ error: 'Invalid URL' }), {
+        status: 400,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const result = await runAudit(normalizedUrl)
+
+    // Save to Supabase if user is authenticated
+    const authHeader = req.headers.get('authorization')
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+        const db = createClient(supabaseUrl, supabaseServiceKey)
+        const token = authHeader.slice(7)
+        const { data: { user } } = await db.auth.getUser(token)
+
+        if (user) {
+          await db.from('audits').insert({
+            user_id: user.id,
+            url: result.url,
+            overall_score: result.overall_score,
+            checks: result.checks,
+            pages_crawled: result.pages_crawled,
+          })
+        }
+      } catch {
+        // Saving failed — still return the audit result
+      }
+    }
+
+    return new Response(JSON.stringify(result), {
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Audit failed'
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    })
+  }
+})
+
+// ─── Audit Engine ───────────────────────────────────────────
+
+async function runAudit(url: string) {
   const checks: AuditCheck[] = []
-
   const parsed = new URL(url)
   const baseUrl = `${parsed.protocol}//${parsed.host}`
 
@@ -20,44 +124,24 @@ export async function runAudit(url: string): Promise<AuditResult> {
   const html = await resp.text()
   const $ = cheerio.load(html)
 
-  // === META TAGS ===
   checks.push(...checkMetaTags($, url))
-
-  // === OPEN GRAPH ===
   checks.push(...checkOgTags($, url))
-
-  // === TWITTER CARD ===
   checks.push(...checkTwitterTags($))
-
-  // === HEADINGS ===
   checks.push(...checkHeadings($))
-
-  // === IMAGES ===
   checks.push(...checkImages($))
-
-  // === SITEMAP ===
   checks.push(...(await checkSitemap(baseUrl)))
-
-  // === ROBOTS.TXT ===
   checks.push(...(await checkRobots(baseUrl)))
-
-  // === JSON-LD ===
   checks.push(...checkJsonLd($))
-
-  // === SECURITY HEADERS ===
   checks.push(...checkSecurityHeaders(resp.headers, url))
-
-  // === HTTPS ===
   checks.push(...checkHttps(url))
-
-  // === VIEWPORT ===
   checks.push(...checkViewport($))
 
-  // === AI FIXES ===
+  // AI Fixes
   const failed = checks.filter(c => c.status === 'fail')
-  if (failed.length > 0 && process.env.ANTHROPIC_API_KEY) {
+  const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY')
+  if (failed.length > 0 && anthropicKey) {
     try {
-      const fixes = await generateFixes(url, html, failed)
+      const fixes = await generateFixes(anthropicKey, url, html, failed)
       const fixMap = new Map(fixes.map(f => [f.id, f]))
       for (const check of checks) {
         const fix = fixMap.get(check.id)
@@ -81,7 +165,56 @@ export async function runAudit(url: string): Promise<AuditResult> {
   }
 }
 
-// ─── CHECK FUNCTIONS ────────────────────────────────────────
+// ─── AI Fixes ───────────────────────────────────────────────
+
+async function generateFixes(apiKey: string, url: string, html: string, failedChecks: AuditCheck[]): Promise<Fix[]> {
+  const headEnd = html.indexOf('</head>')
+  const truncated = headEnd > 0 ? html.slice(0, headEnd + 7) : html.slice(0, 3000)
+
+  const checkList = failedChecks.map(c => `- ${c.id}: ${c.name} — ${c.description}`).join('\n')
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-5-20250514',
+      max_tokens: 2000,
+      messages: [{
+        role: 'user',
+        content: `You are a web SEO expert. A website at ${url} has these issues:\n\n${checkList}\n\nCurrent HTML <head>:\n\`\`\`html\n${truncated}\n\`\`\`\n\nFor each failed check, return a JSON array of objects with:\n- "id": check ID (exact match)\n- "fix_code": exact HTML/XML to copy-paste\n- "fix_explanation": 1-2 sentence plain-English explanation\n- "fix_location": where to put it\n\nFor descriptions: write based on actual page content, 120-160 chars, include keywords.\nFor JSON-LD: generate Organization schema from page content.\nFor sitemaps: generate complete sitemap.xml with today's date.\n\nReturn ONLY a JSON array. No markdown fences.`,
+      }],
+    }),
+  })
+
+  if (!resp.ok) return []
+
+  const data = await resp.json()
+  const text = data.content?.[0]?.text?.trim() ?? ''
+
+  let json = text
+  if (json.startsWith('```')) {
+    json = json.split('\n').slice(1).join('\n')
+    if (json.endsWith('```')) json = json.slice(0, -3).trim()
+  }
+
+  try {
+    const fixes = JSON.parse(json)
+    if (Array.isArray(fixes)) {
+      const validIds = new Set(failedChecks.map(c => c.id))
+      return fixes.filter((f: Fix) => typeof f === 'object' && validIds.has(f.id))
+    }
+  } catch {
+    // AI response wasn't valid JSON
+  }
+
+  return []
+}
+
+// ─── Check Functions ────────────────────────────────────────
 
 function checkMetaTags($: cheerio.CheerioAPI, url: string): AuditCheck[] {
   const checks: AuditCheck[] = []

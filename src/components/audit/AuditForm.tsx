@@ -29,7 +29,8 @@ export function AuditForm() {
           headers['Authorization'] = `Bearer ${session.access_token}`
         }
 
-        const resp = await fetch('/api/audits/start', {
+        const edgeFnUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/run-audit`
+        const resp = await fetch(edgeFnUrl, {
           method: 'POST',
           headers,
           body: JSON.stringify({ url: trimmed }),
