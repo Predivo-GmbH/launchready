@@ -1,0 +1,294 @@
+import * as cheerio from 'cheerio'
+import type { AuditCheck, AuditResult } from './types'
+import { generateFixes } from './ai-fixes'
+
+export async function runAudit(url: string): Promise<AuditResult> {
+  const checks: AuditCheck[] = []
+
+  const parsed = new URL(url)
+  const baseUrl = `${parsed.protocol}//${parsed.host}`
+
+  const resp = await fetch(url, {
+    headers: { 'User-Agent': 'LaunchReady/1.0 (audit bot)' },
+    redirect: 'follow',
+  })
+
+  if (!resp.ok) {
+    throw new Error(`Could not fetch ${url}: ${resp.status} ${resp.statusText}`)
+  }
+
+  const html = await resp.text()
+  const $ = cheerio.load(html)
+
+  // === META TAGS ===
+  checks.push(...checkMetaTags($, url))
+
+  // === OPEN GRAPH ===
+  checks.push(...checkOgTags($, url))
+
+  // === TWITTER CARD ===
+  checks.push(...checkTwitterTags($))
+
+  // === HEADINGS ===
+  checks.push(...checkHeadings($))
+
+  // === IMAGES ===
+  checks.push(...checkImages($))
+
+  // === SITEMAP ===
+  checks.push(...(await checkSitemap(baseUrl)))
+
+  // === ROBOTS.TXT ===
+  checks.push(...(await checkRobots(baseUrl)))
+
+  // === JSON-LD ===
+  checks.push(...checkJsonLd($))
+
+  // === SECURITY HEADERS ===
+  checks.push(...checkSecurityHeaders(resp.headers, url))
+
+  // === HTTPS ===
+  checks.push(...checkHttps(url))
+
+  // === VIEWPORT ===
+  checks.push(...checkViewport($))
+
+  // === AI FIXES ===
+  const failed = checks.filter(c => c.status === 'fail')
+  if (failed.length > 0 && process.env.ANTHROPIC_API_KEY) {
+    try {
+      const fixes = await generateFixes(url, html, failed)
+      const fixMap = new Map(fixes.map(f => [f.id, f]))
+      for (const check of checks) {
+        const fix = fixMap.get(check.id)
+        if (fix) Object.assign(check, fix)
+      }
+    } catch {
+      // AI fixes are best-effort
+    }
+  }
+
+  const scorable = checks.filter(c => c.status !== 'skip')
+  const passed = checks.filter(c => c.status === 'pass').length
+  const overall_score = scorable.length > 0 ? Math.round((passed / scorable.length) * 100) : 0
+
+  return {
+    url,
+    overall_score,
+    checks,
+    pages_crawled: 1,
+    created_at: new Date().toISOString(),
+  }
+}
+
+// ─── CHECK FUNCTIONS ────────────────────────────────────────
+
+function checkMetaTags($: cheerio.CheerioAPI, url: string): AuditCheck[] {
+  const checks: AuditCheck[] = []
+
+  const titleEl = $('title')
+  const titleText = titleEl.text().trim()
+  checks.push(
+    titleText.length > 10
+      ? { id: 'meta-title', category: 'meta', name: 'Page title', status: 'pass', description: `Title found: "${titleText}"` }
+      : { id: 'meta-title', category: 'meta', name: 'Page title', status: 'fail', description: 'Missing or too short page title', details: `Current: "${titleText || '(none)'}"`, fix_location: 'Inside <head> tag' }
+  )
+
+  const descContent = $('meta[name="description"]').attr('content') || ''
+  checks.push(
+    descContent.length > 50
+      ? { id: 'meta-description', category: 'meta', name: 'Meta description', status: 'pass', description: `Description found (${descContent.length} chars)` }
+      : { id: 'meta-description', category: 'meta', name: 'Meta description', status: 'fail', description: 'Missing or too short meta description', details: `Current: "${descContent || '(none)'}" — should be 120-160 characters`, fix_location: 'Inside <head> tag' }
+  )
+
+  const canonicalHref = $('link[rel="canonical"]').attr('href') || ''
+  checks.push(
+    canonicalHref
+      ? { id: 'meta-canonical', category: 'meta', name: 'Canonical URL', status: 'pass', description: `Canonical set to ${canonicalHref}` }
+      : { id: 'meta-canonical', category: 'meta', name: 'Canonical URL', status: 'fail', description: 'No canonical URL set — search engines may index duplicate versions', fix_code: `<link rel="canonical" href="${url}" />`, fix_explanation: 'Tells Google which URL is the official version of this page.', fix_location: 'Inside <head> tag' }
+  )
+
+  return checks
+}
+
+function checkOgTags($: cheerio.CheerioAPI, url: string): AuditCheck[] {
+  const checks: AuditCheck[] = []
+
+  const ogTitle = $('meta[property="og:title"]').attr('content')
+  checks.push(
+    ogTitle
+      ? { id: 'og-title', category: 'social', name: 'OG title', status: 'pass', description: `og:title: "${ogTitle}"` }
+      : { id: 'og-title', category: 'social', name: 'OG title', status: 'fail', description: 'Missing og:title — social shares will have no title', fix_location: 'Inside <head> tag' }
+  )
+
+  const ogDesc = $('meta[property="og:description"]').attr('content')
+  checks.push(
+    ogDesc
+      ? { id: 'og-description', category: 'social', name: 'OG description', status: 'pass', description: `og:description (${ogDesc.length} chars)` }
+      : { id: 'og-description', category: 'social', name: 'OG description', status: 'fail', description: 'Missing og:description — social shares will have no description', fix_location: 'Inside <head> tag' }
+  )
+
+  const ogImage = $('meta[property="og:image"]').attr('content')
+  checks.push(
+    ogImage
+      ? { id: 'og-image', category: 'social', name: 'OG image', status: 'pass', description: `og:image: ${ogImage}` }
+      : { id: 'og-image', category: 'social', name: 'OG image', status: 'fail', description: 'Missing og:image — no preview image on social shares', details: 'Recommended: 1200x630 PNG or JPG', fix_location: 'Inside <head> tag' }
+  )
+
+  const ogUrl = $('meta[property="og:url"]').attr('content')
+  checks.push(
+    ogUrl
+      ? { id: 'og-url', category: 'social', name: 'OG URL', status: 'pass', description: `og:url: ${ogUrl}` }
+      : { id: 'og-url', category: 'social', name: 'OG URL', status: 'fail', description: 'Missing og:url', fix_code: `<meta property="og:url" content="${url}" />`, fix_explanation: 'Tells social platforms the canonical URL of this page.', fix_location: 'Inside <head> tag' }
+  )
+
+  return checks
+}
+
+function checkTwitterTags($: cheerio.CheerioAPI): AuditCheck[] {
+  const card = $('meta[name="twitter:card"]').attr('content')
+  return [
+    card
+      ? { id: 'twitter-card', category: 'social', name: 'Twitter Card', status: 'pass', description: `twitter:card: "${card}"` }
+      : { id: 'twitter-card', category: 'social', name: 'Twitter Card', status: 'fail', description: 'Missing twitter:card meta tag', fix_code: '<meta name="twitter:card" content="summary_large_image" />', fix_explanation: 'Controls how your page appears when shared on X/Twitter.', fix_location: 'Inside <head> tag' },
+  ]
+}
+
+function checkHeadings($: cheerio.CheerioAPI): AuditCheck[] {
+  const h1s = $('h1')
+  if (h1s.length === 1) {
+    return [{ id: 'heading-h1', category: 'structure', name: 'H1 heading', status: 'pass', description: `H1: "${h1s.first().text().trim().slice(0, 80)}"` }]
+  }
+  if (h1s.length === 0) {
+    return [{ id: 'heading-h1', category: 'structure', name: 'H1 heading', status: 'fail', description: 'No H1 heading — the main heading search engines look for', fix_explanation: 'Add a single <h1> tag with the page\'s main title.', fix_location: 'Main content area' }]
+  }
+  return [{ id: 'heading-h1', category: 'structure', name: 'H1 heading', status: 'warn', description: `${h1s.length} H1 headings found — best practice is exactly one` }]
+}
+
+function checkImages($: cheerio.CheerioAPI): AuditCheck[] {
+  const imgs = $('img')
+  if (imgs.length === 0) {
+    return [{ id: 'img-alt', category: 'accessibility', name: 'Image alt text', status: 'skip', description: 'No images found on page' }]
+  }
+  const missingAlt = imgs.toArray().filter(el => !$(el).attr('alt'))
+  if (missingAlt.length === 0) {
+    return [{ id: 'img-alt', category: 'accessibility', name: 'Image alt text', status: 'pass', description: `All ${imgs.length} images have alt text` }]
+  }
+  return [{
+    id: 'img-alt', category: 'accessibility', name: 'Image alt text',
+    status: missingAlt.length > imgs.length / 2 ? 'fail' : 'warn',
+    description: `${missingAlt.length} of ${imgs.length} images missing alt text`,
+    fix_explanation: 'Add descriptive alt attributes to all <img> tags.',
+  }]
+}
+
+async function checkSitemap(baseUrl: string): Promise<AuditCheck[]> {
+  try {
+    const resp = await fetch(`${baseUrl}/sitemap.xml`, { headers: { 'User-Agent': 'LaunchReady/1.0' } })
+    if (resp.ok) {
+      const text = await resp.text()
+      if (text.includes('<urlset')) {
+        const $ = cheerio.load(text, { xmlMode: true })
+        const urls = $('url')
+        const hasLastmod = urls.toArray().some(el => $(el).find('lastmod').length > 0)
+        return [{
+          id: 'sitemap-exists', category: 'indexability', name: 'Sitemap.xml',
+          status: hasLastmod ? 'pass' : 'warn',
+          description: hasLastmod
+            ? `Sitemap: ${urls.length} URLs with lastmod`
+            : `Sitemap: ${urls.length} URLs but no lastmod dates`,
+          ...(!hasLastmod && { fix_explanation: 'Add <lastmod>YYYY-MM-DD</lastmod> to each <url> for freshness signals.' }),
+        }]
+      }
+    }
+    return [{ id: 'sitemap-exists', category: 'indexability', name: 'Sitemap.xml', status: 'fail', description: 'No sitemap.xml found', details: 'A sitemap helps search engines discover all pages.', fix_location: 'Root folder as sitemap.xml' }]
+  } catch {
+    return [{ id: 'sitemap-exists', category: 'indexability', name: 'Sitemap.xml', status: 'fail', description: 'Could not fetch sitemap.xml' }]
+  }
+}
+
+async function checkRobots(baseUrl: string): Promise<AuditCheck[]> {
+  try {
+    const resp = await fetch(`${baseUrl}/robots.txt`, { headers: { 'User-Agent': 'LaunchReady/1.0' } })
+    if (resp.ok) {
+      const text = await resp.text()
+      if (text.length > 10) {
+        const hasSitemap = text.toLowerCase().includes('sitemap')
+        return [{
+          id: 'robots-txt', category: 'indexability', name: 'Robots.txt',
+          status: hasSitemap ? 'pass' : 'warn',
+          description: hasSitemap ? 'robots.txt with sitemap reference' : 'robots.txt found but no sitemap reference',
+          ...(!hasSitemap && {
+            fix_code: `Sitemap: ${baseUrl}/sitemap.xml`,
+            fix_explanation: 'Add this to the end of your robots.txt.',
+            fix_location: 'End of robots.txt',
+          }),
+        }]
+      }
+    }
+    return [{
+      id: 'robots-txt', category: 'indexability', name: 'Robots.txt', status: 'fail',
+      description: 'No robots.txt found',
+      fix_code: `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}/sitemap.xml`,
+      fix_explanation: 'Tells search engines they can crawl your site and where the sitemap is.',
+      fix_location: 'Root folder as robots.txt',
+    }]
+  } catch {
+    return [{ id: 'robots-txt', category: 'indexability', name: 'Robots.txt', status: 'fail', description: 'Could not fetch robots.txt' }]
+  }
+}
+
+function checkJsonLd($: cheerio.CheerioAPI): AuditCheck[] {
+  const scripts = $('script[type="application/ld+json"]')
+  if (scripts.length > 0) {
+    try {
+      const data = JSON.parse(scripts.first().html() || '{}')
+      return [{ id: 'jsonld', category: 'structure', name: 'JSON-LD structured data', status: 'pass', description: `JSON-LD: @type "${data['@type'] || 'Unknown'}"` }]
+    } catch {
+      return [{ id: 'jsonld', category: 'structure', name: 'JSON-LD structured data', status: 'warn', description: 'JSON-LD found but contains invalid JSON' }]
+    }
+  }
+  return [{
+    id: 'jsonld', category: 'structure', name: 'JSON-LD structured data', status: 'fail',
+    description: 'No structured data — Google can\'t understand your business type',
+    details: 'Enables rich search results (business info, logo, contact).',
+    fix_location: 'Inside <head> or before </body>',
+  }]
+}
+
+function checkSecurityHeaders(headers: Headers, _url: string): AuditCheck[] {
+  const checks: AuditCheck[] = []
+
+  const xcto = headers.get('x-content-type-options')
+  checks.push(
+    xcto?.includes('nosniff')
+      ? { id: 'header-xcto', category: 'security', name: 'X-Content-Type-Options', status: 'pass', description: 'nosniff header set' }
+      : { id: 'header-xcto', category: 'security', name: 'X-Content-Type-Options', status: 'warn', description: 'Missing X-Content-Type-Options header', fix_explanation: 'Add via your web server config to prevent MIME-sniffing.' }
+  )
+
+  const xfo = headers.get('x-frame-options')
+  checks.push(
+    xfo
+      ? { id: 'header-xfo', category: 'security', name: 'X-Frame-Options', status: 'pass', description: `X-Frame-Options: ${xfo}` }
+      : { id: 'header-xfo', category: 'security', name: 'X-Frame-Options', status: 'warn', description: 'Missing X-Frame-Options — site could be embedded in iframes' }
+  )
+
+  return checks
+}
+
+function checkHttps(url: string): AuditCheck[] {
+  return [
+    url.startsWith('https://')
+      ? { id: 'https', category: 'security', name: 'HTTPS', status: 'pass', description: 'Site uses HTTPS' }
+      : { id: 'https', category: 'security', name: 'HTTPS', status: 'fail', description: 'No HTTPS — Google penalizes non-HTTPS sites', fix_explanation: 'Enable SSL/TLS via your hosting provider (most offer free Let\'s Encrypt).' },
+  ]
+}
+
+function checkViewport($: cheerio.CheerioAPI): AuditCheck[] {
+  const viewport = $('meta[name="viewport"]').attr('content')
+  return [
+    viewport
+      ? { id: 'viewport', category: 'accessibility', name: 'Viewport meta', status: 'pass', description: 'Viewport meta set for mobile' }
+      : { id: 'viewport', category: 'accessibility', name: 'Viewport meta', status: 'fail', description: 'Missing viewport — site won\'t render properly on mobile', fix_code: '<meta name="viewport" content="width=device-width, initial-scale=1.0" />', fix_explanation: 'Ensures your site scales on mobile devices.', fix_location: 'Inside <head>' },
+  ]
+}

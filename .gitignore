@@ -1,8 +1,4 @@
 node_modules/
-dist/
+.next/
 .env
-__pycache__/
-*.pyc
-.venv/
-.mypy_cache/
-.pytest_cache/
+.env.local
