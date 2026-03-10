@@ -9,8 +9,8 @@ export function ScoreRing({ score, size = 120, label }: { score: number; size?: 
   const offset = c - (score / 100) * c
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <svg width={size} height={size} className="-rotate-90">
+    <div className="flex flex-col items-center gap-1" role="img" aria-label={`Score: ${score} out of 100${label ? `, ${label}` : ''}`}>
+      <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="currentColor" strokeWidth={sw} className="text-zinc-800" />
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={sw} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={offset} className={`${scoreRingColor(score)} transition-all duration-1000`} />
         <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="central" className={`${scoreRingColor(score)} fill-current rotate-90 origin-center`} style={{ fontSize: size * 0.28, fontWeight: 700 }}>{score}</text>

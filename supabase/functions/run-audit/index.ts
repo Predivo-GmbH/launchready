@@ -28,27 +28,56 @@ interface Fix {
 
 // ─── CORS ───────────────────────────────────────────────────
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+const ALLOWED_ORIGINS = [
+  'https://launchready.predivo.ch',
+  'http://localhost:3000',
+  'http://localhost:3001',
+]
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get('origin') || ''
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]
+  return {
+    'Access-Control-Allow-Origin': allowed,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  }
+}
+
+// ─── SSRF Protection ────────────────────────────────────────
+
+function isPrivateUrl(urlStr: string): boolean {
+  try {
+    const hostname = new URL(urlStr).hostname
+    if (['localhost', '127.0.0.1', '::1', '0.0.0.0'].includes(hostname)) return true
+    if (hostname.endsWith('.local') || hostname === 'metadata.google.internal') return true
+    if (/^10\./.test(hostname)) return true
+    if (/^172\.(1[6-9]|2\d|3[01])\./.test(hostname)) return true
+    if (/^192\.168\./.test(hostname)) return true
+    if (/^169\.254\./.test(hostname)) return true
+    return false
+  } catch {
+    return true
+  }
 }
 
 // ─── Handler ────────────────────────────────────────────────
 
 serve(async (req: Request) => {
+  const cors = getCorsHeaders(req)
+
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: CORS_HEADERS })
+    return new Response('ok', { headers: cors })
   }
 
   try {
     const body = await req.json()
-    const { url, monitoring_site_id } = body
+    const { url, monitoring_site_id, skip_save } = body
 
     if (!url || typeof url !== 'string') {
       return new Response(JSON.stringify({ error: 'URL is required' }), {
         status: 400,
-        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        headers: { ...cors, 'Content-Type': 'application/json' },
       })
     }
 
@@ -58,13 +87,21 @@ serve(async (req: Request) => {
       normalizedUrl = `https://${normalizedUrl}`
     }
 
-    // Validate
+    // Validate URL format
     try {
       new URL(normalizedUrl)
     } catch {
       return new Response(JSON.stringify({ error: 'Invalid URL' }), {
         status: 400,
-        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        headers: { ...cors, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // SSRF protection — block private/internal URLs
+    if (isPrivateUrl(normalizedUrl)) {
+      return new Response(JSON.stringify({ error: 'URL not allowed: private or internal addresses are blocked' }), {
+        status: 400,
+        headers: { ...cors, 'Content-Type': 'application/json' },
       })
     }
 
@@ -89,8 +126,28 @@ serve(async (req: Request) => {
             .single()
           userPlan = planData?.plan || 'free'
         }
-      } catch {
-        // Auth failed — treat as free
+      } catch (err) {
+        console.error('Auth lookup failed:', err instanceof Error ? err.message : err)
+      }
+    }
+
+    // Server-side audit limit enforcement for free users
+    if (userId && userPlan === 'free') {
+      const startOfMonth = new Date()
+      startOfMonth.setDate(1)
+      startOfMonth.setHours(0, 0, 0, 0)
+
+      const { count } = await db
+        .from('audits')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .gte('created_at', startOfMonth.toISOString())
+
+      if ((count ?? 0) >= 1) {
+        return new Response(JSON.stringify({ error: 'Free plan limit reached (1 audit/month). Upgrade for unlimited audits.' }), {
+          status: 429,
+          headers: { ...cors, 'Content-Type': 'application/json' },
+        })
       }
     }
 
@@ -107,8 +164,8 @@ serve(async (req: Request) => {
       }
     }
 
-    // Save to Supabase if user is authenticated
-    if (userId) {
+    // Save to Supabase if user is authenticated (skip_save used by monitoring to avoid duplicates)
+    if (userId && !skip_save) {
       try {
         await db.from('audits').insert({
           user_id: userId,
@@ -119,19 +176,21 @@ serve(async (req: Request) => {
           is_monitoring: !!monitoring_site_id,
           monitored_site_id: monitoring_site_id || null,
         })
-      } catch {
-        // Saving failed — still return the audit result
+      } catch (err) {
+        console.error('Audit save failed:', err instanceof Error ? err.message : err)
       }
     }
 
     return new Response(JSON.stringify(result), {
-      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+      headers: { ...cors, 'Content-Type': 'application/json' },
     })
   } catch (err) {
+    const cors = getCorsHeaders(req)
     const message = err instanceof Error ? err.message : 'Audit failed'
+    console.error('Audit error:', message)
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
-      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+      headers: { ...cors, 'Content-Type': 'application/json' },
     })
   }
 })

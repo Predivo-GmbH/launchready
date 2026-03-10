@@ -19,7 +19,7 @@ export function CheckItem({ check, locked = false }: { check: AuditCheck; locked
 
   return (
     <div className={`rounded-lg border border-zinc-800 ${bg} overflow-hidden`}>
-      <button onClick={() => setOpen(!open)} className="w-full flex items-center gap-3 p-4 text-left hover:bg-white/5 transition-colors">
+      <button onClick={() => setOpen(!open)} aria-expanded={open} className="w-full flex items-center gap-3 p-4 text-left hover:bg-white/5 transition-colors">
         <Icon className={`w-5 h-5 shrink-0 ${color}`} />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-white">{check.name}</p>

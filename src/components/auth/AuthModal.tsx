@@ -64,7 +64,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
           onChange={e => setEmail(e.target.value)}
           placeholder="Email"
           required
-          className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500"
+          className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-base placeholder-zinc-500 focus:outline-none focus:border-blue-500"
         />
         <input
           type="password"
@@ -73,7 +73,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
           placeholder="Password"
           required
           minLength={6}
-          className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500"
+          className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-base placeholder-zinc-500 focus:outline-none focus:border-blue-500"
         />
 
         {error && <p className="text-sm text-red-400">{error}</p>}
@@ -100,9 +100,9 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
 
 function Overlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Authentication" onClick={onClose}>
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 max-w-md w-full relative" onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} className="absolute top-4 right-4 text-zinc-500 hover:text-white"><X className="w-5 h-5" /></button>
+        <button onClick={onClose} aria-label="Close dialog" className="absolute top-4 right-4 text-zinc-500 hover:text-white p-1"><X className="w-5 h-5" /></button>
         {children}
       </div>
     </div>

@@ -10,6 +10,14 @@ export const metadata: Metadata = {
     title: 'LaunchReady — Post-Launch Website Audit',
     description: 'Your website is live. Google doesn\'t know it exists. Fix that in 60 seconds.',
     type: 'website',
+    url: 'https://launchready.predivo.ch',
+    images: [{ url: 'https://launchready.predivo.ch/og-image.png', width: 1200, height: 630, alt: 'LaunchReady — Post-Launch Website Audit' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'LaunchReady — Post-Launch Website Audit with AI Fix Code',
+    description: 'Paste your URL, get a full post-launch SEO audit with copy-paste fix code — in 60 seconds.',
+    images: ['https://launchready.predivo.ch/og-image.png'],
   },
 }
 
@@ -25,7 +33,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <footer className="border-t border-zinc-800 py-8 px-4">
             <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-2 text-zinc-500 text-sm"><Zap className="w-4 h-4" />LaunchReady — Built by Predivo GmbH</div>
-              <p className="text-xs text-zinc-600">Powered by Cheerio + Claude AI</p>
+              <nav className="flex items-center gap-4 text-xs text-zinc-500">
+                <a href="/pricing" className="hover:text-zinc-300 transition-colors">Pricing</a>
+                <a href="/impressum" className="hover:text-zinc-300 transition-colors">Impressum</a>
+                <a href="/privacy" className="hover:text-zinc-300 transition-colors">Privacy</a>
+                <a href="/terms" className="hover:text-zinc-300 transition-colors">Terms</a>
+              </nav>
             </div>
           </footer>
         </div>

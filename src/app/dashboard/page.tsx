@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Clock, ExternalLink, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { Clock, ExternalLink } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import { PLAN_LIMITS } from '@/lib/plans'
@@ -34,6 +34,7 @@ export default function Dashboard() {
     supabase
       .from('audits')
       .select('id, url, overall_score, pages_crawled, created_at, is_monitoring')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(50)
       .then(({ data }) => {
@@ -70,15 +71,6 @@ export default function Dashboard() {
 
   const limits = PLAN_LIMITS[plan]
   const manualAudits = audits.filter(a => !a.is_monitoring)
-  const monitoringAudits = audits.filter(a => a.is_monitoring)
-
-  // Group monitoring audits by URL for score trends
-  const latestByUrl = new Map<string, AuditRow[]>()
-  for (const a of monitoringAudits) {
-    const list = latestByUrl.get(a.url) || []
-    list.push(a)
-    latestByUrl.set(a.url, list)
-  }
 
   return (
     <div className="py-12 px-4">
@@ -126,14 +118,7 @@ export default function Dashboard() {
   )
 }
 
-function AuditCard({ audit, prevScore }: { audit: AuditRow; prevScore?: number }) {
-  const scoreDiff = prevScore != null ? audit.overall_score - prevScore : null
-  const TrendIcon = scoreDiff != null
-    ? scoreDiff > 0 ? TrendingUp
-    : scoreDiff < 0 ? TrendingDown
-    : Minus
-    : null
-
+function AuditCard({ audit }: { audit: AuditRow }) {
   return (
     <div className="flex items-center gap-4 p-4 bg-zinc-900 border border-zinc-800 rounded-xl hover:border-zinc-700 transition-colors">
       <ScoreRing score={audit.overall_score} size={48} />
@@ -154,14 +139,9 @@ function AuditCard({ audit, prevScore }: { audit: AuditRow; prevScore?: number }
           )}
         </div>
       </div>
-      <div className="text-right flex items-center gap-2">
-        {TrendIcon && scoreDiff != null && (
-          <TrendIcon className={`w-4 h-4 ${scoreDiff > 0 ? 'text-green-500' : scoreDiff < 0 ? 'text-red-500' : 'text-zinc-500'}`} />
-        )}
-        <div>
-          <span className="text-2xl font-bold text-white">{audit.overall_score}</span>
-          <span className="text-xs text-zinc-500">/100</span>
-        </div>
+      <div className="text-right">
+        <span className="text-2xl font-bold text-white">{audit.overall_score}</span>
+        <span className="text-xs text-zinc-500">/100</span>
       </div>
     </div>
   )

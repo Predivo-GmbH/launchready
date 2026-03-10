@@ -111,8 +111,8 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
           .eq('id', site.id)
         await fetchSites()
       }
-    } catch {
-      // Silently fail — the site card will just not update
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Audit failed. Please try again.')
     }
     setRunningId(null)
   }

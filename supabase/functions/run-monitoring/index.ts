@@ -10,10 +10,10 @@ serve(async (req: Request) => {
     return new Response('Method not allowed', { status: 405 })
   }
 
-  // Verify cron secret to prevent unauthorized calls
+  // Verify cron secret — mandatory to prevent unauthorized calls
   const authHeader = req.headers.get('authorization')
   const cronSecret = Deno.env.get('CRON_SECRET')
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return new Response('Unauthorized', { status: 401 })
   }
 
@@ -60,6 +60,7 @@ serve(async (req: Request) => {
         body: JSON.stringify({
           url: site.url,
           monitoring_site_id: site.id,
+          skip_save: true,
         }),
       })
 

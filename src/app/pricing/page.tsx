@@ -1,7 +1,11 @@
-'use client'
-
+import type { Metadata } from 'next'
 import { Check, Zap, Shield, BarChart3 } from 'lucide-react'
 import { PLANS } from '@/lib/plans'
+
+export const metadata: Metadata = {
+  title: 'Pricing — LaunchReady',
+  description: 'Simple, transparent pricing. Start free, upgrade for AI fix code and automated monitoring.',
+}
 
 const tierIcons = {
   free: Zap,
@@ -78,7 +82,7 @@ export default function Pricing() {
                 ) : (
                   <button
                     disabled
-                    className="block w-full text-center py-3 px-6 rounded-xl font-semibold transition-colors bg-zinc-700 text-zinc-400 cursor-not-allowed"
+                    className="block w-full text-center py-3 px-6 rounded-xl font-semibold bg-zinc-800/50 text-zinc-500 cursor-not-allowed border border-zinc-700/50 border-dashed"
                   >
                     {plan.cta}
                   </button>

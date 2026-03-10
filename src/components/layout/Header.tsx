@@ -28,8 +28,8 @@ export function Header() {
 
           {/* Desktop nav */}
           <nav className="hidden sm:flex items-center gap-3">
-            <a href="/#how-it-works" className="text-sm text-zinc-400 hover:text-white transition-colors">How it works</a>
-            <a href="/pricing" className="text-sm text-zinc-400 hover:text-white transition-colors">Pricing</a>
+            <a href="/#how-it-works" className="text-sm text-zinc-400 hover:text-white transition-colors py-2">How it works</a>
+            <a href="/pricing" className="text-sm text-zinc-400 hover:text-white transition-colors py-2">Pricing</a>
 
             {loading ? null : user ? (
               <>
@@ -55,6 +55,8 @@ export function Header() {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileOpen}
             className="sm:hidden p-2 text-zinc-400 hover:text-white transition-colors"
           >
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -64,8 +66,8 @@ export function Header() {
         {/* Mobile dropdown */}
         {mobileOpen && (
           <nav className="sm:hidden border-t border-zinc-800 px-4 py-4 space-y-3 bg-zinc-950">
-            <a href="/#how-it-works" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors">How it works</a>
-            <a href="/pricing" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors">Pricing</a>
+            <a href="/#how-it-works" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors py-1">How it works</a>
+            <a href="/pricing" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors py-1">Pricing</a>
 
             {loading ? null : user ? (
               <>
