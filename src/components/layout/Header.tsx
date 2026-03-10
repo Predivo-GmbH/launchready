@@ -47,8 +47,8 @@ export function Header() {
               </>
             )}
 
-            {!user && (
-              <a href="/#audit" className="text-sm px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium">Free Audit</a>
+            {user && (
+              <a href="/#audit" className="text-sm px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium">New Audit</a>
             )}
           </nav>
 
