@@ -11,11 +11,13 @@ export const metadata: Metadata = {
     description: 'Your website is live. Google doesn\'t know it exists. Fix that in 60 seconds.',
     type: 'website',
     url: 'https://launchready.predivo.ch',
+    images: [{ url: 'https://launchready.predivo.ch/og-image.png', width: 1200, height: 630, alt: 'LaunchReady — Post-Launch Website Audit' }],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'LaunchReady — Post-Launch Website Audit with AI Fix Code',
     description: 'Paste your URL, get a full post-launch SEO audit with copy-paste fix code — in 60 seconds.',
+    images: ['https://launchready.predivo.ch/og-image.png'],
   },
 }
 
