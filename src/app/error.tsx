@@ -1,6 +1,6 @@
 'use client'
 
-export default function Error({ reset }: { error: Error; reset: () => void }) {
+export default function Error({ error: _error, reset }: { error: Error; reset: () => void }) {
   return (
     <section className="py-24 px-4">
       <div className="max-w-md mx-auto text-center space-y-4">

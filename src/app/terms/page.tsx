@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Terms of Service — LaunchReady',
-  description: 'Terms of service for LaunchReady by Predivo GmbH.',
+  description: 'Terms of service for LaunchReady by Predivo GmbH. Read about acceptable use, plan features, intellectual property, liability, and cancellation policies.',
 }
 
 export default function Terms() {

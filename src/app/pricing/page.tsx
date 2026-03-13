@@ -4,7 +4,22 @@ import { PLANS } from '@/lib/plans'
 
 export const metadata: Metadata = {
   title: 'Pricing — LaunchReady',
-  description: 'Simple, transparent pricing. Start free, upgrade for AI fix code and automated monitoring.',
+  description: 'Simple, transparent pricing for LaunchReady. Start with a free audit, then upgrade for AI-generated fix code, automated weekly monitoring, and score tracking.',
+  openGraph: {
+    title: 'Pricing — LaunchReady',
+    description: 'Start with a free audit, then upgrade for AI-generated fix code, automated weekly monitoring, and score tracking.',
+  },
+}
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    { '@type': 'Question', name: 'Can I run a free audit without signing up?', acceptedAnswer: { '@type': 'Answer', text: 'Yes — paste any URL on the homepage and get your score instantly. No signup, no credit card.' } },
+    { '@type': 'Question', name: 'How is this different from Google Lighthouse?', acceptedAnswer: { '@type': 'Answer', text: 'Lighthouse gives you scores and developer-level recommendations. LaunchReady gives you the actual code to paste.' } },
+    { '@type': 'Question', name: 'Can I cancel anytime?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Cancel any time from your dashboard. No contracts, no hidden fees.' } },
+    { '@type': 'Question', name: 'What does the Pro monitoring include?', acceptedAnswer: { '@type': 'Answer', text: 'We re-audit your sites weekly and track score changes over time. If your score drops, you\'ll see it immediately in your dashboard.' } },
+  ],
 }
 
 const tierIcons = {
@@ -15,6 +30,8 @@ const tierIcons = {
 
 export default function Pricing() {
   return (
+    <>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
     <section className="py-24 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="text-center space-y-4 mb-16">
@@ -115,6 +132,7 @@ export default function Pricing() {
         </div>
       </div>
     </section>
+    </>
   )
 }
 

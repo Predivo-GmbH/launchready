@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy — LaunchReady',
-  description: 'Privacy policy for LaunchReady by Predivo GmbH. How we handle your data under DSG and GDPR.',
+  description: 'Privacy policy for LaunchReady by Predivo GmbH. Learn how we collect, process, and protect your data in compliance with Swiss DSG and EU GDPR regulations.',
 }
 
 export default function Privacy() {

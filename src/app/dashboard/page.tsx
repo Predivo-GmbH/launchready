@@ -56,7 +56,7 @@ export default function Dashboard() {
     return (
       <>
         <div className="py-24 px-4 text-center space-y-4">
-          <h1 className="text-2xl font-bold text-white">My Audits</h1>
+          <h1 className="text-2xl font-bold text-white">Dashboard</h1>
           <p className="text-zinc-400">Log in to see your audit history.</p>
           <button
             onClick={() => setShowAuth(true)}
@@ -76,6 +76,7 @@ export default function Dashboard() {
   return (
     <div className="py-12 px-4">
       <div className="max-w-4xl mx-auto space-y-12">
+        <h1 className="sr-only">Dashboard</h1>
         {/* Monitoring section */}
         {limits.monitoring && (
           <MonitoredSites plan={plan} />
@@ -97,7 +98,7 @@ export default function Dashboard() {
         {/* Manual audits */}
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-white">My Audits</h1>
+            <h2 className="text-2xl font-bold text-white">My Audits</h2>
             <a href="/" className="text-sm px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium">New Audit</a>
           </div>
 

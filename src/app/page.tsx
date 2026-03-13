@@ -2,9 +2,31 @@ import { AuditForm } from '@/components/audit/AuditForm'
 import { HowItWorks } from '@/components/landing/HowItWorks'
 import { Comparison } from '@/components/landing/Comparison'
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'LaunchReady',
+  applicationCategory: 'WebApplication',
+  operatingSystem: 'Web',
+  description: 'Post-launch website audit tool with AI-generated fix code for SEO, meta tags, sitemaps, and more.',
+  url: 'https://launchready.predivo.ch',
+  offers: [
+    { '@type': 'Offer', price: '0', priceCurrency: 'USD', name: 'Free' },
+    { '@type': 'Offer', price: '19', priceCurrency: 'USD', name: 'Starter' },
+    { '@type': 'Offer', price: '39', priceCurrency: 'USD', name: 'Pro' },
+  ],
+  creator: {
+    '@type': 'Organization',
+    name: 'Predivo GmbH',
+    url: 'https://launchready.predivo.ch',
+    address: { '@type': 'PostalAddress', addressLocality: 'Küssnacht am Rigi', addressCountry: 'CH' },
+  },
+}
+
 export default function Home() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <section id="audit" className="py-24 px-4">
         <div className="max-w-3xl mx-auto text-center space-y-8">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium">

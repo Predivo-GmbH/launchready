@@ -11,13 +11,11 @@ export const metadata: Metadata = {
     description: 'Your website is live. Google doesn\'t know it exists. Fix that in 60 seconds.',
     type: 'website',
     url: 'https://launchready.predivo.ch',
-    images: [{ url: 'https://launchready.predivo.ch/og-image.png', width: 1200, height: 630, alt: 'LaunchReady — Post-Launch Website Audit' }],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: 'LaunchReady — Post-Launch Website Audit with AI Fix Code',
     description: 'Paste your URL, get a full post-launch SEO audit with copy-paste fix code — in 60 seconds.',
-    images: ['https://launchready.predivo.ch/og-image.png'],
   },
 }
 
@@ -25,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -36,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             Skip to content
           </a>
           <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 text-center text-sm text-amber-400">
-            This is currently under active development and is not yet functional. Features, content, and design may change without notice.
+            This site is currently under active development and is not yet functional. Features, content, and design may change without notice.
           </div>
           <Header />
 
