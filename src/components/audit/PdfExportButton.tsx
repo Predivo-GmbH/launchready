@@ -7,9 +7,11 @@ import { categoryLabel } from '@/lib/utils'
 
 export function PdfExportButton({ audit }: { audit: AuditResult }) {
   const [generating, setGenerating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function handleExport() {
     setGenerating(true)
+    setError(null)
     try {
       // Dynamic import to avoid loading jspdf in the main bundle
       const { default: jsPDF } = await import('jspdf')
@@ -157,19 +159,23 @@ export function PdfExportButton({ audit }: { audit: AuditResult }) {
       doc.save(`launchready-audit-${domain}.pdf`)
     } catch (err) {
       console.error('PDF export failed:', err)
+      setError('PDF export failed. Please try again.')
     } finally {
       setGenerating(false)
     }
   }
 
   return (
-    <button
-      onClick={handleExport}
-      disabled={generating}
-      className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 shrink-0"
-    >
-      {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
-      {generating ? 'Generating...' : 'Export PDF'}
-    </button>
+    <div className="flex flex-col items-end gap-1">
+      <button
+        onClick={handleExport}
+        disabled={generating}
+        className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 shrink-0"
+      >
+        {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
+        {generating ? 'Generating...' : 'Export PDF'}
+      </button>
+      {error && <p className="text-xs text-red-400">{error}</p>}
+    </div>
   )
 }

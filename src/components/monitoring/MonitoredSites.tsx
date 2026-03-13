@@ -56,6 +56,15 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
       normalizedUrl = `https://${normalizedUrl}`
     }
 
+    // Validate URL format
+    try {
+      new URL(normalizedUrl)
+    } catch {
+      setError('Please enter a valid URL (e.g. example.com)')
+      setAdding(false)
+      return
+    }
+
     // Check duplicate
     if (sites.some(s => s.url === normalizedUrl)) {
       setError('This site is already being monitored.')
@@ -78,12 +87,17 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
   }
 
   async function removeSite(id: string) {
-    await supabase.from('monitored_sites').delete().eq('id', id)
+    const { error: deleteError } = await supabase.from('monitored_sites').delete().eq('id', id)
+    if (deleteError) {
+      setError(deleteError.message)
+      return
+    }
     setSites(s => s.filter(site => site.id !== id))
   }
 
   async function runAuditNow(site: MonitoredSite) {
     setRunningId(site.id)
+    setError(null)
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' }
       const { data: { session } } = await supabase.auth.getSession()
@@ -92,11 +106,15 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
       }
 
       const edgeFnUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/run-audit`
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 60000)
       const resp = await fetch(edgeFnUrl, {
         method: 'POST',
         headers,
         body: JSON.stringify({ url: site.url, monitoring_site_id: site.id }),
+        signal: controller.signal,
       })
+      clearTimeout(timeout)
 
       if (resp.ok) {
         const result = await resp.json()
@@ -110,6 +128,9 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
           })
           .eq('id', site.id)
         await fetchSites()
+      } else {
+        const data = await resp.json().catch(() => ({}))
+        setError(data.error || `Audit failed (HTTP ${resp.status})`)
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Audit failed. Please try again.')
@@ -119,7 +140,7 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
 
   if (loading) {
     return (
-      <div className="animate-pulse text-zinc-500 text-center py-8">Loading monitored sites...</div>
+      <div className="animate-pulse text-zinc-500 text-center py-8" role="status" aria-live="polite">Loading monitored sites...</div>
     )
   }
 
@@ -153,6 +174,7 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
               value={newUrl}
               onChange={e => setNewUrl(e.target.value)}
               placeholder="https://example.com"
+              aria-label="Site URL to monitor"
               className="w-full pl-10 pr-4 py-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 text-sm"
               disabled={adding}
             />
@@ -168,7 +190,7 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
       )}
 
       {error && (
-        <div className="mb-4 bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-sm text-red-400">
+        <div role="alert" className="mb-4 bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-sm text-red-400">
           {error}
         </div>
       )}
@@ -230,15 +252,15 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
                   <button
                     onClick={() => runAuditNow(site)}
                     disabled={isRunning}
-                    className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors disabled:opacity-50"
-                    title="Run audit now"
+                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors disabled:opacity-50"
+                    aria-label="Run audit now"
                   >
                     {isRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                   </button>
                   <button
                     onClick={() => removeSite(site.id)}
-                    className="p-2 text-zinc-400 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-colors"
-                    title="Remove site"
+                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-zinc-400 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-colors"
+                    aria-label="Remove site"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

@@ -36,8 +36,10 @@ export function useAuth() {
       .select('plan')
       .eq('user_id', user.id)
       .single()
-      .then(({ data }) => {
-        setPlan((data?.plan as PlanId) || 'free')
+      .then(({ data, error: planErr }) => {
+        if (planErr) console.error('Failed to fetch plan:', planErr.message)
+        const p = data?.plan
+        setPlan(p === 'starter' || p === 'pro' ? p : 'free')
       })
   }, [user])
 

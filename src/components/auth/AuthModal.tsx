@@ -109,7 +109,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
   // ── Set password after OTP verification ──
   async function setUserPassword(e: React.FormEvent) {
     e.preventDefault()
-    if (password.length < 6) { setError('Password must be at least 6 characters'); return }
+    if (password.length < 8) { setError('Password must be at least 8 characters'); return }
     setError(null)
     setLoading(true)
     try {
@@ -207,6 +207,8 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
             value={digit}
             onChange={e => handleOtpChange(i, e.target.value)}
             onKeyDown={e => handleOtpKeyDown(i, e)}
+            autoComplete="one-time-code"
+            aria-label={`Digit ${i + 1} of 6`}
             className="w-11 h-13 text-center text-xl font-bold bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
             autoFocus={i === 0}
           />
@@ -226,13 +228,13 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
 
         <form onSubmit={sendSignupOtp} className="space-y-4">
           <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required autoComplete="email" autoFocus className={INPUT} />
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
 
           <p className="text-xs text-zinc-500">
             By signing up, you agree to our{' '}
-            <a href="/terms" target="_blank" className="text-blue-400 hover:text-blue-300">Terms of Service</a>
+            <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">Terms of Service</a>
             {' '}and{' '}
-            <a href="/privacy" target="_blank" className="text-blue-400 hover:text-blue-300">Privacy Policy</a>.
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">Privacy Policy</a>.
           </p>
 
           <button type="submit" disabled={loading} className={BTN_PRIMARY}>
@@ -264,7 +266,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
 
         <form onSubmit={e => verifyOtp(e, 'set-password')} className="space-y-4">
           <OtpInputRow />
-          {error && <p className="text-sm text-red-400 text-center">{error}</p>}
+          {error && <p role="alert" className="text-sm text-red-400 text-center">{error}</p>}
           <button type="submit" disabled={loading || otpValue().length !== 6} className={BTN_PRIMARY}>
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             Verify email
@@ -293,10 +295,10 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
 
         <form onSubmit={setUserPassword} className="space-y-4">
           <div>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Create a password" required minLength={6} autoComplete="new-password" autoFocus className={INPUT} />
-            <p className="text-xs text-zinc-500 mt-1.5">Minimum 6 characters</p>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Create a password" required minLength={8} autoComplete="new-password" autoFocus className={INPUT} />
+            <p className="text-xs text-zinc-500 mt-1.5">Minimum 8 characters</p>
           </div>
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
           <button type="submit" disabled={loading} className={BTN_PRIMARY}>
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             Set password
@@ -319,7 +321,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
 
         <div className="space-y-4">
           <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" autoComplete="email" autoFocus className={INPUT} />
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
 
           <button onClick={() => { if (!email.trim()) { setError('Enter your email'); return }; sendLoginOtp() }} disabled={loading} className={BTN_PRIMARY}>
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -386,7 +388,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
 
         <form onSubmit={e => verifyOtp(e, 'done')} className="space-y-4">
           <OtpInputRow />
-          {error && <p className="text-sm text-red-400 text-center">{error}</p>}
+          {error && <p role="alert" className="text-sm text-red-400 text-center">{error}</p>}
           <button type="submit" disabled={loading || otpValue().length !== 6} className={BTN_PRIMARY}>
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             Log in
@@ -410,7 +412,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
 
         <form onSubmit={loginWithPassword} className="space-y-4">
           <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required autoComplete="email" className={INPUT} />
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" required minLength={6} autoComplete="current-password" autoFocus className={INPUT} />
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" required minLength={8} autoComplete="current-password" autoFocus className={INPUT} />
 
           <div className="text-right">
             <button type="button" onClick={() => { setError(null); setStep('forgot') }} className="text-xs text-zinc-500 hover:text-zinc-300">
@@ -418,7 +420,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
             </button>
           </div>
 
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
 
           <button type="submit" disabled={loading} className={BTN_PRIMARY}>
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -439,7 +441,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
 
         <form onSubmit={sendResetLink} className="space-y-4">
           <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required autoComplete="email" autoFocus className={INPUT} />
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
           <button type="submit" disabled={loading} className={BTN_PRIMARY}>
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             Send reset link
@@ -478,10 +480,18 @@ function BackButton({ onClick }: { onClick: () => void }) {
 }
 
 function Overlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [onClose])
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Authentication" onClick={onClose}>
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 max-w-md w-full relative" onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} aria-label="Close dialog" className="absolute top-4 right-4 text-zinc-500 hover:text-white p-1"><X className="w-5 h-5" /></button>
+        <button onClick={onClose} aria-label="Close dialog" className="absolute top-4 right-4 text-zinc-500 hover:text-white p-2"><X className="w-5 h-5" /></button>
         {children}
       </div>
     </div>

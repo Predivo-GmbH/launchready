@@ -36,7 +36,7 @@ const ALLOWED_ORIGINS = [
 
 function getCorsHeaders(req: Request) {
   const origin = req.headers.get('origin') || ''
-  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ''
   return {
     'Access-Control-Allow-Origin': allowed,
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -186,8 +186,11 @@ serve(async (req: Request) => {
     })
   } catch (err) {
     const cors = getCorsHeaders(req)
-    const message = err instanceof Error ? err.message : 'Audit failed'
-    console.error('Audit error:', message)
+    const rawMessage = err instanceof Error ? err.message : 'Audit failed'
+    console.error('Audit error:', rawMessage)
+    // Sanitize error: only return safe messages to the client
+    const safeMessages = ['Timed out', 'Page too large', 'Could not fetch', 'private/internal', 'Invalid URL', 'Audit failed']
+    const message = safeMessages.find(m => rawMessage.includes(m)) ? rawMessage : 'Audit failed. Please try again.'
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...cors, 'Content-Type': 'application/json' },
@@ -202,16 +205,34 @@ async function runAudit(url: string, shouldGenerateFixes = true) {
   const parsed = new URL(url)
   const baseUrl = `${parsed.protocol}//${parsed.host}`
 
-  const resp = await fetch(url, {
-    headers: { 'User-Agent': 'LaunchReady/1.0 (audit bot)' },
-    redirect: 'follow',
-  })
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 15000)
+
+  let resp: Response
+  try {
+    resp = await fetch(url, {
+      headers: { 'User-Agent': 'LaunchReady/1.0 (audit bot)' },
+      redirect: 'follow',
+      signal: controller.signal,
+    })
+  } catch (err) {
+    clearTimeout(timeout)
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error(`Timed out fetching ${url} (15s limit)`)
+    }
+    throw err
+  } finally {
+    clearTimeout(timeout)
+  }
 
   if (!resp.ok) {
     throw new Error(`Could not fetch ${url}: ${resp.status} ${resp.statusText}`)
   }
 
   const html = await resp.text()
+  if (html.length > 5_000_000) {
+    throw new Error('Page too large to audit (>5MB)')
+  }
   const $ = cheerio.load(html)
 
   checks.push(...checkMetaTags($, url))

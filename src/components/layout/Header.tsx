@@ -27,7 +27,7 @@ export function Header() {
           </a>
 
           {/* Desktop nav */}
-          <nav className="hidden sm:flex items-center gap-3">
+          <nav aria-label="Main navigation" className="hidden sm:flex items-center gap-3">
             <a href="/#how-it-works" className="text-sm text-zinc-400 hover:text-white transition-colors py-2">How it works</a>
             <a href="/pricing" className="text-sm text-zinc-400 hover:text-white transition-colors py-2">Pricing</a>
 
@@ -36,7 +36,7 @@ export function Header() {
                 <a href="/dashboard" className="text-sm text-zinc-400 hover:text-white transition-colors flex items-center gap-1">
                   <History className="w-4 h-4" />My Audits
                 </a>
-                <button onClick={signOut} className="text-sm text-zinc-400 hover:text-white transition-colors flex items-center gap-1">
+                <button onClick={() => signOut()} aria-label="Sign out" className="text-sm text-zinc-400 hover:text-white transition-colors flex items-center gap-1">
                   <LogOut className="w-4 h-4" />
                 </button>
               </>
@@ -65,14 +65,14 @@ export function Header() {
 
         {/* Mobile dropdown */}
         {mobileOpen && (
-          <nav className="sm:hidden border-t border-zinc-800 px-4 py-4 space-y-3 bg-zinc-950">
+          <nav aria-label="Mobile navigation" className="sm:hidden border-t border-zinc-800 px-4 py-4 space-y-3 bg-zinc-950">
             <a href="/#how-it-works" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors py-1">How it works</a>
             <a href="/pricing" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors py-1">Pricing</a>
 
             {loading ? null : user ? (
               <>
                 <a href="/dashboard" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors">My Audits</a>
-                <button onClick={() => { signOut(); setMobileOpen(false) }} className="block text-sm text-zinc-400 hover:text-white transition-colors">Sign out</button>
+                <button onClick={async () => { await signOut(); setMobileOpen(false) }} className="block text-sm text-zinc-400 hover:text-white transition-colors">Sign out</button>
               </>
             ) : (
               <>

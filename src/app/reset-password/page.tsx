@@ -31,8 +31,8 @@ export default function ResetPassword() {
       return
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters')
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters')
       return
     }
 
@@ -90,11 +90,11 @@ export default function ResetPassword() {
               onChange={e => setPassword(e.target.value)}
               placeholder="New password"
               required
-              minLength={6}
+              minLength={8}
               autoComplete="new-password"
               className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-base placeholder-zinc-500 focus:outline-none focus:border-blue-500"
             />
-            <p className="text-xs text-zinc-500 mt-1.5">Minimum 6 characters</p>
+            <p className="text-xs text-zinc-500 mt-1.5">Minimum 8 characters</p>
           </div>
           <input
             type="password"
@@ -102,12 +102,12 @@ export default function ResetPassword() {
             onChange={e => setConfirm(e.target.value)}
             placeholder="Confirm new password"
             required
-            minLength={6}
+            minLength={8}
             autoComplete="new-password"
             className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-base placeholder-zinc-500 focus:outline-none focus:border-blue-500"
           />
 
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
 
           <button
             type="submit"

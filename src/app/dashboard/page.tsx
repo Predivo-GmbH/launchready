@@ -37,7 +37,8 @@ export default function Dashboard() {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(50)
-      .then(({ data }) => {
+      .then(({ data, error: fetchErr }) => {
+        if (fetchErr) console.error('Failed to load audits:', fetchErr.message)
         setAudits(data ?? [])
         setFetching(false)
       })
@@ -46,7 +47,7 @@ export default function Dashboard() {
   if (loading || fetching) {
     return (
       <div className="py-24 text-center">
-        <div className="animate-pulse text-zinc-500">Loading...</div>
+        <div className="animate-pulse text-zinc-500" role="status" aria-live="polite">Loading...</div>
       </div>
     )
   }
@@ -84,7 +85,7 @@ export default function Dashboard() {
         {!limits.monitoring && (
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-4">
             <div className="flex-1">
-              <h3 className="text-sm font-semibold text-white mb-1">Automated Monitoring</h3>
+              <h2 className="text-sm font-semibold text-white mb-1">Automated Monitoring</h2>
               <p className="text-xs text-zinc-400">Track up to 5 sites with weekly re-audits and score change alerts.</p>
             </div>
             <a href="/pricing" className="text-sm px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium shrink-0">

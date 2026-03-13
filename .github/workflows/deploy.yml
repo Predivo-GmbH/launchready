@@ -26,7 +26,7 @@ jobs:
       - name: Deploy via FTP (zero-downtime)
         run: |
           sudo apt-get install -y lftp
-          FTP_CONN="set ftp:ssl-allow no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5; open -u ${{ secrets.FTP_USER }},${{ secrets.FTP_PASS }} ${{ secrets.FTP_HOST }};"
+          FTP_CONN="set ftp:ssl-allow yes; set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5; open -u ${{ secrets.FTP_USER }},${{ secrets.FTP_PASS }} ${{ secrets.FTP_HOST }};"
 
           # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
           lftp -e "
