@@ -1,0 +1,36 @@
+{
+  "case_id": "T2",
+  "case_name": "Blog missing sitemap + robots + JSON-LD",
+  "model": "claude-haiku-4-5-20251001",
+  "prompt_version": "prod_v1",
+  "fixes": [
+    {
+      "id": "sitemap-exists",
+      "fix_code": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n  <url>\n    <loc>https://example-blog.com/</loc>\n    <lastmod>2024-01-15</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>\n  <url>\n    <loc>https://example-blog.com/brewing-guides</loc>\n    <lastmod>2024-01-15</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n  <url>\n    <loc>https://example-blog.com/bean-reviews</loc>\n    <lastmod>2024-01-15</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n  <url>\n    <loc>https://example-blog.com/cafe-culture</loc>\n    <lastmod>2024-01-15</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n</urlset>",
+      "fix_explanation": "Create a sitemap.xml file that lists all your important pages to help search engines discover and crawl your content more efficiently.",
+      "fix_location": "Create a new file named sitemap.xml in the root directory (/sitemap.xml) and upload it to your server."
+    },
+    {
+      "id": "robots-txt",
+      "fix_code": "User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /private/\nDisallow: /?s=\n\nSitemap: https://example-blog.com/sitemap.xml",
+      "fix_explanation": "Create a robots.txt file to guide search engines on which pages to crawl and include a reference to your sitemap for better indexing.",
+      "fix_location": "Create a new file named robots.txt in the root directory (/robots.txt) and upload it to your server."
+    },
+    {
+      "id": "jsonld",
+      "fix_code": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Organization\",\n  \"name\": \"The Daily Grind\",\n  \"url\": \"https://example-blog.com\",\n  \"description\": \"Explore the world of specialty coffee. Brewing guides, bean reviews, and café culture from around the globe.\",\n  \"sameAs\": [\n    \"https://www.facebook.com/thedailygrind\",\n    \"https://www.twitter.com/thedailygrind\",\n    \"https://www.instagram.com/thedailygrind\"\n  ],\n  \"logo\": \"https://example-blog.com/logo.png\",\n  \"contactPoint\": {\n    \"@type\": \"ContactPoint\",\n    \"contactType\": \"Customer Service\",\n    \"email\": \"contact@example-blog.com\"\n  }\n}\n</script>",
+      "fix_explanation": "Add JSON-LD structured data to help search engines understand your organization and improve your visibility in search results and rich snippets.",
+      "fix_location": "Add this code block inside the <head> section of your HTML, after the existing meta tags and before the closing </head> tag."
+    }
+  ],
+  "expected_fix_count": 3,
+  "actual_fix_count": 3,
+  "json_parsed_clean": true,
+  "json_repaired": false,
+  "prompt_tokens": 398,
+  "completion_tokens": 931,
+  "cost_usd": 0.0040424,
+  "duration_ms": 4746,
+  "timestamp": "2026-03-17T16:07:55.591Z",
+  "raw_text": "```json\n[\n  {\n    \"id\": \"sitemap-exists\",\n    \"fix_code\": \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>\\n<urlset xmlns=\\\"http://www.sitemaps.org/schemas/sitemap/0.9\\\">\\n  <url>\\n    <loc>https://example-blog.com/</loc>\\n    <lastmod>2024-01-15</lastmod>\\n    <changefreq>weekly</changefreq>\\n    <priority>1.0</priority>\\n  </url>\\n  <url>\\n    <loc>https://example-blog.com/brewing-guides</loc>\\n    <lastmod>2024-01-15</lastmod>\\n    <changefreq>monthly</changefreq>\\n    <priority>0.8</priority>\\n  </url>\\n  <url>\\n    <loc>https://example-blog.com/bean-reviews</loc>\\n    <lastmod>2024-01-15</lastmod>\\n    <changefreq>monthly</changefreq>\\n    <priority>0.8</priority>\\n  </url>\\n  <url>\\n    <loc>https://example-blog.com/cafe-culture</loc>\\n    <lastmod>2024-01-15</lastmod>\\n    <changefreq>monthly</changefreq>\\n    <priority>0.8</priority>\\n  </url>\\n</urlset>\",\n    \"fix_explanation\": \"Create a sitemap.xml file that lists all your important pages to help search engines discover and crawl your content more efficiently.\",\n    \"fix_location\": \"Create a new file named sitemap.xml in the root directory (/sitemap.xml) and upload it to your server.\"\n  },\n  {\n    \"id\": \"robots-txt\",\n    \"fix_code\": \"User-agent: *\\nAllow: /\\nDisallow: /admin/\\nDisallow: /private/\\nDisallow: /?s=\\n\\nSitemap: https://example-blog.com/sitemap.xml\",\n    \"fix_explanation\": \"Create a robots.txt file to guide search engines on which pages to crawl and include a reference to your sitemap for better indexing.\",\n    \"fix_location\": \"Create a new file named robots.txt in the root directory (/robots.txt) and upload it to your server.\"\n  },\n  {\n    \"id\": \"jsonld\",\n    \"fix_code\": \"<script type=\\\"application/ld+json\\\">\\n{\\n  \\\"@context\\\": \\\"https://schema.org\\\",\\n  \\\"@type\\\": \\\"Organization\\\",\\n  \\\"name\\\": \\\"The Daily Grind\\\",\\n  \\\"url\\\": \\\"https://example-blog.com\\\",\\n  \\\"description\\\": \\\"Explore the world of specialty coffee. Brewing guides, bean reviews, and café culture from around the globe.\\\",\\n  \\\"sameAs\\\": [\\n    \\\"https://www.facebook.com/thedailygrind\\\",\\n    \\\"https://www.twitter.com/thedailygrind\\\",\\n    \\\"https://www.instagram.com/thedailygrind\\\"\\n  ],\\n  \\\"logo\\\": \\\"https://example-blog.com/logo.png\\\",\\n  \\\"contactPoint\\\": {\\n    \\\"@type\\\": \\\"ContactPoint\\\",\\n    \\\"contactType\\\": \\\"Customer Service\\\",\\n    \\\"email\\\": \\\"contact@example-blog.com\\\"\\n  }\\n}\\n</script>\",\n    \"fix_explanation\": \"Add JSON-LD structured data to help search engines understand your organization and improve your visibility in search results and rich snippets.\",\n    \"fix_location\": \"Add this code block inside the <head> section of your HTML, after the existing meta tags and before the closing </head> tag.\"\n  }\n]\n```"
+}

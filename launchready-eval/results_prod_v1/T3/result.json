@@ -1,0 +1,42 @@
+{
+  "case_id": "T3",
+  "case_name": "E-commerce missing canonical + JSON-LD + security headers",
+  "model": "claude-haiku-4-5-20251001",
+  "prompt_version": "prod_v1",
+  "fixes": [
+    {
+      "id": "meta-canonical",
+      "fix_code": "<link rel=\"canonical\" href=\"https://shop.example.com/products/widget-pro\">",
+      "fix_explanation": "Adds a canonical URL tag to prevent duplicate content issues and consolidate SEO value. This tells search engines this is the primary version of the page.",
+      "fix_location": "Inside <head>, after the meta description tag"
+    },
+    {
+      "id": "jsonld",
+      "fix_code": "<script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"Product\",\"name\":\"Widget Pro\",\"description\":\"The Widget Pro is our flagship product. Built with precision engineering and available in 5 colors. Free shipping on orders over $50.\",\"image\":\"https://shop.example.com/images/widget-pro.jpg\",\"brand\":{\"@type\":\"Brand\",\"name\":\"Example Shop\"},\"offers\":{\"@type\":\"Offer\",\"url\":\"https://shop.example.com/products/widget-pro\",\"availability\":\"https://schema.org/InStock\"}}</script>",
+      "fix_explanation": "Adds structured data in JSON-LD format that helps search engines understand the product details, improving rich snippet visibility and SEO performance.",
+      "fix_location": "Inside <head>, after the canonical tag"
+    },
+    {
+      "id": "header-xcto",
+      "fix_code": "X-Content-Type-Options: nosniff",
+      "fix_explanation": "Configure your web server (Apache, Nginx, etc.) to send this header with all responses. This prevents MIME-type sniffing attacks and improves security.",
+      "fix_location": "Server configuration file (e.g., .htaccess for Apache, nginx.conf for Nginx)"
+    },
+    {
+      "id": "header-xfo",
+      "fix_code": "X-Frame-Options: SAMEORIGIN",
+      "fix_explanation": "Configure your web server to send this header with all responses. This prevents clickjacking attacks by restricting how your page can be embedded in frames.",
+      "fix_location": "Server configuration file (e.g., .htaccess for Apache, nginx.conf for Nginx)"
+    }
+  ],
+  "expected_fix_count": 4,
+  "actual_fix_count": 4,
+  "json_parsed_clean": true,
+  "json_repaired": false,
+  "prompt_tokens": 441,
+  "completion_tokens": 568,
+  "cost_usd": 0.0026248,
+  "duration_ms": 3676,
+  "timestamp": "2026-03-17T16:08:00.281Z",
+  "raw_text": "```json\n[\n  {\n    \"id\": \"meta-canonical\",\n    \"fix_code\": \"<link rel=\\\"canonical\\\" href=\\\"https://shop.example.com/products/widget-pro\\\">\",\n    \"fix_explanation\": \"Adds a canonical URL tag to prevent duplicate content issues and consolidate SEO value. This tells search engines this is the primary version of the page.\",\n    \"fix_location\": \"Inside <head>, after the meta description tag\"\n  },\n  {\n    \"id\": \"jsonld\",\n    \"fix_code\": \"<script type=\\\"application/ld+json\\\">{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"Product\\\",\\\"name\\\":\\\"Widget Pro\\\",\\\"description\\\":\\\"The Widget Pro is our flagship product. Built with precision engineering and available in 5 colors. Free shipping on orders over $50.\\\",\\\"image\\\":\\\"https://shop.example.com/images/widget-pro.jpg\\\",\\\"brand\\\":{\\\"@type\\\":\\\"Brand\\\",\\\"name\\\":\\\"Example Shop\\\"},\\\"offers\\\":{\\\"@type\\\":\\\"Offer\\\",\\\"url\\\":\\\"https://shop.example.com/products/widget-pro\\\",\\\"availability\\\":\\\"https://schema.org/InStock\\\"}}</script>\",\n    \"fix_explanation\": \"Adds structured data in JSON-LD format that helps search engines understand the product details, improving rich snippet visibility and SEO performance.\",\n    \"fix_location\": \"Inside <head>, after the canonical tag\"\n  },\n  {\n    \"id\": \"header-xcto\",\n    \"fix_code\": \"X-Content-Type-Options: nosniff\",\n    \"fix_explanation\": \"Configure your web server (Apache, Nginx, etc.) to send this header with all responses. This prevents MIME-type sniffing attacks and improves security.\",\n    \"fix_location\": \"Server configuration file (e.g., .htaccess for Apache, nginx.conf for Nginx)\"\n  },\n  {\n    \"id\": \"header-xfo\",\n    \"fix_code\": \"X-Frame-Options: SAMEORIGIN\",\n    \"fix_explanation\": \"Configure your web server to send this header with all responses. This prevents clickjacking attacks by restricting how your page can be embedded in frames.\",\n    \"fix_location\": \"Server configuration file (e.g., .htaccess for Apache, nginx.conf for Nginx)\"\n  }\n]\n```"
+}

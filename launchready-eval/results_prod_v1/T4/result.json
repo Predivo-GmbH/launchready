@@ -1,0 +1,36 @@
+{
+  "case_id": "T4",
+  "case_name": "Portfolio missing viewport + H1 + meta description",
+  "model": "claude-haiku-4-5-20251001",
+  "prompt_version": "prod_v1",
+  "fixes": [
+    {
+      "id": "viewport",
+      "fix_code": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">",
+      "fix_explanation": "This meta tag tells mobile browsers how to scale and display your page, ensuring proper responsiveness across all device sizes.",
+      "fix_location": "Add after the <meta charset> tag in <head>"
+    },
+    {
+      "id": "heading-h1",
+      "fix_code": "<h1>Jane Doe — UX Designer & Illustrator</h1>",
+      "fix_explanation": "Every page needs exactly one H1 heading that describes the main content; search engines use this to understand your page's primary topic.",
+      "fix_location": "Add at the beginning of the <body> content, typically as the first heading"
+    },
+    {
+      "id": "meta-description",
+      "fix_code": "<meta name=\"description\" content=\"Explore Jane Doe's UX design and illustration portfolio. Award-winning designer specializing in digital experiences and visual storytelling.\">",
+      "fix_explanation": "A meta description summarizes your page content in 120-160 characters and appears in search results, improving click-through rates.",
+      "fix_location": "Add after the <title> tag in <head>"
+    }
+  ],
+  "expected_fix_count": 3,
+  "actual_fix_count": 3,
+  "json_parsed_clean": true,
+  "json_repaired": false,
+  "prompt_tokens": 361,
+  "completion_tokens": 325,
+  "cost_usd": 0.0015888,
+  "duration_ms": 2628,
+  "timestamp": "2026-03-17T16:08:03.916Z",
+  "raw_text": "```json\n[\n  {\n    \"id\": \"viewport\",\n    \"fix_code\": \"<meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0\\\">\",\n    \"fix_explanation\": \"This meta tag tells mobile browsers how to scale and display your page, ensuring proper responsiveness across all device sizes.\",\n    \"fix_location\": \"Add after the <meta charset> tag in <head>\"\n  },\n  {\n    \"id\": \"heading-h1\",\n    \"fix_code\": \"<h1>Jane Doe — UX Designer & Illustrator</h1>\",\n    \"fix_explanation\": \"Every page needs exactly one H1 heading that describes the main content; search engines use this to understand your page's primary topic.\",\n    \"fix_location\": \"Add at the beginning of the <body> content, typically as the first heading\"\n  },\n  {\n    \"id\": \"meta-description\",\n    \"fix_code\": \"<meta name=\\\"description\\\" content=\\\"Explore Jane Doe's UX design and illustration portfolio. Award-winning designer specializing in digital experiences and visual storytelling.\\\">\",\n    \"fix_explanation\": \"A meta description summarizes your page content in 120-160 characters and appears in search results, improving click-through rates.\",\n    \"fix_location\": \"Add after the <title> tag in <head>\"\n  }\n]\n```"
+}

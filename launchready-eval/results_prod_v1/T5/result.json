@@ -1,0 +1,60 @@
+{
+  "case_id": "T5",
+  "case_name": "Minimal site missing almost everything",
+  "model": "claude-haiku-4-5-20251001",
+  "prompt_version": "prod_v1",
+  "fixes": [
+    {
+      "id": "meta-description",
+      "fix_code": "<meta name=\"description\" content=\"LaunchPad helps startups ship production-ready MVPs in 48 hours. Get your idea to market fast with our proven framework and expert guidance.\">",
+      "fix_explanation": "Add a meta description that summarizes your page content and includes relevant keywords for search engines and social sharing.",
+      "fix_location": "Inside <head> tag, after <title>"
+    },
+    {
+      "id": "meta-canonical",
+      "fix_code": "<link rel=\"canonical\" href=\"https://startup-mvp.io/\">",
+      "fix_explanation": "Add a canonical URL to tell search engines this is the primary version of the page and prevent duplicate content issues.",
+      "fix_location": "Inside <head> tag, after meta tags"
+    },
+    {
+      "id": "og-title",
+      "fix_code": "<meta property=\"og:title\" content=\"LaunchPad — Ship Your MVP in 48 Hours\">",
+      "fix_explanation": "Add Open Graph title tag to control how your page appears when shared on social media platforms.",
+      "fix_location": "Inside <head> tag, with other meta tags"
+    },
+    {
+      "id": "og-description",
+      "fix_code": "<meta property=\"og:description\" content=\"LaunchPad helps startups ship production-ready MVPs in 48 hours. Get your idea to market fast with our proven framework and expert guidance.\">",
+      "fix_explanation": "Add Open Graph description to improve social media preview and engagement when your page is shared.",
+      "fix_location": "Inside <head> tag, with other og: meta tags"
+    },
+    {
+      "id": "og-image",
+      "fix_code": "<meta property=\"og:image\" content=\"https://startup-mvp.io/og-image.jpg\">",
+      "fix_explanation": "Add an Open Graph image (1200x630px recommended) to display a visual preview when the page is shared on social media.",
+      "fix_location": "Inside <head> tag, with other og: meta tags"
+    },
+    {
+      "id": "sitemap-exists",
+      "fix_code": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n  <url>\n    <loc>https://startup-mvp.io/</loc>\n    <lastmod>2024-01-10</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>\n</urlset>",
+      "fix_explanation": "Create a sitemap.xml file at the root of your domain to help search engines discover and index all your pages.",
+      "fix_location": "Create new file /sitemap.xml at domain root"
+    },
+    {
+      "id": "jsonld",
+      "fix_code": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Organization\",\n  \"name\": \"LaunchPad\",\n  \"url\": \"https://startup-mvp.io\",\n  \"description\": \"Ship your MVP in 48 hours. LaunchPad provides a proven framework for startups to launch production-ready products quickly.\",\n  \"sameAs\": []\n}\n</script>",
+      "fix_explanation": "Add JSON-LD structured data to help search engines understand your organization and improve rich snippet display in search results.",
+      "fix_location": "Inside <head> tag, before closing </head>"
+    }
+  ],
+  "expected_fix_count": 7,
+  "actual_fix_count": 7,
+  "json_parsed_clean": true,
+  "json_repaired": false,
+  "prompt_tokens": 391,
+  "completion_tokens": 921,
+  "cost_usd": 0.0039968,
+  "duration_ms": 5356,
+  "timestamp": "2026-03-17T16:08:10.283Z",
+  "raw_text": "```json\n[\n  {\n    \"id\": \"meta-description\",\n    \"fix_code\": \"<meta name=\\\"description\\\" content=\\\"LaunchPad helps startups ship production-ready MVPs in 48 hours. Get your idea to market fast with our proven framework and expert guidance.\\\">\",\n    \"fix_explanation\": \"Add a meta description that summarizes your page content and includes relevant keywords for search engines and social sharing.\",\n    \"fix_location\": \"Inside <head> tag, after <title>\"\n  },\n  {\n    \"id\": \"meta-canonical\",\n    \"fix_code\": \"<link rel=\\\"canonical\\\" href=\\\"https://startup-mvp.io/\\\">\",\n    \"fix_explanation\": \"Add a canonical URL to tell search engines this is the primary version of the page and prevent duplicate content issues.\",\n    \"fix_location\": \"Inside <head> tag, after meta tags\"\n  },\n  {\n    \"id\": \"og-title\",\n    \"fix_code\": \"<meta property=\\\"og:title\\\" content=\\\"LaunchPad — Ship Your MVP in 48 Hours\\\">\",\n    \"fix_explanation\": \"Add Open Graph title tag to control how your page appears when shared on social media platforms.\",\n    \"fix_location\": \"Inside <head> tag, with other meta tags\"\n  },\n  {\n    \"id\": \"og-description\",\n    \"fix_code\": \"<meta property=\\\"og:description\\\" content=\\\"LaunchPad helps startups ship production-ready MVPs in 48 hours. Get your idea to market fast with our proven framework and expert guidance.\\\">\",\n    \"fix_explanation\": \"Add Open Graph description to improve social media preview and engagement when your page is shared.\",\n    \"fix_location\": \"Inside <head> tag, with other og: meta tags\"\n  },\n  {\n    \"id\": \"og-image\",\n    \"fix_code\": \"<meta property=\\\"og:image\\\" content=\\\"https://startup-mvp.io/og-image.jpg\\\">\",\n    \"fix_explanation\": \"Add an Open Graph image (1200x630px recommended) to display a visual preview when the page is shared on social media.\",\n    \"fix_location\": \"Inside <head> tag, with other og: meta tags\"\n  },\n  {\n    \"id\": \"sitemap-exists\",\n    \"fix_code\": \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>\\n<urlset xmlns=\\\"http://www.sitemaps.org/schemas/sitemap/0.9\\\">\\n  <url>\\n    <loc>https://startup-mvp.io/</loc>\\n    <lastmod>2024-01-10</lastmod>\\n    <changefreq>weekly</changefreq>\\n    <priority>1.0</priority>\\n  </url>\\n</urlset>\",\n    \"fix_explanation\": \"Create a sitemap.xml file at the root of your domain to help search engines discover and index all your pages.\",\n    \"fix_location\": \"Create new file /sitemap.xml at domain root\"\n  },\n  {\n    \"id\": \"jsonld\",\n    \"fix_code\": \"<script type=\\\"application/ld+json\\\">\\n{\\n  \\\"@context\\\": \\\"https://schema.org\\\",\\n  \\\"@type\\\": \\\"Organization\\\",\\n  \\\"name\\\": \\\"LaunchPad\\\",\\n  \\\"url\\\": \\\"https://startup-mvp.io\\\",\\n  \\\"description\\\": \\\"Ship your MVP in 48 hours. LaunchPad provides a proven framework for startups to launch production-ready products quickly.\\\",\\n  \\\"sameAs\\\": []\\n}\\n</script>\",\n    \"fix_explanation\": \"Add JSON-LD structured data to help search engines understand your organization and improve rich snippet display in search results.\",\n    \"fix_location\": \"Inside <head> tag, before closing </head>\"\n  }\n]\n```"
+}

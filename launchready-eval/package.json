@@ -1,0 +1,14 @@
+{
+  "name": "launchready-eval",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "run": "tsx scripts/run_production.ts",
+    "eval": "tsx scripts/evaluate_production.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}

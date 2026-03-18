@@ -1,0 +1,48 @@
+{
+  "case_id": "T1",
+  "case_name": "SaaS site missing meta + social tags",
+  "model": "claude-haiku-4-5-20251001",
+  "prompt_version": "prod_v1",
+  "fixes": [
+    {
+      "id": "meta-description",
+      "fix_code": "<meta name=\"description\" content=\"Acme SaaS is a project management platform designed for growing teams. Streamline workflows, boost collaboration, and deliver projects on time.\">",
+      "fix_explanation": "Add a meta description tag that summarizes your page content in 120-160 characters. This text appears in search results and improves click-through rates.",
+      "fix_location": "Inside <head> tag, after <title> tag"
+    },
+    {
+      "id": "og-title",
+      "fix_code": "<meta property=\"og:title\" content=\"Acme SaaS — Project Management for Growing Teams\">",
+      "fix_explanation": "Add Open Graph title meta tag so your page displays with a proper title when shared on social media platforms like Facebook and LinkedIn.",
+      "fix_location": "Inside <head> tag, after meta description"
+    },
+    {
+      "id": "og-description",
+      "fix_code": "<meta property=\"og:description\" content=\"Streamline team collaboration and project delivery with Acme SaaS. Powerful project management tools built for growing teams.\">",
+      "fix_explanation": "Add Open Graph description that displays when your page is shared socially. Keep it engaging and concise to encourage clicks.",
+      "fix_location": "Inside <head> tag, after og:title"
+    },
+    {
+      "id": "og-image",
+      "fix_code": "<meta property=\"og:image\" content=\"https://acme-saas.com/og-image.png\">",
+      "fix_explanation": "Add an Open Graph image (1200x630px recommended) that appears when your page is shared on social platforms. Ensure the image file exists at this URL.",
+      "fix_location": "Inside <head> tag, after og:description"
+    },
+    {
+      "id": "twitter-card",
+      "fix_code": "<meta name=\"twitter:card\" content=\"summary_large_image\"><meta name=\"twitter:title\" content=\"Acme SaaS — Project Management for Growing Teams\"><meta name=\"twitter:description\" content=\"Streamline team collaboration and project delivery with Acme SaaS. Powerful project management tools built for growing teams.\"><meta name=\"twitter:image\" content=\"https://acme-saas.com/og-image.png\">",
+      "fix_explanation": "Add Twitter Card meta tags so your page displays with rich formatting when shared on Twitter/X, including title, description, and image.",
+      "fix_location": "Inside <head> tag, after og:image"
+    }
+  ],
+  "expected_fix_count": 5,
+  "actual_fix_count": 5,
+  "json_parsed_clean": true,
+  "json_repaired": false,
+  "prompt_tokens": 355,
+  "completion_tokens": 638,
+  "cost_usd": 0.002836,
+  "duration_ms": 4466,
+  "timestamp": "2026-03-17T16:07:49.834Z",
+  "raw_text": "```json\n[\n  {\n    \"id\": \"meta-description\",\n    \"fix_code\": \"<meta name=\\\"description\\\" content=\\\"Acme SaaS is a project management platform designed for growing teams. Streamline workflows, boost collaboration, and deliver projects on time.\\\">\",\n    \"fix_explanation\": \"Add a meta description tag that summarizes your page content in 120-160 characters. This text appears in search results and improves click-through rates.\",\n    \"fix_location\": \"Inside <head> tag, after <title> tag\"\n  },\n  {\n    \"id\": \"og-title\",\n    \"fix_code\": \"<meta property=\\\"og:title\\\" content=\\\"Acme SaaS — Project Management for Growing Teams\\\">\",\n    \"fix_explanation\": \"Add Open Graph title meta tag so your page displays with a proper title when shared on social media platforms like Facebook and LinkedIn.\",\n    \"fix_location\": \"Inside <head> tag, after meta description\"\n  },\n  {\n    \"id\": \"og-description\",\n    \"fix_code\": \"<meta property=\\\"og:description\\\" content=\\\"Streamline team collaboration and project delivery with Acme SaaS. Powerful project management tools built for growing teams.\\\">\",\n    \"fix_explanation\": \"Add Open Graph description that displays when your page is shared socially. Keep it engaging and concise to encourage clicks.\",\n    \"fix_location\": \"Inside <head> tag, after og:title\"\n  },\n  {\n    \"id\": \"og-image\",\n    \"fix_code\": \"<meta property=\\\"og:image\\\" content=\\\"https://acme-saas.com/og-image.png\\\">\",\n    \"fix_explanation\": \"Add an Open Graph image (1200x630px recommended) that appears when your page is shared on social platforms. Ensure the image file exists at this URL.\",\n    \"fix_location\": \"Inside <head> tag, after og:description\"\n  },\n  {\n    \"id\": \"twitter-card\",\n    \"fix_code\": \"<meta name=\\\"twitter:card\\\" content=\\\"summary_large_image\\\"><meta name=\\\"twitter:title\\\" content=\\\"Acme SaaS — Project Management for Growing Teams\\\"><meta name=\\\"twitter:description\\\" content=\\\"Streamline team collaboration and project delivery with Acme SaaS. Powerful project management tools built for growing teams.\\\"><meta name=\\\"twitter:image\\\" content=\\\"https://acme-saas.com/og-image.png\\\">\",\n    \"fix_explanation\": \"Add Twitter Card meta tags so your page displays with rich formatting when shared on Twitter/X, including title, description, and image.\",\n    \"fix_location\": \"Inside <head> tag, after og:image\"\n  }\n]\n```"
+}

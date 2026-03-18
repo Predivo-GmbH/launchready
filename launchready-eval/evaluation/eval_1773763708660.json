@@ -1,0 +1,110 @@
+{
+  "generated_at": "2026-03-17T16:08:28.659Z",
+  "prompt_version": "prod_v1",
+  "scorecard": {
+    "testA": 100,
+    "testB": 100,
+    "testC": 100,
+    "testD": 100,
+    "testE": 100,
+    "weighted": 100
+  },
+  "test_a": {
+    "passCount": 5,
+    "totalCount": 5,
+    "score": 100,
+    "details": [
+      {
+        "caseId": "T1",
+        "expected": 5,
+        "actual": 5,
+        "missingIds": [],
+        "pass": true
+      },
+      {
+        "caseId": "T2",
+        "expected": 3,
+        "actual": 3,
+        "missingIds": [],
+        "pass": true
+      },
+      {
+        "caseId": "T3",
+        "expected": 4,
+        "actual": 4,
+        "missingIds": [],
+        "pass": true
+      },
+      {
+        "caseId": "T4",
+        "expected": 3,
+        "actual": 3,
+        "missingIds": [],
+        "pass": true
+      },
+      {
+        "caseId": "T5",
+        "expected": 7,
+        "actual": 7,
+        "missingIds": [],
+        "pass": true
+      }
+    ]
+  },
+  "test_b": {
+    "passCount": 5,
+    "totalCount": 5,
+    "score": 100,
+    "details": [
+      {
+        "caseId": "T1",
+        "cleanParse": true,
+        "repaired": false,
+        "pass": true
+      },
+      {
+        "caseId": "T2",
+        "cleanParse": true,
+        "repaired": false,
+        "pass": true
+      },
+      {
+        "caseId": "T3",
+        "cleanParse": true,
+        "repaired": false,
+        "pass": true
+      },
+      {
+        "caseId": "T4",
+        "cleanParse": true,
+        "repaired": false,
+        "pass": true
+      },
+      {
+        "caseId": "T5",
+        "cleanParse": true,
+        "repaired": false,
+        "pass": true
+      }
+    ]
+  },
+  "test_c": {
+    "validCount": 22,
+    "totalFixes": 22,
+    "score": 100,
+    "failureCount": 0
+  },
+  "test_d": {
+    "completeCount": 22,
+    "totalFixes": 22,
+    "score": 100,
+    "failureCount": 0
+  },
+  "test_e": {
+    "passCount": 41,
+    "totalChecks": 41,
+    "score": 100,
+    "failureCount": 0
+  },
+  "total_cost_usd": 0.0150888
+}

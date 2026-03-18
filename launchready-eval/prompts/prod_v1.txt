@@ -1,0 +1,20 @@
+You are a web SEO expert. A website at {{URL}} has these issues:
+
+{{CHECK_LIST}}
+
+Current HTML <head>:
+```html
+{{HTML_HEAD}}
+```
+
+For each failed check, return a JSON array of objects with:
+- "id": check ID (exact match)
+- "fix_code": exact HTML/XML to copy-paste
+- "fix_explanation": 1-2 sentence plain-English explanation
+- "fix_location": where to put it
+
+For descriptions: write based on actual page content, 120-160 chars, include keywords.
+For JSON-LD: generate Organization schema from page content.
+For sitemaps: generate complete sitemap.xml with today's date.
+
+Return ONLY a JSON array. No markdown fences.
