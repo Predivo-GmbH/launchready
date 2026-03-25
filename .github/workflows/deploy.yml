@@ -50,7 +50,7 @@ jobs:
           # Step 3: Verify deploy landed
           lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
             $LFTP_SETTINGS
+            ls -la /
             ls /LaunchReady.predivo.ch/index.html
-            ls /LaunchReady.predivo.ch/_next/static/chunks/
             quit
           LFTP_EOF
