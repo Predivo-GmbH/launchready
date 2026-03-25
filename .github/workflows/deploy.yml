@@ -8,9 +8,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -24,21 +24,33 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
       - name: Deploy via FTP (zero-downtime)
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
           sudo apt-get install -y lftp
-          FTP_CONN="set ftp:ssl-allow yes; set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5; open -u ${{ secrets.FTP_USER }},${{ secrets.FTP_PASS }} ${{ secrets.FTP_HOST }};"
+          LFTP_SETTINGS="set ftp:ssl-allow yes; set ssl:verify-certificate no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5;"
 
           # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
-          lftp -e "
-            $FTP_CONN
-            mirror --reverse --no-perms --verbose ./out/_next/ /LaunchReady.predivo.ch/_next/;
-            quit;
-          "
+          lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
+            $LFTP_SETTINGS
+            mirror --reverse --no-perms --verbose ./out/_next/ /LaunchReady.predivo.ch/_next/
+            quit
+          LFTP_EOF
 
           # Step 2: Full mirror of everything (HTML, images, etc.)
           # --delete removes stale files on server.
-          lftp -e "
-            $FTP_CONN
-            mirror --reverse --delete --no-perms --verbose ./out/ /LaunchReady.predivo.ch/;
-            quit;
-          "
+          lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
+            $LFTP_SETTINGS
+            mirror --reverse --delete --no-perms --verbose ./out/ /LaunchReady.predivo.ch/
+            quit
+          LFTP_EOF
+
+          # Step 3: Verify deploy landed
+          lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
+            $LFTP_SETTINGS
+            ls /LaunchReady.predivo.ch/index.html
+            ls /LaunchReady.predivo.ch/_next/static/chunks/
+            quit
+          LFTP_EOF
