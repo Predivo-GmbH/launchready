@@ -35,7 +35,7 @@ jobs:
           # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
           lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
             $LFTP_SETTINGS
-            mirror --reverse --no-perms --verbose ./out/_next/ /LaunchReady.predivo.ch/_next/
+            mirror --reverse --no-perms --verbose ./out/_next/ /launchready.predivo.ch/_next/
             quit
           LFTP_EOF
 
@@ -43,14 +43,13 @@ jobs:
           # --delete removes stale files on server.
           lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
             $LFTP_SETTINGS
-            mirror --reverse --delete --no-perms --verbose ./out/ /LaunchReady.predivo.ch/
+            mirror --reverse --delete --no-perms --verbose ./out/ /launchready.predivo.ch/
             quit
           LFTP_EOF
 
           # Step 3: Verify deploy landed
           lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
             $LFTP_SETTINGS
-            ls -la /
-            ls /LaunchReady.predivo.ch/index.html
+            ls /launchready.predivo.ch/index.html
             quit
           LFTP_EOF
