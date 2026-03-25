@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
 
 const GATE_PASSWORD_HASH = '3bd8037a8ed38a35825983767f94e6cf3b18c3deee1601daee71faec0d83565f'
 const STORAGE_KEY = 'launchready-unlocked'
@@ -13,14 +13,21 @@ async function sha256(message: string): Promise<string> {
 }
 
 export function PasswordGate({ children }: { children: ReactNode }) {
-  const [unlocked, setUnlocked] = useState(
-    () => {
-      if (typeof window === 'undefined') return false
-      return sessionStorage.getItem(STORAGE_KEY) === 'true'
-    }
-  )
+  const [mounted, setMounted] = useState(false)
+  const [unlocked, setUnlocked] = useState(false)
   const [password, setPassword] = useState('')
   const [error, setError] = useState(false)
+
+  useEffect(() => {
+    setUnlocked(sessionStorage.getItem(STORAGE_KEY) === 'true')
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div style={{ minHeight: '100vh', backgroundColor: '#09090b' }} />
+    )
+  }
 
   if (unlocked) return <>{children}</>
 
