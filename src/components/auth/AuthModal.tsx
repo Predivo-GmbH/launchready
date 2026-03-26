@@ -480,17 +480,43 @@ function BackButton({ onClick }: { onClick: () => void }) {
 }
 
 function Overlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const previousFocus = useRef<HTMLElement | null>(null)
+
   useEffect(() => {
+    previousFocus.current = document.activeElement as HTMLElement | null
+
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') { onClose(); return }
+      if (e.key !== 'Tab' || !dialogRef.current) return
+
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+      if (focusable.length === 0) return
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
     }
+
     document.addEventListener('keydown', handleKey)
-    return () => document.removeEventListener('keydown', handleKey)
+    return () => {
+      document.removeEventListener('keydown', handleKey)
+      previousFocus.current?.focus()
+    }
   }, [onClose])
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Authentication" onClick={onClose}>
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 max-w-md w-full relative" onClick={e => e.stopPropagation()}>
+      <div ref={dialogRef} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 max-w-md w-full relative" onClick={e => e.stopPropagation()}>
         <button onClick={onClose} aria-label="Close dialog" className="absolute top-4 right-4 text-zinc-500 hover:text-white p-2"><X className="w-5 h-5" /></button>
         {children}
       </div>

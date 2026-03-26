@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { Zap, LogOut, History, Menu, X } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
@@ -11,6 +11,23 @@ export function Header() {
   const [showAuth, setShowAuth] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
   const [mobileOpen, setMobileOpen] = useState(false)
+  const mobileNavRef = useRef<HTMLElement>(null)
+  const hamburgerRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (!mobileOpen || !mobileNavRef.current) return
+    const first = mobileNavRef.current.querySelector<HTMLElement>('a, button')
+    first?.focus()
+
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setMobileOpen(false)
+        hamburgerRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [mobileOpen])
 
   function openAuth(mode: 'login' | 'signup') {
     setAuthMode(mode)
@@ -55,6 +72,7 @@ export function Header() {
 
           {/* Mobile hamburger */}
           <button
+            ref={hamburgerRef}
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={mobileOpen}
@@ -66,7 +84,7 @@ export function Header() {
 
         {/* Mobile dropdown */}
         {mobileOpen && (
-          <nav aria-label="Mobile navigation" className="sm:hidden border-t border-zinc-800 px-4 py-4 space-y-3 bg-zinc-950">
+          <nav ref={mobileNavRef} aria-label="Mobile navigation" className="sm:hidden border-t border-zinc-800 px-4 py-4 space-y-3 bg-zinc-950">
             <Link href="/#how-it-works" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors py-1">How it works</Link>
             <Link href="/pricing" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors py-1">Pricing</Link>
 

@@ -23,6 +23,14 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run e2e tests against static export
+        run: npx playwright test
+        env:
+          CI: true
+
       - name: Deploy via FTP (zero-downtime)
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}

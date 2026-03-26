@@ -33,12 +33,14 @@ async function bypassGate(page: Page) {
 // Unlock the PasswordGate via the actual UI (for gate-specific tests)
 async function unlockGate(page: Page) {
   await page.goto('/')
+  // Wait for the PasswordGate to hydrate and render the input
   const gateInput = page.getByPlaceholder('Enter access code')
-  if (await gateInput.isVisible({ timeout: 3000 }).catch(() => false)) {
-    await gateInput.fill(GATE_PASSWORD)
-    await page.getByRole('button', { name: 'Enter' }).click()
-    await page.locator('header').waitFor({ state: 'visible', timeout: 10000 })
-  }
+  await gateInput.waitFor({ state: 'visible', timeout: 15000 })
+  await gateInput.fill(GATE_PASSWORD)
+  await page.getByRole('button', { name: 'Enter' }).click()
+  // Wait for gate to disappear and app to render
+  await gateInput.waitFor({ state: 'hidden', timeout: 15000 })
+  await page.locator('header').waitFor({ state: 'visible', timeout: 15000 })
 }
 
 // Navigate to a page (gate already bypassed via addInitScript)
@@ -65,10 +67,9 @@ test.describe('PasswordGate', () => {
   test('unlocks with correct password', async ({ page }) => {
     await unlockGate(page)
     // Should see the header with LaunchReady branding
-    await expect(page.locator('header')).toBeVisible({ timeout: 10000 })
-    // Should see the main content h1
-    const h1 = page.locator('section h1, main h1').first()
-    await expect(h1).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('header')).toBeVisible({ timeout: 15000 })
+    // Should see main content rendered (gate is gone)
+    await expect(page.locator('main')).toBeVisible({ timeout: 15000 })
   })
 })
 
