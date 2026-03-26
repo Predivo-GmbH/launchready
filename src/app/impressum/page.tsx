@@ -3,6 +3,10 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Impressum — LaunchReady',
   description: 'Legal information and company details for LaunchReady by Predivo GmbH, based in Küssnacht am Rigi, Switzerland. Commercial register and contact details.',
+  openGraph: {
+    title: 'Impressum — LaunchReady',
+    description: 'Legal information and company details for LaunchReady by Predivo GmbH.',
+  },
 }
 
 export default function Impressum() {

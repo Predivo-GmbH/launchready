@@ -21,7 +21,7 @@ export function AuditResults({ audit, plan }: { audit: AuditResult; plan: PlanId
       ;(g[c.category] ??= []).push(c)
     }
     return g
-  }, [audit.checks])
+  }, [audit])
 
   const fail = audit.checks.filter(c => c.status === 'fail').length
   const warn = audit.checks.filter(c => c.status === 'warn').length

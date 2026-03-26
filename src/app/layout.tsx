@@ -1,10 +1,16 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
+import { Inter } from 'next/font/google'
 import { Zap } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { PasswordGate } from '@/components/shared/PasswordGate'
 import './globals.css'
 
+const inter = Inter({ subsets: ['latin'] })
+
 export const metadata: Metadata = {
+  metadataBase: new URL('https://launchready.predivo.ch'),
+  alternates: { canonical: './' },
   title: 'LaunchReady — Post-Launch Website Audit with AI Fix Code',
   description: 'Paste your URL, get a full post-launch SEO audit with copy-paste fix code — in 60 seconds. Free, no signup required.',
   openGraph: {
@@ -27,16 +33,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
-      <body className="bg-zinc-950 text-white antialiased" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <body className={`${inter.className} bg-zinc-950 text-white antialiased`}>
         <PasswordGate>
           <div className="min-h-screen flex flex-col overflow-x-hidden">
-            <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium">
+            <Link href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium">
               Skip to content
-            </a>
+            </Link>
             <Header />
 
             <main id="main-content" className="flex-1">{children}</main>
@@ -45,10 +48,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-2 text-zinc-500 text-sm"><Zap className="w-4 h-4" />LaunchReady — Built by Predivo GmbH</div>
                 <nav aria-label="Footer navigation" className="flex items-center gap-4 text-xs text-zinc-500">
-                  <a href="/pricing" className="hover:text-zinc-300 transition-colors">Pricing</a>
-                  <a href="/impressum" className="hover:text-zinc-300 transition-colors">Impressum</a>
-                  <a href="/privacy" className="hover:text-zinc-300 transition-colors">Privacy</a>
-                  <a href="/terms" className="hover:text-zinc-300 transition-colors">Terms</a>
+                  <Link href="/pricing" className="hover:text-zinc-300 transition-colors">Pricing</Link>
+                  <Link href="/impressum" className="hover:text-zinc-300 transition-colors">Impressum</Link>
+                  <Link href="/privacy" className="hover:text-zinc-300 transition-colors">Privacy</Link>
+                  <Link href="/terms" className="hover:text-zinc-300 transition-colors">Terms</Link>
                 </nav>
               </div>
             </footer>

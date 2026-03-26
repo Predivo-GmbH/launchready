@@ -3,6 +3,10 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Privacy Policy — LaunchReady',
   description: 'Privacy policy for LaunchReady by Predivo GmbH. Learn how we collect, process, and protect your data in compliance with Swiss DSG and EU GDPR regulations.',
+  openGraph: {
+    title: 'Privacy Policy — LaunchReady',
+    description: 'How we collect, process, and protect your data. Swiss DSG and EU GDPR compliant.',
+  },
 }
 
 export default function Privacy() {

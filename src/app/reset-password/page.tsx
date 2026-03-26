@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
@@ -55,9 +56,9 @@ export default function ResetPassword() {
           <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
           <h1 className="text-2xl font-bold text-white">Password updated</h1>
           <p className="text-sm text-zinc-400">Your password has been reset successfully.</p>
-          <a href="/" className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors">
+          <Link href="/" className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors">
             Go to LaunchReady
-          </a>
+          </Link>
         </div>
       </section>
     )
@@ -71,7 +72,7 @@ export default function ResetPassword() {
           <h1 className="text-2xl font-bold text-white">Reset your password</h1>
           <p className="text-sm text-zinc-400">Processing your reset link...</p>
           <Loader2 className="w-6 h-6 animate-spin text-zinc-500 mx-auto" />
-          <p className="text-xs text-zinc-500 mt-4">If this page doesn&apos;t update, your reset link may be expired. <a href="/" className="text-blue-400 hover:text-blue-300">Request a new one</a>.</p>
+          <p className="text-xs text-zinc-500 mt-4">If this page doesn&apos;t update, your reset link may be expired. <Link href="/" className="text-blue-400 hover:text-blue-300">Request a new one</Link>.</p>
         </div>
       </section>
     )
@@ -89,6 +90,7 @@ export default function ResetPassword() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="New password"
+              aria-label="New password"
               required
               minLength={8}
               autoComplete="new-password"
@@ -101,6 +103,7 @@ export default function ResetPassword() {
             value={confirm}
             onChange={e => setConfirm(e.target.value)}
             placeholder="Confirm new password"
+            aria-label="Confirm new password"
             required
             minLength={8}
             autoComplete="new-password"

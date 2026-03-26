@@ -26,13 +26,17 @@ interface Fix {
   fix_location?: string
 }
 
+// ─── Rate Limiting ──────────────────────────────────────────
+
+const ipRateLimit = new Map<string, { windowStart: number; count: number }>()
+
 // ─── CORS ───────────────────────────────────────────────────
 
-const ALLOWED_ORIGINS = [
-  'https://launchready.predivo.ch',
-  'http://localhost:3000',
-  'http://localhost:3001',
-]
+const IS_PRODUCTION = Deno.env.get('IS_PRODUCTION') !== 'false'
+
+const ALLOWED_ORIGINS = IS_PRODUCTION
+  ? ['https://launchready.predivo.ch']
+  : ['https://launchready.predivo.ch', 'http://localhost:3000', 'http://localhost:3001']
 
 function getCorsHeaders(req: Request) {
   const origin = req.headers.get('origin') || ''
@@ -148,6 +152,39 @@ serve(async (req: Request) => {
           status: 429,
           headers: { ...cors, 'Content-Type': 'application/json' },
         })
+      }
+    }
+
+    // IP-based rate limiting for anonymous (unauthenticated) requests
+    if (!userId) {
+      const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+        || req.headers.get('x-real-ip')
+        || 'unknown'
+
+      if (clientIp !== 'unknown') {
+        const now = Date.now()
+        const windowMs = 60 * 60 * 1000 // 1 hour
+        const maxRequests = 5
+        const entry = ipRateLimit.get(clientIp)
+
+        if (entry && now - entry.windowStart < windowMs) {
+          if (entry.count >= maxRequests) {
+            return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later or create a free account.' }), {
+              status: 429,
+              headers: { ...cors, 'Content-Type': 'application/json' },
+            })
+          }
+          entry.count++
+        } else {
+          ipRateLimit.set(clientIp, { windowStart: now, count: 1 })
+        }
+
+        // Clean up stale entries
+        if (ipRateLimit.size > 1000) {
+          for (const [ip, e] of ipRateLimit) {
+            if (now - e.windowStart >= windowMs) ipRateLimit.delete(ip)
+          }
+        }
       }
     }
 

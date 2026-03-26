@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { Check, Zap, Shield, BarChart3 } from 'lucide-react'
 import { PLANS } from '@/lib/plans'
 
@@ -90,12 +91,12 @@ export default function Pricing() {
                 </ul>
 
                 {plan.id === 'free' ? (
-                  <a
+                  <Link
                     href="/"
                     className="block text-center py-3 px-6 rounded-xl font-semibold transition-colors bg-zinc-800 text-white hover:bg-zinc-700"
                   >
                     {plan.cta}
-                  </a>
+                  </Link>
                 ) : (
                   <button
                     disabled

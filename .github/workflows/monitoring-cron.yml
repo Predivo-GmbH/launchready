@@ -1,0 +1,32 @@
+name: Weekly Monitoring Audits
+
+on:
+  schedule:
+    - cron: '0 6 * * 0' # Every Sunday at 06:00 UTC
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  run-monitoring:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger monitoring re-audits
+        run: |
+          echo "=== Calling run-monitoring Edge Function ==="
+          response=$(curl -s -w "\n%{http_code}" \
+            -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/run-monitoring" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -d '{}')
+
+          http_code=$(echo "$response" | tail -1)
+          body=$(echo "$response" | head -n -1)
+
+          echo "HTTP status: $http_code"
+          echo "Response: $body"
+
+          if [ "$http_code" != "200" ]; then
+            echo "::error::Monitoring cron failed with HTTP $http_code"
+            exit 1
+          fi
+
+          echo "Monitoring audits completed successfully"

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Zap, LogOut, History, Menu, X } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { AuthModal } from '@/components/auth/AuthModal'
@@ -21,21 +22,21 @@ export function Header() {
     <>
       <header className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-white font-bold text-lg">
+          <Link href="/" className="flex items-center gap-2 text-white font-bold text-lg">
             <Zap className="w-5 h-5 text-blue-500" />
             LaunchReady
-          </a>
+          </Link>
 
           {/* Desktop nav */}
           <nav aria-label="Main navigation" className="hidden sm:flex items-center gap-3">
-            <a href="/#how-it-works" className="text-sm text-zinc-400 hover:text-white transition-colors py-2">How it works</a>
-            <a href="/pricing" className="text-sm text-zinc-400 hover:text-white transition-colors py-2">Pricing</a>
+            <Link href="/#how-it-works" className="text-sm text-zinc-400 hover:text-white transition-colors py-2">How it works</Link>
+            <Link href="/pricing" className="text-sm text-zinc-400 hover:text-white transition-colors py-2">Pricing</Link>
 
             {loading ? null : user ? (
               <>
-                <a href="/dashboard" className="text-sm text-zinc-400 hover:text-white transition-colors flex items-center gap-1">
+                <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-white transition-colors flex items-center gap-1">
                   <History className="w-4 h-4" />My Audits
-                </a>
+                </Link>
                 <button onClick={() => signOut()} aria-label="Sign out" className="text-sm text-zinc-400 hover:text-white transition-colors flex items-center gap-1">
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -48,7 +49,7 @@ export function Header() {
             )}
 
             {user && (
-              <a href="/#audit" className="text-sm px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium">New Audit</a>
+              <Link href="/#audit" className="text-sm px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium">New Audit</Link>
             )}
           </nav>
 
@@ -66,12 +67,12 @@ export function Header() {
         {/* Mobile dropdown */}
         {mobileOpen && (
           <nav aria-label="Mobile navigation" className="sm:hidden border-t border-zinc-800 px-4 py-4 space-y-3 bg-zinc-950">
-            <a href="/#how-it-works" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors py-1">How it works</a>
-            <a href="/pricing" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors py-1">Pricing</a>
+            <Link href="/#how-it-works" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors py-1">How it works</Link>
+            <Link href="/pricing" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors py-1">Pricing</Link>
 
             {loading ? null : user ? (
               <>
-                <a href="/dashboard" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors">My Audits</a>
+                <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors">My Audits</Link>
                 <button onClick={async () => { await signOut(); setMobileOpen(false) }} className="block text-sm text-zinc-400 hover:text-white transition-colors">Sign out</button>
               </>
             ) : (
@@ -81,7 +82,7 @@ export function Header() {
               </>
             )}
 
-            <a href="/#audit" onClick={() => setMobileOpen(false)} className="block text-sm px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium text-center">Free Audit</a>
+            <Link href="/#audit" onClick={() => setMobileOpen(false)} className="block text-sm px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium text-center">Free Audit</Link>
           </nav>
         )}
       </header>

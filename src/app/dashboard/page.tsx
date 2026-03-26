@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { Clock, ExternalLink } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
@@ -89,9 +90,9 @@ export default function Dashboard() {
               <h2 className="text-sm font-semibold text-white mb-1">Automated Monitoring</h2>
               <p className="text-xs text-zinc-400">Track up to 5 sites with weekly re-audits and score change alerts.</p>
             </div>
-            <a href="/pricing" className="text-sm px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium shrink-0">
+            <Link href="/pricing" className="text-sm px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium shrink-0">
               Upgrade to Pro
-            </a>
+            </Link>
           </div>
         )}
 
@@ -99,13 +100,13 @@ export default function Dashboard() {
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-white">My Audits</h2>
-            <a href="/" className="text-sm px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium">New Audit</a>
+            <Link href="/" className="text-sm px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium">New Audit</Link>
           </div>
 
           {manualAudits.length === 0 ? (
             <div className="text-center py-16 space-y-4">
               <p className="text-zinc-400">No audits yet. Run your first audit!</p>
-              <a href="/" className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors">Run Audit</a>
+              <Link href="/" className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors">Run Audit</Link>
             </div>
           ) : (
             <div className="space-y-3">
