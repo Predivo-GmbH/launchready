@@ -19,17 +19,17 @@ export function CheckItem({ check, locked = false }: { check: AuditCheck; locked
 
   return (
     <div className={`rounded-lg border border-zinc-800 ${bg} overflow-hidden`}>
-      <button onClick={() => setOpen(!open)} aria-expanded={open} className="w-full flex items-center gap-3 p-4 text-left hover:bg-white/5 transition-colors">
-        <Icon className={`w-5 h-5 shrink-0 ${color}`} />
+      <button onClick={() => setOpen(!open)} aria-expanded={open} aria-controls={`check-details-${check.id}`} className="w-full flex items-center gap-3 p-4 min-h-[44px] text-left hover:bg-white/5 transition-colors">
+        <Icon className={`w-5 h-5 shrink-0 ${color}`} aria-hidden="true" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-white">{check.name}</p>
           <p className="text-xs text-zinc-400 mt-0.5 truncate">{check.description}</p>
         </div>
-        {hasExtra && (open ? <ChevronUp className="w-4 h-4 text-zinc-500 shrink-0" /> : <ChevronDown className="w-4 h-4 text-zinc-500 shrink-0" />)}
+        {hasExtra && (open ? <ChevronUp className="w-4 h-4 text-zinc-500 shrink-0" aria-hidden="true" /> : <ChevronDown className="w-4 h-4 text-zinc-500 shrink-0" aria-hidden="true" />)}
       </button>
 
       {open && hasExtra && (
-        <div className="px-4 pb-4 space-y-3 border-t border-zinc-800">
+        <div id={`check-details-${check.id}`} className="px-4 pb-4 space-y-3 border-t border-zinc-800">
           {check.details && <p className="text-sm text-zinc-300 mt-3">{check.details}</p>}
 
           {locked && (check.fix_code || check.fix_explanation) ? (
@@ -44,7 +44,7 @@ export function CheckItem({ check, locked = false }: { check: AuditCheck; locked
                 )}
                 {check.fix_code && (
                   <div className="mt-2">
-                    <pre className="bg-zinc-950 rounded-lg p-4 text-xs text-zinc-300 font-mono border border-zinc-800"><code>{'// Fix code hidden — upgrade to reveal'}</code></pre>
+                    <pre className="bg-zinc-950 rounded-lg p-3 sm:p-4 text-xs text-zinc-300 font-mono border border-zinc-800"><code>{'// Fix code hidden — upgrade to reveal'}</code></pre>
                   </div>
                 )}
               </div>
@@ -52,9 +52,9 @@ export function CheckItem({ check, locked = false }: { check: AuditCheck; locked
               <div className="absolute inset-0 flex items-center justify-center">
                 <a
                   href="/pricing"
-                  className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-lg transition-colors shadow-lg"
+                  className="flex items-center gap-2 px-5 py-2.5 min-h-[44px] bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-lg transition-colors border border-zinc-700"
                 >
-                  <Lock className="w-4 h-4" />
+                  <Lock className="w-4 h-4" aria-hidden="true" />
                   Unlock Fix Code
                 </a>
               </div>
@@ -74,7 +74,7 @@ export function CheckItem({ check, locked = false }: { check: AuditCheck; locked
                     <p className="text-xs font-medium text-green-400 uppercase tracking-wide">Copy-paste fix</p>
                     <CopyButton text={check.fix_code} />
                   </div>
-                  <pre className="bg-zinc-950 rounded-lg p-4 overflow-x-auto text-xs text-zinc-300 font-mono leading-relaxed border border-zinc-800"><code>{check.fix_code}</code></pre>
+                  <pre className="bg-zinc-950 rounded-lg p-4 overflow-x-auto text-xs text-zinc-300 font-mono leading-relaxed border border-zinc-800" style={{ maskImage: 'linear-gradient(to right, black 85%, transparent)', WebkitMaskImage: 'linear-gradient(to right, black 85%, transparent)' }}><code>{check.fix_code}</code></pre>
                 </div>
               )}
             </>

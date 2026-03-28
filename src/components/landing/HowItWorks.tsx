@@ -9,15 +9,15 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section className="py-20 px-4 border-t border-zinc-800">
+    <section className="py-12 sm:py-20 px-4 border-t border-zinc-800">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold text-white text-center mb-12">How it works</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <h2 className="text-2xl font-bold text-white text-center mb-8 sm:mb-12">How it works</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {steps.map((s, i) => (
             <div key={i} className="text-center space-y-3">
-              <div className="w-12 h-12 mx-auto rounded-xl bg-zinc-800 flex items-center justify-center"><s.icon className="w-6 h-6 text-blue-400" /></div>
+              <div className="w-12 h-12 mx-auto rounded-xl bg-zinc-800 flex items-center justify-center"><s.icon className="w-6 h-6 text-blue-400" aria-hidden="true" /></div>
               <h3 className="text-sm font-semibold text-white">{s.title}</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">{s.desc}</p>
+              <p className="text-sm text-zinc-400 leading-relaxed">{s.desc}</p>
             </div>
           ))}
         </div>

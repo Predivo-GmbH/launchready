@@ -32,9 +32,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
+        <link rel="dns-prefetch" href="https://hcfeoescybfngjsphekq.supabase.co" />
+        <link rel="preconnect" href="https://hcfeoescybfngjsphekq.supabase.co" />
+        <link rel="icon" href="/favicon.ico" sizes="32x32" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+        <meta name="theme-color" content="#3b82f6" />
+        <noscript>
+          <style>{`body{visibility:visible}`}</style>
+        </noscript>
       </head>
       <body className={`${inter.className} bg-zinc-950 text-white antialiased`}>
+        <noscript>
+          <div style={{ padding: '2rem', textAlign: 'center', color: '#a1a1aa', backgroundColor: '#09090b' }}>
+            LaunchReady requires JavaScript to run. Please enable JavaScript in your browser settings.
+          </div>
+        </noscript>
         <PasswordGate>
           <div className="min-h-screen flex flex-col overflow-x-hidden">
             <Link href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium">
@@ -42,16 +56,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Link>
             <Header />
 
-            <main id="main-content" className="flex-1">{children}</main>
+            <main id="main-content" className="flex-1 min-w-0">{children}</main>
 
             <footer className="border-t border-zinc-800 py-8 px-4">
               <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-2 text-zinc-500 text-sm"><Zap className="w-4 h-4" />LaunchReady — Built by Predivo GmbH</div>
-                <nav aria-label="Footer navigation" className="flex items-center gap-4 text-xs text-zinc-500">
-                  <Link href="/pricing" className="hover:text-zinc-300 transition-colors">Pricing</Link>
-                  <Link href="/impressum" className="hover:text-zinc-300 transition-colors">Impressum</Link>
-                  <Link href="/privacy" className="hover:text-zinc-300 transition-colors">Privacy</Link>
-                  <Link href="/terms" className="hover:text-zinc-300 transition-colors">Terms</Link>
+                <div className="flex items-center gap-2 text-zinc-500 text-sm"><Zap className="w-4 h-4" aria-hidden="true" />LaunchReady — Built by Predivo GmbH</div>
+                <nav aria-label="Footer navigation" className="flex flex-wrap items-center gap-4 text-sm text-zinc-500">
+                  <Link href="/pricing" className="hover:text-zinc-300 transition-colors min-h-[44px] inline-flex items-center">Pricing</Link>
+                  <Link href="/impressum" className="hover:text-zinc-300 transition-colors min-h-[44px] inline-flex items-center">Impressum</Link>
+                  <Link href="/privacy" className="hover:text-zinc-300 transition-colors min-h-[44px] inline-flex items-center">Privacy</Link>
+                  <Link href="/terms" className="hover:text-zinc-300 transition-colors min-h-[44px] inline-flex items-center">Terms</Link>
                 </nav>
               </div>
             </footer>

@@ -21,8 +21,8 @@ type Step =
   | 'forgot-sent'        // Reset link sent
 
 const INPUT = 'w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-base placeholder-zinc-500 focus:outline-none focus:border-blue-500 transition-colors'
-const BTN_PRIMARY = 'w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2'
-const BTN_SECONDARY = 'w-full py-3 bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-800/50 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 border border-zinc-700'
+const BTN_PRIMARY = 'w-full min-h-[44px] py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-700 disabled:text-zinc-400 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2'
+const BTN_SECONDARY = 'w-full min-h-[44px] py-3 bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-800/50 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 border border-zinc-700'
 
 export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthModalProps) {
   const [step, setStep] = useState<Step>(initialMode === 'signup' ? 'signup-email' : 'login-choose')
@@ -165,7 +165,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
     try {
       const { supabase } = await import('@/lib/supabase')
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://launchready.predivo.ch/reset-password',
+        redirectTo: `${window.location.origin}/reset-password`,
       })
       if (error) throw error
       setStep('forgot-sent')
@@ -193,30 +193,6 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
     }
   }
 
-  // ── OTP input row ──
-  function OtpInputRow() {
-    return (
-      <div className="flex justify-center gap-2" onPaste={handleOtpPaste}>
-        {otp.map((digit, i) => (
-          <input
-            key={i}
-            ref={el => { otpRefs.current[i] = el }}
-            type="text"
-            inputMode="numeric"
-            maxLength={1}
-            value={digit}
-            onChange={e => handleOtpChange(i, e.target.value)}
-            onKeyDown={e => handleOtpKeyDown(i, e)}
-            autoComplete="one-time-code"
-            aria-label={`Digit ${i + 1} of 6`}
-            className="w-11 h-13 text-center text-xl font-bold bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
-            autoFocus={i === 0}
-          />
-        ))}
-      </div>
-    )
-  }
-
   // ──────────── RENDER ────────────
 
   // SIGNUP: Enter email
@@ -227,25 +203,25 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
         <p className="text-sm text-zinc-400 mb-6">We&apos;ll send a verification code to your email.</p>
 
         <form onSubmit={sendSignupOtp} className="space-y-4">
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required autoComplete="email" autoFocus className={INPUT} />
+          <input type="email" inputMode="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" aria-label="Email" required autoComplete="email" autoFocus className={INPUT} />
           {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
 
           <p className="text-xs text-zinc-500">
             By signing up, you agree to our{' '}
-            <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">Terms of Service</a>
+            <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 inline-flex items-center min-h-[44px]">Terms of Service</a>
             {' '}and{' '}
-            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">Privacy Policy</a>.
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 inline-flex items-center min-h-[44px]">Privacy Policy</a>.
           </p>
 
           <button type="submit" disabled={loading} className={BTN_PRIMARY}>
-            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
             Send verification code
           </button>
         </form>
 
         <p className="text-sm text-zinc-400 mt-4 text-center">
           Already have an account?{' '}
-          <button onClick={() => reset('login-choose')} className="text-blue-400 hover:text-blue-300">Log in</button>
+          <button onClick={() => reset('login-choose')} className="text-blue-400 hover:text-blue-300 min-h-[44px]">Log in</button>
         </p>
       </Overlay>
     )
@@ -258,24 +234,24 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
         <BackButton onClick={() => reset('signup-email')} />
         <div className="text-center mb-6">
           <div className="w-12 h-12 mx-auto rounded-full bg-blue-500/20 flex items-center justify-center mb-4">
-            <Mail className="w-6 h-6 text-blue-400" />
+            <Mail className="w-6 h-6 text-blue-400" aria-hidden="true" />
           </div>
           <h2 className="text-xl font-bold text-white">Check your email</h2>
           <p className="text-sm text-zinc-400 mt-2">Enter the 6-digit code sent to <span className="text-white">{email}</span></p>
         </div>
 
         <form onSubmit={e => verifyOtp(e, 'set-password')} className="space-y-4">
-          <OtpInputRow />
+          <OtpInputRow otp={otp} otpRefs={otpRefs} onOtpChange={handleOtpChange} onOtpKeyDown={handleOtpKeyDown} onOtpPaste={handleOtpPaste} />
           {error && <p role="alert" className="text-sm text-red-400 text-center">{error}</p>}
           <button type="submit" disabled={loading || otpValue().length !== 6} className={BTN_PRIMARY}>
-            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
             Verify email
           </button>
         </form>
 
         <p className="text-xs text-zinc-500 mt-4 text-center">
           Didn&apos;t receive it?{' '}
-          <button onClick={resendOtp} disabled={loading} className="text-blue-400 hover:text-blue-300 disabled:text-zinc-600">Resend code</button>
+          <button onClick={resendOtp} disabled={loading} className="text-blue-400 hover:text-blue-300 disabled:text-zinc-600 min-h-[44px]">Resend code</button>
         </p>
       </Overlay>
     )
@@ -287,7 +263,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
       <Overlay onClose={onClose}>
         <div className="text-center mb-6">
           <div className="w-12 h-12 mx-auto rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-            <Lock className="w-6 h-6 text-green-400" />
+            <Lock className="w-6 h-6 text-green-400" aria-hidden="true" />
           </div>
           <h2 className="text-xl font-bold text-white">Email verified!</h2>
           <p className="text-sm text-zinc-400 mt-2">Set a password so you can log in faster next time.</p>
@@ -295,17 +271,17 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
 
         <form onSubmit={setUserPassword} className="space-y-4">
           <div>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Create a password" required minLength={8} autoComplete="new-password" autoFocus className={INPUT} />
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Create a password" aria-label="Create a password" required minLength={8} autoComplete="new-password" autoFocus className={INPUT} />
             <p className="text-xs text-zinc-500 mt-1.5">Minimum 8 characters</p>
           </div>
           {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
           <button type="submit" disabled={loading} className={BTN_PRIMARY}>
-            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
             Set password
           </button>
         </form>
 
-        <button onClick={onSuccess} className="w-full text-sm text-zinc-500 hover:text-zinc-300 mt-3 text-center transition-colors">
+        <button onClick={onSuccess} className="w-full text-sm text-zinc-500 hover:text-zinc-300 mt-3 text-center transition-colors min-h-[44px]">
           Skip for now
         </button>
       </Overlay>
@@ -320,12 +296,12 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
         <p className="text-sm text-zinc-400 mb-6">Enter your email to log in.</p>
 
         <div className="space-y-4">
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" autoComplete="email" autoFocus className={INPUT} />
+          <input type="email" inputMode="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" aria-label="Email" autoComplete="email" autoFocus className={INPUT} />
           {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
 
           <button onClick={() => { if (!email.trim()) { setError('Enter your email'); return }; sendLoginOtp() }} disabled={loading} className={BTN_PRIMARY}>
-            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            <Mail className="w-4 h-4" />
+            {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
+            <Mail className="w-4 h-4" aria-hidden="true" />
             Send me a login code
           </button>
 
@@ -335,14 +311,14 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
           </div>
 
           <button onClick={() => { if (!email.trim()) { setError('Enter your email'); return }; setError(null); setStep('login-password') }} className={BTN_SECONDARY}>
-            <KeyRound className="w-4 h-4" />
+            <KeyRound className="w-4 h-4" aria-hidden="true" />
             Use password
           </button>
         </div>
 
         <p className="text-sm text-zinc-400 mt-4 text-center">
           Don&apos;t have an account?{' '}
-          <button onClick={() => reset('signup-email')} className="text-blue-400 hover:text-blue-300">Sign up</button>
+          <button onClick={() => reset('signup-email')} className="text-blue-400 hover:text-blue-300 min-h-[44px]">Sign up</button>
         </p>
       </Overlay>
     )
@@ -355,7 +331,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
         <BackButton onClick={() => reset('login-choose')} />
         <div className="text-center mb-6">
           <div className="w-12 h-12 mx-auto rounded-full bg-blue-500/20 flex items-center justify-center mb-4">
-            <Mail className="w-6 h-6 text-blue-400" />
+            <Mail className="w-6 h-6 text-blue-400" aria-hidden="true" />
           </div>
           <h2 className="text-xl font-bold text-white">Check your email</h2>
           <p className="text-sm text-zinc-400 mt-2">
@@ -370,7 +346,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
 
         <p className="text-xs text-zinc-500 mt-4 text-center">
           Didn&apos;t receive it?{' '}
-          <button onClick={resendOtp} disabled={loading} className="text-blue-400 hover:text-blue-300 disabled:text-zinc-600">Resend</button>
+          <button onClick={resendOtp} disabled={loading} className="text-blue-400 hover:text-blue-300 disabled:text-zinc-600 min-h-[44px]">Resend</button>
         </p>
       </Overlay>
     )
@@ -387,17 +363,17 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
         </div>
 
         <form onSubmit={e => verifyOtp(e, 'done')} className="space-y-4">
-          <OtpInputRow />
+          <OtpInputRow otp={otp} otpRefs={otpRefs} onOtpChange={handleOtpChange} onOtpKeyDown={handleOtpKeyDown} onOtpPaste={handleOtpPaste} />
           {error && <p role="alert" className="text-sm text-red-400 text-center">{error}</p>}
           <button type="submit" disabled={loading || otpValue().length !== 6} className={BTN_PRIMARY}>
-            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
             Log in
           </button>
         </form>
 
         <p className="text-xs text-zinc-500 mt-4 text-center">
           Didn&apos;t receive it?{' '}
-          <button onClick={resendOtp} disabled={loading} className="text-blue-400 hover:text-blue-300 disabled:text-zinc-600">Resend code</button>
+          <button onClick={resendOtp} disabled={loading} className="text-blue-400 hover:text-blue-300 disabled:text-zinc-600 min-h-[44px]">Resend code</button>
         </p>
       </Overlay>
     )
@@ -411,11 +387,11 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
         <h2 className="text-xl font-bold text-white mb-6">Log in with password</h2>
 
         <form onSubmit={loginWithPassword} className="space-y-4">
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required autoComplete="email" className={INPUT} />
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" required minLength={8} autoComplete="current-password" autoFocus className={INPUT} />
+          <input type="email" inputMode="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" aria-label="Email" required autoComplete="email" className={INPUT} />
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" aria-label="Password" required minLength={8} autoComplete="current-password" autoFocus className={INPUT} />
 
           <div className="text-right">
-            <button type="button" onClick={() => { setError(null); setStep('forgot') }} className="text-xs text-zinc-500 hover:text-zinc-300">
+            <button type="button" onClick={() => { setError(null); setStep('forgot') }} className="text-xs text-zinc-500 hover:text-zinc-300 min-h-[44px]">
               Forgot password?
             </button>
           </div>
@@ -423,7 +399,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
           {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
 
           <button type="submit" disabled={loading} className={BTN_PRIMARY}>
-            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
             Log in
           </button>
         </form>
@@ -440,10 +416,10 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
         <p className="text-sm text-zinc-400 mb-6">Enter your email and we&apos;ll send you a reset link.</p>
 
         <form onSubmit={sendResetLink} className="space-y-4">
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required autoComplete="email" autoFocus className={INPUT} />
+          <input type="email" inputMode="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" aria-label="Email" required autoComplete="email" autoFocus className={INPUT} />
           {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
           <button type="submit" disabled={loading} className={BTN_PRIMARY}>
-            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
             Send reset link
           </button>
         </form>
@@ -457,12 +433,12 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
       <Overlay onClose={onClose}>
         <div className="text-center space-y-4">
           <div className="w-12 h-12 mx-auto rounded-full bg-blue-500/20 flex items-center justify-center">
-            <Mail className="w-6 h-6 text-blue-400" />
+            <Mail className="w-6 h-6 text-blue-400" aria-hidden="true" />
           </div>
           <h2 className="text-xl font-bold text-white">Reset link sent</h2>
           <p className="text-sm text-zinc-400">If an account exists for <span className="text-white">{email}</span>, you&apos;ll receive a password reset link.</p>
           <p className="text-xs text-zinc-500">Didn&apos;t receive it? Check your spam folder.</p>
-          <button onClick={onClose} className="text-sm text-blue-400 hover:text-blue-300">Close</button>
+          <button onClick={onClose} className="text-sm text-blue-400 hover:text-blue-300 min-h-[44px]">Close</button>
         </div>
       </Overlay>
     )
@@ -471,10 +447,42 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
   return null
 }
 
+interface OtpInputRowProps {
+  otp: string[]
+  otpRefs: React.MutableRefObject<(HTMLInputElement | null)[]>
+  onOtpChange: (idx: number, val: string) => void
+  onOtpKeyDown: (idx: number, e: React.KeyboardEvent) => void
+  onOtpPaste: (e: React.ClipboardEvent) => void
+}
+
+function OtpInputRow({ otp, otpRefs, onOtpChange, onOtpKeyDown, onOtpPaste }: OtpInputRowProps) {
+  return (
+    <fieldset className="flex justify-center gap-2" onPaste={onOtpPaste}>
+      <legend className="sr-only">6-digit verification code</legend>
+      {otp.map((digit, i) => (
+        <input
+          key={i}
+          ref={el => { otpRefs.current[i] = el }}
+          type="text"
+          inputMode="numeric"
+          maxLength={1}
+          value={digit}
+          onChange={e => onOtpChange(i, e.target.value)}
+          onKeyDown={e => onOtpKeyDown(i, e)}
+          autoComplete="one-time-code"
+          aria-label={`Digit ${i + 1} of 6`}
+          className="w-11 min-h-[44px] h-12 text-center text-xl font-bold bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
+          autoFocus={i === 0}
+        />
+      ))}
+    </fieldset>
+  )
+}
+
 function BackButton({ onClick }: { onClick: () => void }) {
   return (
-    <button onClick={onClick} className="flex items-center gap-1 text-sm text-zinc-500 hover:text-white transition-colors mb-4">
-      <ArrowLeft className="w-4 h-4" />Back
+    <button onClick={onClick} className="flex items-center gap-1 text-sm text-zinc-500 hover:text-white transition-colors mb-4 min-h-[44px]">
+      <ArrowLeft className="w-4 h-4" aria-hidden="true" />Back
     </button>
   )
 }
@@ -482,12 +490,14 @@ function BackButton({ onClick }: { onClick: () => void }) {
 function Overlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const previousFocus = useRef<HTMLElement | null>(null)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
   useEffect(() => {
     previousFocus.current = document.activeElement as HTMLElement | null
 
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') { onClose(); return }
+      if (e.key === 'Escape') { onCloseRef.current(); return }
       if (e.key !== 'Tab' || !dialogRef.current) return
 
       const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
@@ -512,12 +522,12 @@ function Overlay({ children, onClose }: { children: React.ReactNode; onClose: ()
       document.removeEventListener('keydown', handleKey)
       previousFocus.current?.focus()
     }
-  }, [onClose])
+  }, [])
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Authentication" onClick={onClose}>
-      <div ref={dialogRef} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 max-w-md w-full relative" onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} aria-label="Close dialog" className="absolute top-4 right-4 text-zinc-500 hover:text-white p-2"><X className="w-5 h-5" /></button>
+      <div ref={dialogRef} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-8 max-w-md w-full relative max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} aria-label="Close dialog" className="absolute top-2 right-2 sm:top-4 sm:right-4 text-zinc-500 hover:text-white p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"><X className="w-5 h-5" aria-hidden="true" /></button>
         {children}
       </div>
     </div>

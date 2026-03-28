@@ -113,8 +113,15 @@ serve(async (req: Request) => {
     const authHeader = req.headers.get('authorization')
     let userId: string | null = null
     let userPlan = 'free'
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing required env vars: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
+      return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+        status: 500,
+        headers: { ...cors, 'Content-Type': 'application/json' },
+      })
+    }
     const db = createClient(supabaseUrl, supabaseServiceKey)
 
     if (authHeader?.startsWith('Bearer ')) {
@@ -156,6 +163,9 @@ serve(async (req: Request) => {
     }
 
     // IP-based rate limiting for anonymous (unauthenticated) requests
+    // NOTE: x-forwarded-for can be spoofed by clients. On Supabase Edge Functions,
+    // the platform sets this header from the actual connection IP, so it's trustworthy
+    // in this deployment context. Authenticated users bypass this (rate-limited by DB count).
     if (!userId) {
       const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
         || req.headers.get('x-real-ip')
@@ -187,6 +197,19 @@ serve(async (req: Request) => {
         }
       }
     }
+
+    // Audit log: record API call metadata
+    const clientIpForLog = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || req.headers.get('x-real-ip')
+      || 'unknown'
+    console.log(JSON.stringify({
+      event: 'audit_request',
+      url: normalizedUrl,
+      user_id: userId,
+      plan: userPlan,
+      ip: clientIpForLog,
+      timestamp: new Date().toISOString(),
+    }))
 
     // Only generate AI fixes for paid users (saves API cost)
     const shouldGenerateFixes = userPlan !== 'free'

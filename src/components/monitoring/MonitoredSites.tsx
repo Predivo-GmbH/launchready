@@ -5,6 +5,7 @@ import { Plus, Trash2, RefreshCw, TrendingUp, TrendingDown, Minus, ExternalLink,
 import { supabase } from '@/lib/supabase'
 import { PLAN_LIMITS } from '@/lib/plans'
 import type { PlanId } from '@/lib/plans'
+import { fetchWithTimeout, buildAuthHeaders } from '@/lib/utils'
 import { ScoreRing } from '@/components/ui/ScoreRing'
 
 interface MonitoredSite {
@@ -36,7 +37,7 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
     setLoading(false)
   }, [])
 
-  useEffect(() => { fetchSites() }, [fetchSites])
+  useEffect(() => { fetchSites().catch(() => {}) }, [fetchSites])
 
   async function addSite(e: React.FormEvent) {
     e.preventDefault()
@@ -99,22 +100,13 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
     setRunningId(site.id)
     setError(null)
     try {
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.access_token) {
-        headers['Authorization'] = `Bearer ${session.access_token}`
-      }
-
+      const headers = await buildAuthHeaders()
       const edgeFnUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/run-audit`
-      const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 60000)
-      const resp = await fetch(edgeFnUrl, {
+      const resp = await fetchWithTimeout(edgeFnUrl, {
         method: 'POST',
         headers,
         body: JSON.stringify({ url: site.url, monitoring_site_id: site.id }),
-        signal: controller.signal,
       })
-      clearTimeout(timeout)
 
       if (resp.ok) {
         const result = await resp.json()
@@ -140,13 +132,13 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
 
   if (loading) {
     return (
-      <div className="animate-pulse text-zinc-500 text-center py-8" role="status" aria-live="polite">Loading monitored sites...</div>
+      <div className="animate-pulse text-zinc-500 text-center py-8" role="status" aria-live="polite" aria-label="Loading monitored sites">Loading monitored sites...</div>
     )
   }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between mb-6 gap-3">
         <div>
           <h2 className="text-xl font-bold text-white">Monitored Sites</h2>
           <p className="text-xs text-zinc-500 mt-1">
@@ -156,9 +148,9 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
         {sites.length < limits.maxMonitoredSites && (
           <button
             onClick={() => setShowAdd(!showAdd)}
-            className="flex items-center gap-2 text-sm px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium"
+            className="flex items-center gap-2 text-sm px-4 py-2 min-h-[44px] bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4" aria-hidden="true" />
             Add Site
           </button>
         )}
@@ -166,23 +158,24 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
 
       {/* Add site form */}
       {showAdd && (
-        <form onSubmit={addSite} className="mb-6 flex gap-3">
-          <div className="relative flex-1">
-            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+        <form onSubmit={addSite} className="mb-6 flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1 min-w-0">
+            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" aria-hidden="true" />
             <input
               type="text"
+              inputMode="url"
               value={newUrl}
               onChange={e => setNewUrl(e.target.value)}
               placeholder="https://example.com"
               aria-label="Site URL to monitor"
-              className="w-full pl-10 pr-4 py-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 text-sm"
+              className="w-full pl-10 pr-4 py-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 text-base"
               disabled={adding}
             />
           </div>
           <button
             type="submit"
             disabled={adding || !newUrl.trim()}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-medium rounded-lg transition-colors text-sm"
+            className="px-6 py-3 min-h-[44px] bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-700 disabled:text-zinc-400 text-white font-medium rounded-lg transition-colors text-sm"
           >
             {adding ? 'Adding...' : 'Add'}
           </button>
@@ -196,13 +189,13 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
       )}
 
       {sites.length === 0 ? (
-        <div className="text-center py-12 bg-zinc-900 border border-zinc-800 rounded-2xl">
+        <div className="text-center py-8 sm:py-12 bg-zinc-900 border border-zinc-800 rounded-xl">
           <p className="text-zinc-400 text-sm mb-4">No monitored sites yet. Add your first site to start tracking.</p>
           <button
             onClick={() => setShowAdd(true)}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors text-sm"
+            className="inline-flex items-center gap-2 px-6 py-3 min-h-[44px] bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors text-sm"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4" aria-hidden="true" />
             Add Your First Site
           </button>
         </div>
@@ -220,7 +213,7 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
             const isRunning = runningId === site.id
 
             return (
-              <div key={site.id} className="flex items-center gap-4 p-4 bg-zinc-900 border border-zinc-800 rounded-xl">
+              <div key={site.id} className="flex items-center gap-3 sm:gap-4 p-4 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
                 {site.last_score != null ? (
                   <ScoreRing score={site.last_score} size={48} />
                 ) : (
@@ -229,10 +222,10 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
 
                 <div className="flex-1 min-w-0">
                   <a href={site.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-white hover:text-blue-400 flex items-center gap-1 truncate">
-                    {site.url.replace(/^https?:\/\//, '')} <ExternalLink className="w-3 h-3 shrink-0" />
+                    {site.url.replace(/^https?:\/\//, '')} <ExternalLink className="w-4 h-4 shrink-0" aria-hidden="true" />
                   </a>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-zinc-500">
-                    <Clock className="w-3 h-3" />
+                  <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-zinc-500">
+                    <Clock className="w-4 h-4" aria-hidden="true" />
                     {site.last_checked_at
                       ? `Last checked ${new Date(site.last_checked_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
                       : 'Never checked'}
@@ -240,7 +233,7 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
                       <>
                         <span>&middot;</span>
                         <span className={`flex items-center gap-0.5 ${scoreDiff > 0 ? 'text-green-500' : scoreDiff < 0 ? 'text-red-500' : 'text-zinc-500'}`}>
-                          <TrendIcon className="w-3 h-3" />
+                          <TrendIcon className="w-4 h-4" aria-hidden="true" />
                           {scoreDiff > 0 ? '+' : ''}{scoreDiff}
                         </span>
                       </>
@@ -255,14 +248,14 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
                     className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors disabled:opacity-50"
                     aria-label="Run audit now"
                   >
-                    {isRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                    {isRunning ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <RefreshCw className="w-5 h-5" aria-hidden="true" />}
                   </button>
                   <button
                     onClick={() => removeSite(site.id)}
                     className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-zinc-400 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-colors"
                     aria-label="Remove site"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-5 h-5" aria-hidden="true" />
                   </button>
                 </div>
               </div>

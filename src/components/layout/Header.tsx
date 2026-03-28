@@ -39,34 +39,34 @@ export function Header() {
     <>
       <header className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-white font-bold text-lg">
-            <Zap className="w-5 h-5 text-blue-500" />
+          <Link href="/" className="flex items-center gap-2 text-white font-bold text-lg min-h-[44px]">
+            <Zap className="w-5 h-5 text-blue-500" aria-hidden="true" />
             LaunchReady
           </Link>
 
           {/* Desktop nav */}
           <nav aria-label="Main navigation" className="hidden sm:flex items-center gap-3">
-            <Link href="/#how-it-works" className="text-sm text-zinc-400 hover:text-white transition-colors py-2">How it works</Link>
-            <Link href="/pricing" className="text-sm text-zinc-400 hover:text-white transition-colors py-2">Pricing</Link>
+            <Link href="/#how-it-works" className="text-sm text-zinc-400 hover:text-white transition-colors min-h-[44px] inline-flex items-center">How it works</Link>
+            <Link href="/pricing" className="text-sm text-zinc-400 hover:text-white transition-colors min-h-[44px] inline-flex items-center">Pricing</Link>
 
             {loading ? null : user ? (
               <>
-                <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-white transition-colors flex items-center gap-1">
-                  <History className="w-4 h-4" />My Audits
+                <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-white transition-colors flex items-center gap-1 min-h-[44px]">
+                  <History className="w-4 h-4" aria-hidden="true" />My Audits
                 </Link>
-                <button onClick={() => signOut()} aria-label="Sign out" className="text-sm text-zinc-400 hover:text-white transition-colors flex items-center gap-1">
-                  <LogOut className="w-4 h-4" />
+                <button onClick={() => signOut()} aria-label="Sign out" className="text-sm text-zinc-400 hover:text-white transition-colors flex items-center gap-1 min-h-[44px] min-w-[44px] justify-center">
+                  <LogOut className="w-4 h-4" aria-hidden="true" />
                 </button>
               </>
             ) : (
               <>
-                <button onClick={() => openAuth('login')} className="text-sm text-zinc-400 hover:text-white transition-colors">Log in</button>
-                <button onClick={() => openAuth('signup')} className="text-sm px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium">Sign up</button>
+                <button onClick={() => openAuth('login')} className="text-sm text-zinc-400 hover:text-white transition-colors min-h-[44px] inline-flex items-center">Log in</button>
+                <button onClick={() => openAuth('signup')} className="text-sm px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium min-h-[44px] inline-flex items-center">Sign up</button>
               </>
             )}
 
             {user && (
-              <Link href="/#audit" className="text-sm px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium">New Audit</Link>
+              <Link href="/#audit" className="text-sm px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium min-h-[44px] inline-flex items-center">New Audit</Link>
             )}
           </nav>
 
@@ -76,32 +76,36 @@ export function Header() {
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={mobileOpen}
-            className="sm:hidden p-2 text-zinc-400 hover:text-white transition-colors"
+            aria-controls="mobile-navigation"
+            className="sm:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
           >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
           </button>
         </div>
 
         {/* Mobile dropdown */}
         {mobileOpen && (
-          <nav ref={mobileNavRef} aria-label="Mobile navigation" className="sm:hidden border-t border-zinc-800 px-4 py-4 space-y-3 bg-zinc-950">
-            <Link href="/#how-it-works" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors py-1">How it works</Link>
-            <Link href="/pricing" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors py-1">Pricing</Link>
+          <>
+          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setMobileOpen(false)} aria-hidden="true" />
+          <nav ref={mobileNavRef} id="mobile-navigation" aria-label="Mobile navigation" className="sm:hidden border-t border-zinc-800 px-4 py-4 space-y-3 bg-zinc-950 relative z-50 transition-all duration-200">
+            <Link href="/#how-it-works" onClick={() => setMobileOpen(false)} className="text-sm text-zinc-400 hover:text-white transition-colors min-h-[44px] flex items-center">How it works</Link>
+            <Link href="/pricing" onClick={() => setMobileOpen(false)} className="text-sm text-zinc-400 hover:text-white transition-colors min-h-[44px] flex items-center">Pricing</Link>
 
             {loading ? null : user ? (
               <>
-                <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="block text-sm text-zinc-400 hover:text-white transition-colors">My Audits</Link>
-                <button onClick={async () => { await signOut(); setMobileOpen(false) }} className="block text-sm text-zinc-400 hover:text-white transition-colors">Sign out</button>
+                <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="text-sm text-zinc-400 hover:text-white transition-colors min-h-[44px] flex items-center">My Audits</Link>
+                <button onClick={async () => { await signOut(); setMobileOpen(false) }} className="text-sm text-zinc-400 hover:text-white transition-colors min-h-[44px] flex items-center">Sign out</button>
               </>
             ) : (
               <>
-                <button onClick={() => openAuth('login')} className="block text-sm text-zinc-400 hover:text-white transition-colors">Log in</button>
-                <button onClick={() => openAuth('signup')} className="block text-sm text-zinc-400 hover:text-white transition-colors">Sign up</button>
+                <button onClick={() => openAuth('login')} className="text-sm text-zinc-400 hover:text-white transition-colors min-h-[44px] flex items-center">Log in</button>
+                <button onClick={() => openAuth('signup')} className="text-sm text-zinc-400 hover:text-white transition-colors min-h-[44px] flex items-center">Sign up</button>
               </>
             )}
 
-            <Link href="/#audit" onClick={() => setMobileOpen(false)} className="block text-sm px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium text-center">Free Audit</Link>
+            <Link href="/#audit" onClick={() => setMobileOpen(false)} className="text-sm px-4 min-h-[44px] flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium">Free Audit</Link>
           </nav>
+          </>
         )}
       </header>
 

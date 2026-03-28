@@ -13,19 +13,21 @@ async function sha256(message: string): Promise<string> {
 }
 
 export function PasswordGate({ children }: { children: ReactNode }) {
-  const [mounted, setMounted] = useState(false)
-  const [unlocked, setUnlocked] = useState(false)
+  const isScreenshotMode = process.env.NEXT_PUBLIC_SCREENSHOT_MODE === 'true'
+  const [mounted, setMounted] = useState(isScreenshotMode)
+  const [unlocked, setUnlocked] = useState(isScreenshotMode)
   const [password, setPassword] = useState('')
   const [error, setError] = useState(false)
 
   useEffect(() => {
+    if (isScreenshotMode) return
     setUnlocked(sessionStorage.getItem(STORAGE_KEY) === 'true')
     setMounted(true)
-  }, [])
+  }, [isScreenshotMode])
 
   if (!mounted) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#09090b' }} />
+      <div className="min-h-screen bg-zinc-950" />
     )
   }
 
@@ -43,23 +45,24 @@ export function PasswordGate({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', backgroundColor: '#09090b', padding: '1rem' }}>
-      <div style={{ width: '100%', maxWidth: '24rem', border: '1px solid #27272a', borderRadius: '0.5rem', padding: '2rem', backgroundColor: '#18181b' }}>
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#fafafa' }}>LaunchReady</h1>
-          <p style={{ fontSize: '0.875rem', color: '#a1a1aa', marginTop: '0.5rem' }}>This app is in private beta.</p>
+    <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-4">
+      <div className="w-full max-w-sm border border-zinc-800 rounded-2xl p-4 sm:p-8 bg-zinc-900">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold text-white">LaunchReady</h1>
+          <p className="text-sm text-zinc-400 mt-2">This app is in private beta.</p>
         </div>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             type="password"
             placeholder="Enter access code"
+            aria-label="Access code"
             value={password}
             onChange={(e) => { setPassword(e.target.value); setError(false) }}
             autoFocus
-            style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '0.375rem', border: '1px solid #3f3f46', backgroundColor: '#09090b', color: '#fafafa', fontSize: '0.875rem', outline: 'none', boxSizing: 'border-box' }}
+            className="w-full px-4 py-3 rounded-lg border border-zinc-700 bg-zinc-800 text-white text-base placeholder-zinc-500 focus:outline-none focus:border-blue-500 transition-colors"
           />
-          {error && <p style={{ fontSize: '0.875rem', color: '#ef4444' }}>Incorrect access code.</p>}
-          <button type="submit" style={{ width: '100%', padding: '0.5rem', borderRadius: '0.375rem', backgroundColor: '#2563eb', color: 'white', fontWeight: '500', border: 'none', cursor: 'pointer', fontSize: '0.875rem' }}>
+          {error && <p role="alert" className="text-sm text-red-400">Incorrect access code.</p>}
+          <button type="submit" className="w-full py-3 min-h-[44px] rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-colors">
             Enter
           </button>
         </form>

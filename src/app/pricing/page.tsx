@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Pricing — LaunchReady',
     description: 'Start with a free audit, then upgrade for AI-generated fix code, automated weekly monitoring, and score tracking.',
+    images: [{ url: 'https://launchready.predivo.ch/og-image.png', width: 1200, height: 630, alt: 'LaunchReady — Post-Launch Website Audit' }],
   },
 }
 
@@ -33,10 +34,10 @@ export default function Pricing() {
   return (
     <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
-    <section className="py-24 px-4">
+    <section className="py-16 sm:py-24 px-4">
       <div className="max-w-5xl mx-auto">
-        <div className="text-center space-y-4 mb-16">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
+        <div className="text-center space-y-4 mb-10 sm:mb-16">
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
             Simple, transparent pricing
           </h1>
           <p className="text-lg text-zinc-400 max-w-xl mx-auto">
@@ -50,9 +51,9 @@ export default function Pricing() {
             return (
               <div
                 key={plan.id}
-                className={`relative rounded-2xl border p-8 flex flex-col ${
+                className={`relative rounded-2xl border p-5 sm:p-8 flex flex-col ${
                   plan.highlighted
-                    ? 'border-blue-500 bg-blue-500/5 shadow-lg shadow-blue-500/10'
+                    ? 'border-blue-500 bg-blue-500/5'
                     : 'border-zinc-800 bg-zinc-900'
                 }`}
               >
@@ -66,13 +67,13 @@ export default function Pricing() {
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                     plan.highlighted ? 'bg-blue-500/20' : 'bg-zinc-800'
                   }`}>
-                    <Icon className={`w-5 h-5 ${plan.highlighted ? 'text-blue-400' : 'text-zinc-400'}`} />
+                    <Icon className={`w-5 h-5 ${plan.highlighted ? 'text-blue-400' : 'text-zinc-400'}`} aria-hidden="true" />
                   </div>
                   <h2 className="text-xl font-bold text-white">{plan.name}</h2>
                 </div>
 
                 <div className="mb-2">
-                  <span className="text-4xl font-extrabold text-white">{plan.price}</span>
+                  <span className="text-3xl sm:text-4xl font-extrabold text-white">{plan.price}</span>
                   {plan.priceNote && (
                     <span className="text-zinc-400 text-sm">{plan.priceNote}</span>
                   )}
@@ -84,7 +85,7 @@ export default function Pricing() {
                     <li key={feature} className="flex items-start gap-2 text-sm">
                       <Check className={`w-4 h-4 mt-0.5 shrink-0 ${
                         plan.highlighted ? 'text-blue-400' : 'text-zinc-500'
-                      }`} />
+                      }`} aria-hidden="true" />
                       <span className="text-zinc-300">{feature}</span>
                     </li>
                   ))}
@@ -93,14 +94,14 @@ export default function Pricing() {
                 {plan.id === 'free' ? (
                   <Link
                     href="/"
-                    className="block text-center py-3 px-6 rounded-xl font-semibold transition-colors bg-zinc-800 text-white hover:bg-zinc-700"
+                    className="block text-center py-3 px-6 min-h-[44px] rounded-xl font-semibold transition-colors bg-zinc-800 text-white hover:bg-zinc-700"
                   >
                     {plan.cta}
                   </Link>
                 ) : (
                   <button
                     disabled
-                    className="block w-full text-center py-3 px-6 rounded-xl font-semibold bg-zinc-800/50 text-zinc-500 cursor-not-allowed border border-zinc-700/50 border-dashed"
+                    className="block w-full text-center py-3 px-6 min-h-[44px] rounded-xl font-semibold bg-zinc-800/50 text-zinc-400 cursor-not-allowed border border-zinc-700/50 border-dashed"
                   >
                     {plan.cta}
                   </button>
@@ -139,7 +140,7 @@ export default function Pricing() {
 
 function Faq({ q, a }: { q: string; a: string }) {
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 sm:p-6">
       <h4 className="text-sm font-semibold text-white mb-2">{q}</h4>
       <p className="text-sm text-zinc-400 leading-relaxed">{a}</p>
     </div>

@@ -6,12 +6,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Impressum — LaunchReady',
     description: 'Legal information and company details for LaunchReady by Predivo GmbH.',
+    images: [{ url: 'https://launchready.predivo.ch/og-image.png', width: 1200, height: 630, alt: 'LaunchReady — Post-Launch Website Audit' }],
   },
 }
 
 export default function Impressum() {
   return (
-    <section className="py-24 px-4">
+    <section className="py-16 sm:py-24 px-4">
       <div className="max-w-2xl mx-auto space-y-8">
         <h1 className="text-3xl font-bold text-white">Impressum</h1>
 
@@ -72,6 +73,10 @@ export default function Impressum() {
               on their content and assumes no responsibility.
             </p>
           </div>
+        </div>
+
+        <div className="pt-6 border-t border-zinc-800">
+          <a href="/" className="text-sm text-blue-400 hover:text-blue-300 inline-flex items-center gap-1 min-h-[44px]">&larr; Back to LaunchReady</a>
         </div>
       </div>
     </section>

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { FileDown, Loader2 } from 'lucide-react'
 import type { AuditResult } from '@/lib/types'
-import { categoryLabel } from '@/lib/utils'
+import { categoryLabel, countByStatus, scoreRgb } from '@/lib/utils'
 
 export function PdfExportButton({ audit }: { audit: AuditResult }) {
   const [generating, setGenerating] = useState(false)
@@ -41,20 +41,15 @@ export function PdfExportButton({ audit }: { audit: AuditResult }) {
       doc.text(`URL: ${audit.url}`, margin, y)
       y += 8
 
-      const scoreColor = audit.overall_score >= 90 ? [34, 197, 94]
-        : audit.overall_score >= 70 ? [234, 179, 8]
-        : audit.overall_score >= 50 ? [249, 115, 22]
-        : [239, 68, 68]
+      const sc = scoreRgb(audit.overall_score)
 
       doc.setFontSize(36)
-      doc.setTextColor(scoreColor[0], scoreColor[1], scoreColor[2])
+      doc.setTextColor(sc[0], sc[1], sc[2])
       doc.text(`${audit.overall_score}/100`, margin, y + 12)
       y += 20
 
       // Summary stats
-      const pass = audit.checks.filter(c => c.status === 'pass').length
-      const fail = audit.checks.filter(c => c.status === 'fail').length
-      const warn = audit.checks.filter(c => c.status === 'warn').length
+      const { pass, fail, warn } = countByStatus(audit.checks)
 
       doc.setFontSize(10)
       doc.setTextColor(0)
@@ -158,7 +153,6 @@ export function PdfExportButton({ audit }: { audit: AuditResult }) {
       const domain = new URL(audit.url).hostname.replace(/^www\./, '')
       doc.save(`launchready-audit-${domain}.pdf`)
     } catch (err) {
-      console.error('PDF export failed:', err)
       setError('PDF export failed. Please try again.')
     } finally {
       setGenerating(false)
@@ -166,16 +160,16 @@ export function PdfExportButton({ audit }: { audit: AuditResult }) {
   }
 
   return (
-    <div className="flex flex-col items-end gap-1">
+    <div className="flex flex-col items-center sm:items-end gap-1">
       <button
         onClick={handleExport}
         disabled={generating}
-        className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 shrink-0"
+        className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 min-h-[44px] bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 shrink-0"
       >
-        {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
+        {generating ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <FileDown className="w-4 h-4" aria-hidden="true" />}
         {generating ? 'Generating...' : 'Export PDF'}
       </button>
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p role="alert" className="text-xs text-red-400">{error}</p>}
     </div>
   )
 }

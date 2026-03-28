@@ -6,6 +6,7 @@ import type { AuditResult } from '@/lib/types'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import { PLAN_LIMITS } from '@/lib/plans'
+import { fetchWithTimeout, buildAuthHeaders } from '@/lib/utils'
 import { AuditResults } from './AuditResults'
 
 export function AuditForm() {
@@ -19,6 +20,18 @@ export function AuditForm() {
     e.preventDefault()
     const trimmed = url.trim()
     if (!trimmed) return
+
+    const normalized = trimmed.startsWith('http') ? trimmed : `https://${trimmed}`
+    try {
+      const parsed = new URL(normalized)
+      if (!['http:', 'https:'].includes(parsed.protocol)) {
+        setError('Please enter a valid URL')
+        return
+      }
+    } catch {
+      setError('Please enter a valid URL (e.g., example.com)')
+      return
+    }
 
     setError(null)
     setResult(null)
@@ -45,22 +58,13 @@ export function AuditForm() {
         }
 
         // Pass auth token if logged in so the audit gets saved
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.access_token) {
-          headers['Authorization'] = `Bearer ${session.access_token}`
-        }
-
+        const headers = await buildAuthHeaders()
         const edgeFnUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/run-audit`
-        const controller = new AbortController()
-        const timeout = setTimeout(() => controller.abort(), 60000)
-        const resp = await fetch(edgeFnUrl, {
+        const resp = await fetchWithTimeout(edgeFnUrl, {
           method: 'POST',
           headers,
           body: JSON.stringify({ url: trimmed }),
-          signal: controller.signal,
         })
-        clearTimeout(timeout)
         const data = await resp.json()
         if (!resp.ok) throw new Error(data.error || 'Audit failed')
         setResult(data)
@@ -72,9 +76,9 @@ export function AuditForm() {
 
   if (result) {
     return (
-      <div className="py-12 px-4">
+      <div className="py-6 sm:py-12 px-4" aria-live="polite" aria-label="Audit results">
         <div className="max-w-4xl mx-auto mb-8">
-          <button onClick={() => { setResult(null); setUrl('') }} className="text-sm text-zinc-400 hover:text-white transition-colors">&larr; New audit</button>
+          <button onClick={() => { setResult(null); setUrl('') }} className="text-sm text-zinc-400 hover:text-white transition-colors min-h-[44px] inline-flex items-center">&larr; New audit</button>
         </div>
         <AuditResults audit={result} plan={plan} />
       </div>
@@ -85,20 +89,21 @@ export function AuditForm() {
     <>
       <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto">
         <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+          <div className="relative flex-1 min-w-0">
+            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" aria-hidden="true" />
             <input
               type="text"
+              inputMode="url"
               value={url}
               onChange={e => setUrl(e.target.value)}
               placeholder="Enter your website URL..."
               aria-label="Website URL"
-              className="w-full pl-12 pr-4 py-4 bg-zinc-900 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-lg"
+              className="w-full pl-12 pr-4 py-4 min-h-[44px] bg-zinc-900 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-base md:text-lg"
               disabled={pending}
             />
           </div>
-          <button type="submit" disabled={pending || !url.trim()} className="px-8 py-4 bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 shrink-0">
-            {pending ? <><Loader2 className="w-5 h-5 animate-spin" />Auditing...</> : 'Audit'}
+          <button type="submit" disabled={pending || !url.trim()} className="px-8 py-4 min-h-[44px] bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-700 disabled:text-zinc-400 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 shrink-0">
+            {pending ? <><Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" /><span role="status" aria-live="polite">Auditing...</span></> : 'Audit'}
           </button>
         </div>
       </form>
@@ -108,7 +113,7 @@ export function AuditForm() {
           <div role="alert" className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-sm text-red-400">
             {error}
             {error.includes('Upgrade') && (
-              <a href="/pricing" className="ml-2 text-blue-400 hover:text-blue-300 underline">View plans</a>
+              <a href="/pricing" className="ml-2 text-blue-400 hover:text-blue-300 underline inline-flex items-center min-h-[44px]">View plans</a>
             )}
           </div>
         </div>

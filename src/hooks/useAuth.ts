@@ -5,12 +5,16 @@ import { supabase } from '@/lib/supabase'
 import type { User, Session } from '@supabase/supabase-js'
 import type { PlanId } from '@/lib/plans'
 
+const isScreenshotMode = process.env.NEXT_PUBLIC_SCREENSHOT_MODE === 'true'
+const mockUser = isScreenshotMode ? { id: 'screenshot-mock', email: 'demo@launchready.test' } as User : null
+
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null)
-  const [plan, setPlan] = useState<PlanId>('free')
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(mockUser)
+  const [plan, setPlan] = useState<PlanId>(isScreenshotMode ? 'pro' : 'free')
+  const [loading, setLoading] = useState(!isScreenshotMode)
 
   useEffect(() => {
+    if (isScreenshotMode) return
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
       setLoading(false)
@@ -27,6 +31,7 @@ export function useAuth() {
 
   // Fetch user plan when user changes
   useEffect(() => {
+    if (isScreenshotMode) return
     if (!user) {
       setPlan('free')
       return
@@ -36,26 +41,15 @@ export function useAuth() {
       .select('plan')
       .eq('user_id', user.id)
       .single()
-      .then(({ data, error: planErr }) => {
-        if (planErr) console.error('Failed to fetch plan:', planErr.message)
+      .then(({ data }) => {
         const p = data?.plan
         setPlan(p === 'starter' || p === 'pro' ? p : 'free')
       })
   }, [user])
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
-  }, [])
-
-  const signUp = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password })
-    if (error) throw error
-  }, [])
-
   const signOut = useCallback(async () => {
     await supabase.auth.signOut()
   }, [])
 
-  return { user, plan, loading, signIn, signUp, signOut }
+  return { user, plan, loading, signOut }
 }

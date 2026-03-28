@@ -27,13 +27,13 @@ export default function Home() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <section id="audit" className="py-24 px-4">
-        <div className="max-w-3xl mx-auto text-center space-y-8">
+      <section id="audit" className="py-12 sm:py-24 px-4">
+        <div className="max-w-3xl mx-auto text-center space-y-5 sm:space-y-8">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium">
             Free audit — no signup required
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
             Your website is live.<br />
             <span className="text-zinc-500">Google doesn&apos;t know it exists.</span>
           </h1>
@@ -45,7 +45,7 @@ export default function Home() {
 
           <AuditForm />
 
-          <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-xs text-zinc-500">
+          <div className="flex flex-wrap justify-center gap-x-4 sm:gap-x-8 gap-y-2 text-sm text-zinc-500">
             <span>Meta tags</span>
             <span>OG &amp; Twitter cards</span>
             <span>Sitemap &amp; robots.txt</span>
