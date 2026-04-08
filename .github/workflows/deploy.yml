@@ -37,8 +37,8 @@ jobs:
           FTP_USER: ${{ secrets.FTP_USER }}
           FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
-          sudo apt-get install -y lftp
-          LFTP_SETTINGS="set ftp:ssl-allow yes; set ssl:verify-certificate no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5;"
+          sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+          LFTP_SETTINGS="set ftp:ssl-allow no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5;"
 
           # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
           lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
