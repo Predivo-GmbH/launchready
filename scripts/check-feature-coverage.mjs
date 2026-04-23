@@ -18,7 +18,8 @@ if (!existsSync(FEATURES_PATH)) {
   process.exit(0)
 }
 
-const content = readFileSync(FEATURES_PATH, 'utf-8')
+// Normalize line endings to LF for consistent regex matching
+const content = readFileSync(FEATURES_PATH, 'utf-8').replace(/\r\n/g, '\n')
 
 // Parse feature blocks: ### F-XXX: Name ... - **Status:** ... - **Test Files:** ...
 const featureRegex = /### (F-\d{3}): (.+)\n([\s\S]*?)(?=\n### F-|\n---|\n<!-- |$)/g
