@@ -41,6 +41,11 @@ Header always set Content-Security-Policy "default-src 'self'; script-src 'self'
 # when a matching .html file exists (Next.js static export creates both)
 DirectorySlash Off
 
+# Strip trailing slashes (prevents 500 errors on /path/ variants)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} (.+)/$
+RewriteRule ^ %1 [R=301,L]
+
 # If the request matches an existing .html file, serve it
 # This handles /dashboard → dashboard.html even though dashboard/ exists
 RewriteCond %{REQUEST_FILENAME} !-f
