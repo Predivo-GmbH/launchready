@@ -40,6 +40,20 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq lftp
           LFTP_SETTINGS="set ftp:ssl-allow no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5;"
 
+          echo "launchready" > ./out/.site-id
+
+          REMOTE_ID=$(lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_GUARD
+            $LFTP_SETTINGS
+            cat /launchready.predivo.ch/.site-id
+            quit
+          LFTP_GUARD
+          ) 2>/dev/null || REMOTE_ID=""
+          if [ -n "$REMOTE_ID" ] && [ "$REMOTE_ID" != "launchready" ]; then
+            echo "::error::DEPLOY ABORTED — remote .site-id is '$REMOTE_ID', expected 'launchready'. Wrong FTP target!"
+            exit 1
+          fi
+          echo "Site-id guard passed (remote='${REMOTE_ID:-<none>}')"
+
           # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
           lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
             $LFTP_SETTINGS
