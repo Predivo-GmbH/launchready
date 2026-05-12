@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
 import * as cheerio from 'https://esm.sh/cheerio@1.0.0'
+import { logAnthropicUsage } from '../_shared/log-usage.ts'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -364,6 +365,7 @@ async function generateFixes(apiKey: string, url: string, html: string, failedCh
   if (!resp.ok) return []
 
   const data = await resp.json()
+  await logAnthropicUsage('LaunchReady', 'run-audit', data)
   const text = data.content?.[0]?.text?.trim() ?? ''
 
   let json = text
