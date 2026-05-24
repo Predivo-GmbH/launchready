@@ -53,8 +53,8 @@ test.describe('F-001: Landing Page', () => {
 
   test('has category badges', async ({ page }) => {
     await expect(page.getByText('Meta tags', { exact: true })).toBeVisible()
-    await expect(page.getByText('JSON-LD schema')).toBeVisible()
-    await expect(page.getByText('Security headers')).toBeVisible()
+    await expect(page.getByText('JSON-LD schema', { exact: true })).toBeVisible()
+    await expect(page.getByText('Security headers', { exact: true })).toBeVisible()
   })
 
   test('JSON-LD structured data is present', async ({ page }) => {

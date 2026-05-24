@@ -19,7 +19,7 @@ export function Comparison() {
       <div className="max-w-3xl mx-auto">
         <h2 className="text-2xl font-bold text-white text-center mb-4">Why not just use Lighthouse or Semrush?</h2>
         <p className="text-zinc-400 text-center text-sm mb-10">They report problems. We generate the fixes.</p>
-        <div className="overflow-x-auto -mx-4 px-4" style={{ maskImage: 'linear-gradient(to right, black 85%, transparent)', WebkitMaskImage: 'linear-gradient(to right, black 85%, transparent)' }}>
+        <div className="overflow-x-auto -mx-4 px-4" role="region" aria-label="Feature comparison table" tabIndex={0} style={{ maskImage: 'linear-gradient(to right, black 85%, transparent)', WebkitMaskImage: 'linear-gradient(to right, black 85%, transparent)' }}>
           <table className="w-full min-w-[420px] text-sm">
             <thead><tr className="border-b border-zinc-800"><th scope="col" className="text-left sticky left-0 bg-zinc-950 z-10 border-r border-zinc-800"><span className="sr-only">Feature</span></th><th scope="col" className="py-3 px-2 text-blue-400 font-semibold text-center text-xs sm:text-sm">LaunchReady</th><th scope="col" className="py-3 px-2 text-zinc-400 text-center text-xs sm:text-sm">Ligh&shy;thouse</th><th scope="col" className="py-3 px-2 text-zinc-400 text-center text-xs sm:text-sm">Sem&shy;rush</th></tr></thead>
             <tbody>
