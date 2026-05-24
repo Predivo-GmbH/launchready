@@ -2,7 +2,7 @@ import { Globe, Search, Code, Rocket } from 'lucide-react'
 
 const steps = [
   { icon: Globe, title: 'Paste your URL', desc: 'Any website — React, WordPress, Wix, Squarespace, static HTML.' },
-  { icon: Search, title: 'We audit everything', desc: 'Meta tags, OG data, sitemap, robots.txt, structured data, security headers.' },
+  { icon: Search, title: 'We audit everything', desc: 'All metadata, OG data, sitemap, robots.txt, structured data, security headers.' },
   { icon: Code, title: 'Get copy-paste fixes', desc: 'Exact code for every issue — meta tags, JSON-LD, sitemap XML.' },
   { icon: Rocket, title: 'Get found on Google', desc: 'Guided steps for Search Console, Business Profile, social verification.' },
 ]

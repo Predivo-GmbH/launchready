@@ -16,6 +16,23 @@ async function gotoPage(page: Page, path: string) {
   await page.locator('header').waitFor({ state: 'visible', timeout: 10000 })
 }
 
+async function isMobile(page: Page): Promise<boolean> {
+  const viewport = page.viewportSize()
+  return (viewport?.width ?? 1280) < 640
+}
+
+async function openMobileMenu(page: Page) {
+  const hamburger = page.getByLabel('Open menu')
+  await hamburger.click()
+  await page.locator('nav[aria-label="Mobile navigation"]').waitFor({ state: 'visible', timeout: 5000 })
+}
+
+function getNav(page: Page, mobile: boolean) {
+  return mobile
+    ? page.locator('nav[aria-label="Mobile navigation"]')
+    : page.locator('nav[aria-label="Main navigation"]')
+}
+
 // ── F-001: Landing Page ──
 test.describe('F-001: Landing Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -153,18 +170,27 @@ test.describe('F-009: Auth Modal', () => {
   })
 
   test('opens login modal from header', async ({ page }) => {
-    await page.locator('nav[aria-label="Main navigation"]').getByText('Log in').click()
+    const mobile = await isMobile(page)
+    if (mobile) await openMobileMenu(page)
+    const nav = getNav(page, mobile)
+    await nav.getByText('Log in').click()
     await expect(page.getByText('Welcome back')).toBeVisible()
     await expect(page.getByRole('dialog')).toBeVisible()
   })
 
   test('opens signup modal from header', async ({ page }) => {
-    await page.locator('nav[aria-label="Main navigation"]').getByText('Sign up').click()
+    const mobile = await isMobile(page)
+    if (mobile) await openMobileMenu(page)
+    const nav = getNav(page, mobile)
+    await nav.getByText('Sign up').click()
     await expect(page.getByText('Create account')).toBeVisible()
   })
 
   test('closes modal with close button', async ({ page }) => {
-    await page.locator('nav[aria-label="Main navigation"]').getByText('Log in').click()
+    const mobile = await isMobile(page)
+    if (mobile) await openMobileMenu(page)
+    const nav = getNav(page, mobile)
+    await nav.getByText('Log in').click()
     await expect(page.getByRole('dialog')).toBeVisible()
     await page.getByLabel('Close dialog').click()
     await expect(page.getByRole('dialog')).not.toBeVisible()
@@ -203,14 +229,19 @@ test.describe('F-015: Header Navigation', () => {
 
   test('desktop nav has correct links', async ({ page }) => {
     await gotoPage(page, '/')
-    const nav = page.locator('nav[aria-label="Main navigation"]')
+    const mobile = await isMobile(page)
+    if (mobile) await openMobileMenu(page)
+    const nav = getNav(page, mobile)
     await expect(nav.locator('a[href="/pricing"]')).toBeVisible()
     await expect(nav.locator('a[href="/#how-it-works"]')).toBeVisible()
   })
 
   test('pricing link navigates correctly', async ({ page }) => {
     await gotoPage(page, '/')
-    await page.locator('nav[aria-label="Main navigation"] a[href="/pricing"]').click()
+    const mobile = await isMobile(page)
+    if (mobile) await openMobileMenu(page)
+    const nav = getNav(page, mobile)
+    await nav.locator('a[href="/pricing"]').click()
     await page.waitForURL('**/pricing')
     await expect(page.locator('h1')).toContainText('pricing')
   })
@@ -260,7 +291,7 @@ test.describe('F-020: Impressum', () => {
   })
 
   test('has back link', async ({ page }) => {
-    await expect(page.locator('a[href="/"]')).toBeVisible()
+    await expect(page.locator('main a[href="/"]')).toBeVisible()
   })
 })
 

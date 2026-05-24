@@ -9,7 +9,7 @@ const cfg = {
   pass: { icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-500/10' },
   fail: { icon: XCircle, color: 'text-red-500', bg: 'bg-red-500/10' },
   warn: { icon: AlertTriangle, color: 'text-yellow-500', bg: 'bg-yellow-500/10' },
-  skip: { icon: MinusCircle, color: 'text-zinc-500', bg: 'bg-zinc-500/10' },
+  skip: { icon: MinusCircle, color: 'text-zinc-400', bg: 'bg-zinc-500/10' },
 } as const
 
 export function CheckItem({ check, locked = false }: { check: AuditCheck; locked?: boolean }) {
@@ -25,7 +25,7 @@ export function CheckItem({ check, locked = false }: { check: AuditCheck; locked
           <p className="text-sm font-medium text-white">{check.name}</p>
           <p className="text-xs text-zinc-400 mt-0.5 truncate">{check.description}</p>
         </div>
-        {hasExtra && (open ? <ChevronUp className="w-4 h-4 text-zinc-500 shrink-0" aria-hidden="true" /> : <ChevronDown className="w-4 h-4 text-zinc-500 shrink-0" aria-hidden="true" />)}
+        {hasExtra && (open ? <ChevronUp className="w-4 h-4 text-zinc-400 shrink-0" aria-hidden="true" /> : <ChevronDown className="w-4 h-4 text-zinc-400 shrink-0" aria-hidden="true" />)}
       </button>
 
       {open && hasExtra && (
@@ -67,7 +67,7 @@ export function CheckItem({ check, locked = false }: { check: AuditCheck; locked
                   <p className="text-sm text-zinc-300">{check.fix_explanation}</p>
                 </div>
               )}
-              {check.fix_location && <p className="text-xs text-zinc-500">Where: <span className="text-zinc-400 font-mono">{check.fix_location}</span></p>}
+              {check.fix_location && <p className="text-xs text-zinc-400">Where: <span className="text-zinc-400 font-mono">{check.fix_location}</span></p>}
               {check.fix_code && (
                 <div className="mt-2">
                   <div className="flex items-center justify-between mb-1">

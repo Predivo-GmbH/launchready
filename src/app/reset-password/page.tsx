@@ -68,11 +68,11 @@ export default function ResetPassword() {
     return (
       <section className="py-12 sm:py-24 px-4">
         <div className="max-w-md mx-auto text-center space-y-4">
-          <AlertCircle className="w-12 h-12 text-zinc-500 mx-auto" aria-hidden="true" />
+          <AlertCircle className="w-12 h-12 text-zinc-400 mx-auto" aria-hidden="true" />
           <h1 className="text-2xl font-bold text-white">Reset your password</h1>
           <p className="text-sm text-zinc-400" role="status" aria-live="polite">Processing your reset link...</p>
-          <Loader2 className="w-6 h-6 animate-spin text-zinc-500 mx-auto" aria-hidden="true" />
-          <p className="text-xs text-zinc-500 mt-4">If this page doesn&apos;t update, your reset link may be expired. <Link href="/" className="text-blue-400 hover:text-blue-300 inline-flex items-center min-h-[44px]">Request a new one</Link>.</p>
+          <Loader2 className="w-6 h-6 animate-spin text-zinc-400 mx-auto" aria-hidden="true" />
+          <p className="text-xs text-zinc-400 mt-4">If this page doesn&apos;t update, your reset link may be expired. <Link href="/" className="text-blue-400 hover:text-blue-300 inline-flex items-center min-h-[44px]">Request a new one</Link>.</p>
         </div>
       </section>
     )
@@ -96,7 +96,7 @@ export default function ResetPassword() {
               autoComplete="new-password"
               className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-base placeholder-zinc-500 focus:outline-none focus:border-blue-500"
             />
-            <p className="text-xs text-zinc-500 mt-1.5">Minimum 8 characters</p>
+            <p className="text-xs text-zinc-400 mt-1.5">Minimum 8 characters</p>
           </div>
           <input
             type="password"

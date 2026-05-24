@@ -73,7 +73,7 @@ export function AuditResults({ audit, plan }: { audit: AuditResult; plan: PlanId
         return (
           <div key={cat}>
             <div className="flex items-center gap-3 mb-3">
-              <FileCode className="w-4 h-4 text-zinc-500" aria-hidden="true" />
+              <FileCode className="w-4 h-4 text-zinc-400" aria-hidden="true" />
               <h3 className="text-sm font-semibold text-zinc-300 uppercase tracking-wide">{categoryLabel(cat)}</h3>
               {f > 0 && <span className="px-2 py-0.5 text-xs font-medium bg-red-500/20 text-red-400 rounded-full">{f} issue{f !== 1 ? 's' : ''}</span>}
             </div>
@@ -83,7 +83,7 @@ export function AuditResults({ audit, plan }: { audit: AuditResult; plan: PlanId
               ))}
               {catHidden > 0 && (
                 <div className="rounded-lg border border-zinc-800 bg-zinc-800/30 p-4 text-center">
-                  <p className="text-sm text-zinc-500">+{catHidden} more check{catHidden !== 1 ? 's' : ''} in this category</p>
+                  <p className="text-sm text-zinc-400">+{catHidden} more check{catHidden !== 1 ? 's' : ''} in this category</p>
                 </div>
               )}
             </div>
@@ -143,7 +143,7 @@ export function AuditResults({ audit, plan }: { audit: AuditResult; plan: PlanId
 }
 
 function Stat({ n, label, color }: { n: number; label: string; color: string }) {
-  return <div className="text-center"><p className={`text-2xl font-bold ${color}`}>{n}</p><p className="text-sm text-zinc-500">{label}</p></div>
+  return <div className="text-center"><p className={`text-2xl font-bold ${color}`}>{n}</p><p className="text-sm text-zinc-400">{label}</p></div>
 }
 
 function Step({ n, title, desc, link, label }: { n: number; title: string; desc: string; link?: string; label?: string }) {

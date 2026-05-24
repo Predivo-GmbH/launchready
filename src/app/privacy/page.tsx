@@ -15,7 +15,7 @@ export default function Privacy() {
     <section className="py-16 sm:py-24 px-4">
       <div className="max-w-2xl mx-auto space-y-8">
         <h1 className="text-3xl font-bold text-white">Privacy Policy</h1>
-        <p className="text-sm text-zinc-500">Last updated: March 10, 2026</p>
+        <p className="text-sm text-zinc-400">Last updated: March 10, 2026</p>
 
         <div className="space-y-6 text-sm text-zinc-400 leading-relaxed">
           <div>

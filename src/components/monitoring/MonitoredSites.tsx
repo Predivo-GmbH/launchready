@@ -132,7 +132,7 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
 
   if (loading) {
     return (
-      <div className="animate-pulse text-zinc-500 text-center py-8" role="status" aria-live="polite" aria-label="Loading monitored sites">Loading monitored sites...</div>
+      <div className="animate-pulse text-zinc-400 text-center py-8" role="status" aria-live="polite" aria-label="Loading monitored sites">Loading monitored sites...</div>
     )
   }
 
@@ -141,7 +141,7 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
       <div className="flex flex-wrap items-center justify-between mb-6 gap-3">
         <div>
           <h2 className="text-xl font-bold text-white">Monitored Sites</h2>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-zinc-400 mt-1">
             {sites.length}/{limits.maxMonitoredSites} sites &middot; Re-audited weekly
           </p>
         </div>
@@ -160,7 +160,7 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
       {showAdd && (
         <form onSubmit={addSite} className="mb-6 flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1 min-w-0">
-            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" aria-hidden="true" />
+            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" aria-hidden="true" />
             <input
               type="text"
               inputMode="url"
@@ -217,14 +217,14 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
                 {site.last_score != null ? (
                   <ScoreRing score={site.last_score} size={48} />
                 ) : (
-                  <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-xs text-zinc-500">—</div>
+                  <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-xs text-zinc-400">—</div>
                 )}
 
                 <div className="flex-1 min-w-0">
                   <a href={site.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-white hover:text-blue-400 flex items-center gap-1 truncate">
                     {site.url.replace(/^https?:\/\//, '')} <ExternalLink className="w-4 h-4 shrink-0" aria-hidden="true" />
                   </a>
-                  <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-zinc-500">
+                  <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-zinc-400">
                     <Clock className="w-4 h-4" aria-hidden="true" />
                     {site.last_checked_at
                       ? `Last checked ${new Date(site.last_checked_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
@@ -232,7 +232,7 @@ export function MonitoredSites({ plan }: { plan: PlanId }) {
                     {TrendIcon && scoreDiff != null && (
                       <>
                         <span>&middot;</span>
-                        <span className={`flex items-center gap-0.5 ${scoreDiff > 0 ? 'text-green-500' : scoreDiff < 0 ? 'text-red-500' : 'text-zinc-500'}`}>
+                        <span className={`flex items-center gap-0.5 ${scoreDiff > 0 ? 'text-green-500' : scoreDiff < 0 ? 'text-red-500' : 'text-zinc-400'}`}>
                           <TrendIcon className="w-4 h-4" aria-hidden="true" />
                           {scoreDiff > 0 ? '+' : ''}{scoreDiff}
                         </span>

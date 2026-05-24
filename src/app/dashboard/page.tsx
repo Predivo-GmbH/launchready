@@ -52,7 +52,7 @@ export default function Dashboard() {
   if (loading || fetching) {
     return (
       <div className="py-24 text-center">
-        <div className="animate-pulse text-zinc-500" role="status" aria-live="polite" aria-label="Loading audits">Loading...</div>
+        <div className="animate-pulse text-zinc-400" role="status" aria-live="polite" aria-label="Loading audits">Loading...</div>
       </div>
     )
   }
@@ -133,7 +133,7 @@ function AuditCard({ audit }: { audit: AuditRow }) {
         <a href={audit.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-white hover:text-blue-400 flex items-center gap-1 truncate min-h-[44px]">
           {audit.url} <ExternalLink className="w-4 h-4 shrink-0" aria-hidden="true" />
         </a>
-        <div className="flex items-center gap-2 mt-1 text-xs text-zinc-500">
+        <div className="flex items-center gap-2 mt-1 text-xs text-zinc-400">
           <Clock className="w-4 h-4" aria-hidden="true" />
           {new Date(audit.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
           <span>&middot;</span>
@@ -148,7 +148,7 @@ function AuditCard({ audit }: { audit: AuditRow }) {
       </div>
       <div className="text-right">
         <span className="text-2xl font-bold text-white">{audit.overall_score}</span>
-        <span className="text-xs text-zinc-500">/100</span>
+        <span className="text-xs text-zinc-400">/100</span>
       </div>
     </div>
   )

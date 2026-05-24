@@ -206,7 +206,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
           <input type="email" inputMode="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" aria-label="Email" required autoComplete="email" autoFocus className={INPUT} />
           {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
 
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-zinc-400">
             By signing up, you agree to our{' '}
             <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 inline-flex items-center min-h-[44px]">Terms of Service</a>
             {' '}and{' '}
@@ -249,7 +249,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
           </button>
         </form>
 
-        <p className="text-xs text-zinc-500 mt-4 text-center">
+        <p className="text-xs text-zinc-400 mt-4 text-center">
           Didn&apos;t receive it?{' '}
           <button onClick={resendOtp} disabled={loading} className="text-blue-400 hover:text-blue-300 disabled:text-zinc-600 min-h-[44px]">Resend code</button>
         </p>
@@ -272,7 +272,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
         <form onSubmit={setUserPassword} className="space-y-4">
           <div>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Create a password" aria-label="Create a password" required minLength={8} autoComplete="new-password" autoFocus className={INPUT} />
-            <p className="text-xs text-zinc-500 mt-1.5">Minimum 8 characters</p>
+            <p className="text-xs text-zinc-400 mt-1.5">Minimum 8 characters</p>
           </div>
           {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
           <button type="submit" disabled={loading} className={BTN_PRIMARY}>
@@ -281,7 +281,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
           </button>
         </form>
 
-        <button onClick={onSuccess} className="w-full text-sm text-zinc-500 hover:text-zinc-300 mt-3 text-center transition-colors min-h-[44px]">
+        <button onClick={onSuccess} className="w-full text-sm text-zinc-400 hover:text-zinc-300 mt-3 text-center transition-colors min-h-[44px]">
           Skip for now
         </button>
       </Overlay>
@@ -307,7 +307,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-zinc-800" /></div>
-            <div className="relative flex justify-center"><span className="bg-zinc-900 px-3 text-xs text-zinc-500">or</span></div>
+            <div className="relative flex justify-center"><span className="bg-zinc-900 px-3 text-xs text-zinc-400">or</span></div>
           </div>
 
           <button onClick={() => { if (!email.trim()) { setError('Enter your email'); return }; setError(null); setStep('login-password') }} className={BTN_SECONDARY}>
@@ -337,14 +337,14 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
           <p className="text-sm text-zinc-400 mt-2">
             We sent a login link and code to <span className="text-white">{email}</span>
           </p>
-          <p className="text-xs text-zinc-500 mt-1">Click the link in the email, or enter the code below.</p>
+          <p className="text-xs text-zinc-400 mt-1">Click the link in the email, or enter the code below.</p>
         </div>
 
         <button onClick={() => setStep('login-otp')} className={BTN_PRIMARY}>
           Enter code manually
         </button>
 
-        <p className="text-xs text-zinc-500 mt-4 text-center">
+        <p className="text-xs text-zinc-400 mt-4 text-center">
           Didn&apos;t receive it?{' '}
           <button onClick={resendOtp} disabled={loading} className="text-blue-400 hover:text-blue-300 disabled:text-zinc-600 min-h-[44px]">Resend</button>
         </p>
@@ -371,7 +371,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
           </button>
         </form>
 
-        <p className="text-xs text-zinc-500 mt-4 text-center">
+        <p className="text-xs text-zinc-400 mt-4 text-center">
           Didn&apos;t receive it?{' '}
           <button onClick={resendOtp} disabled={loading} className="text-blue-400 hover:text-blue-300 disabled:text-zinc-600 min-h-[44px]">Resend code</button>
         </p>
@@ -391,7 +391,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
           <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" aria-label="Password" required minLength={8} autoComplete="current-password" autoFocus className={INPUT} />
 
           <div className="text-right">
-            <button type="button" onClick={() => { setError(null); setStep('forgot') }} className="text-xs text-zinc-500 hover:text-zinc-300 min-h-[44px]">
+            <button type="button" onClick={() => { setError(null); setStep('forgot') }} className="text-xs text-zinc-400 hover:text-zinc-300 min-h-[44px]">
               Forgot password?
             </button>
           </div>
@@ -437,7 +437,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
           </div>
           <h2 className="text-xl font-bold text-white">Reset link sent</h2>
           <p className="text-sm text-zinc-400">If an account exists for <span className="text-white">{email}</span>, you&apos;ll receive a password reset link.</p>
-          <p className="text-xs text-zinc-500">Didn&apos;t receive it? Check your spam folder.</p>
+          <p className="text-xs text-zinc-400">Didn&apos;t receive it? Check your spam folder.</p>
           <button onClick={onClose} className="text-sm text-blue-400 hover:text-blue-300 min-h-[44px]">Close</button>
         </div>
       </Overlay>
@@ -481,7 +481,7 @@ function OtpInputRow({ otp, otpRefs, onOtpChange, onOtpKeyDown, onOtpPaste }: Ot
 
 function BackButton({ onClick }: { onClick: () => void }) {
   return (
-    <button onClick={onClick} className="flex items-center gap-1 text-sm text-zinc-500 hover:text-white transition-colors mb-4 min-h-[44px]">
+    <button onClick={onClick} className="flex items-center gap-1 text-sm text-zinc-400 hover:text-white transition-colors mb-4 min-h-[44px]">
       <ArrowLeft className="w-4 h-4" aria-hidden="true" />Back
     </button>
   )
@@ -527,7 +527,7 @@ function Overlay({ children, onClose }: { children: React.ReactNode; onClose: ()
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Authentication" onClick={onClose}>
       <div ref={dialogRef} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-8 max-w-md w-full relative max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} aria-label="Close dialog" className="absolute top-2 right-2 sm:top-4 sm:right-4 text-zinc-500 hover:text-white p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"><X className="w-5 h-5" aria-hidden="true" /></button>
+        <button onClick={onClose} aria-label="Close dialog" className="absolute top-2 right-2 sm:top-4 sm:right-4 text-zinc-400 hover:text-white p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"><X className="w-5 h-5" aria-hidden="true" /></button>
         {children}
       </div>
     </div>

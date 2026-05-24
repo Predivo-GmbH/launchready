@@ -84,7 +84,7 @@ export default function Pricing() {
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2 text-sm">
                       <Check className={`w-4 h-4 mt-0.5 shrink-0 ${
-                        plan.highlighted ? 'text-blue-400' : 'text-zinc-500'
+                        plan.highlighted ? 'text-blue-400' : 'text-zinc-400'
                       }`} aria-hidden="true" />
                       <span className="text-zinc-300">{feature}</span>
                     </li>

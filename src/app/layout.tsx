@@ -60,8 +60,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             <footer className="border-t border-zinc-800 py-8 px-4">
               <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-2 text-zinc-500 text-sm"><Zap className="w-4 h-4" aria-hidden="true" />LaunchReady — Built by Predivo GmbH</div>
-                <nav aria-label="Footer navigation" className="flex flex-wrap items-center gap-4 text-sm text-zinc-500">
+                <div className="flex items-center gap-2 text-zinc-400 text-sm"><Zap className="w-4 h-4" aria-hidden="true" />LaunchReady — Built by Predivo GmbH</div>
+                <nav aria-label="Footer navigation" className="flex flex-wrap items-center gap-4 text-sm text-zinc-400">
                   <Link href="/pricing" className="hover:text-zinc-300 transition-colors min-h-[44px] inline-flex items-center">Pricing</Link>
                   <Link href="/impressum" className="hover:text-zinc-300 transition-colors min-h-[44px] inline-flex items-center">Impressum</Link>
                   <Link href="/privacy" className="hover:text-zinc-300 transition-colors min-h-[44px] inline-flex items-center">Privacy</Link>

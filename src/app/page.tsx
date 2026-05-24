@@ -35,17 +35,17 @@ export default function Home() {
 
           <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
             Your website is live.<br />
-            <span className="text-zinc-500">Google doesn&apos;t know it exists.</span>
+            <span className="text-zinc-400">Google doesn&apos;t know it exists.</span>
           </h1>
 
           <p className="text-lg text-zinc-400 max-w-xl mx-auto leading-relaxed">
-            Paste your URL and get a full post-launch audit with{' '}
+            Enter your URL and get a full post-launch audit with{' '}
             <span className="text-white font-medium">copy-paste fix code</span> — in 60 seconds.
           </p>
 
           <AuditForm />
 
-          <div className="flex flex-wrap justify-center gap-x-4 sm:gap-x-8 gap-y-2 text-sm text-zinc-500">
+          <div className="flex flex-wrap justify-center gap-x-4 sm:gap-x-8 gap-y-2 text-sm text-zinc-400">
             <span>Meta tags</span>
             <span>OG &amp; Twitter cards</span>
             <span>Sitemap &amp; robots.txt</span>

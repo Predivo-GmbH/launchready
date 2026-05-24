@@ -90,7 +90,7 @@ export function AuditForm() {
       <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1 min-w-0">
-            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" aria-hidden="true" />
+            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" aria-hidden="true" />
             <input
               type="text"
               inputMode="url"

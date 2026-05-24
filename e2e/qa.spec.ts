@@ -49,6 +49,23 @@ async function gotoPage(page: Page, path: string) {
   await page.locator('header').waitFor({ state: 'visible', timeout: 10000 })
 }
 
+async function isMobile(page: Page): Promise<boolean> {
+  const viewport = page.viewportSize()
+  return (viewport?.width ?? 1280) < 640
+}
+
+async function openMobileMenu(page: Page) {
+  const hamburger = page.getByLabel('Open menu')
+  await hamburger.click()
+  await page.locator('nav[aria-label="Mobile navigation"]').waitFor({ state: 'visible', timeout: 5000 })
+}
+
+function getNav(page: Page, mobile: boolean) {
+  return mobile
+    ? page.locator('nav[aria-label="Mobile navigation"]')
+    : page.locator('nav[aria-label="Main navigation"]')
+}
+
 // ─── PasswordGate ────────────────────────────────────────────
 test.describe('PasswordGate', () => {
   test('shows gate on first visit', async ({ page }) => {
@@ -275,14 +292,19 @@ test.describe('Header & Navigation', () => {
 
   test('desktop nav has correct links', async ({ page }) => {
     await gotoPage(page, '/')
-    const nav = page.locator('nav[aria-label="Main navigation"]')
+    const mobile = await isMobile(page)
+    if (mobile) await openMobileMenu(page)
+    const nav = getNav(page, mobile)
     await expect(nav.locator('a[href="/pricing"]')).toBeVisible()
     await expect(nav.locator('a[href="/#how-it-works"]')).toBeVisible()
   })
 
   test('pricing link navigates correctly', async ({ page }) => {
     await gotoPage(page, '/')
-    await page.locator('nav[aria-label="Main navigation"] a[href="/pricing"]').click()
+    const mobile = await isMobile(page)
+    if (mobile) await openMobileMenu(page)
+    const nav = getNav(page, mobile)
+    await nav.locator('a[href="/pricing"]').click()
     await page.waitForURL('**/pricing')
     await page.locator('header').waitFor({ state: 'visible', timeout: 5000 })
     await expect(page.locator('h1')).toContainText('pricing')
