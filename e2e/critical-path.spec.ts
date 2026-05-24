@@ -160,9 +160,8 @@ test.describe('CRITICAL PATH — Protected Route Guards', () => {
       // Either login prompt appeared OR we got redirected away
       if (isOnDashboard) {
         // If still on dashboard URL, a login prompt should be visible
-        const loginPrompt = page.getByText('Log in to see your audit history.')
-        const loginButton = page.locator('#main-content').getByRole('button', { name: 'Log in' })
-        await expect(loginPrompt.or(loginButton)).toBeVisible({ timeout: 5000 })
+        const loginPrompt = page.getByText('Log in to see your audit history.', { exact: true })
+        await expect(loginPrompt).toBeVisible({ timeout: 5000 })
       }
       // If redirected, that's also valid behavior
     })
