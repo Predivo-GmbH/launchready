@@ -1,0 +1,7 @@
+project_id = "launchready"
+
+# run-monitoring is called by the GitHub Actions cron with a CRON_SECRET bearer
+# token (not a Supabase JWT). The gateway must not enforce JWT verification —
+# the function validates CRON_SECRET itself (supabase/functions/run-monitoring/index.ts).
+[functions.run-monitoring]
+verify_jwt = false
