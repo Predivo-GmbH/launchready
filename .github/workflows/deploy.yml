@@ -55,7 +55,7 @@ jobs:
           FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq lftp
-          LFTP_SETTINGS="set ftp:ssl-allow no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5;"
+          LFTP_SETTINGS="set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5;"
 
           echo "launchready" > ./out/.site-id
 
