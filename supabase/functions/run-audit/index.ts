@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
 import * as cheerio from 'https://esm.sh/cheerio@1.0.0'
 import { logAnthropicUsage } from '../_shared/log-usage.ts'
+import { anthropicMessages } from '../_shared/anthropic-model.ts'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -345,21 +346,14 @@ async function generateFixes(apiKey: string, url: string, html: string, failedCh
 
   const checkList = failedChecks.map(c => `- ${c.id}: ${c.name} — ${c.description}`).join('\n')
 
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-5-20250514',
+  // Fleet standard 2026-07-05: model resolved dynamically (AI_MODEL_SMART pin,
+  // /v1/models fallback on retirement) — heals the invalid claude-sonnet-4-5-20250514.
+  const resp = await anthropicMessages(apiKey, 'smart', {
       max_tokens: 2000,
       messages: [{
         role: 'user',
         content: `You are a web SEO expert. A website at ${url} has these issues:\n\n${checkList}\n\nCurrent HTML <head>:\n\`\`\`html\n${truncated}\n\`\`\`\n\nFor each failed check, return a JSON array of objects with:\n- "id": check ID (exact match)\n- "fix_code": exact HTML/XML to copy-paste\n- "fix_explanation": 1-2 sentence plain-English explanation\n- "fix_location": where to put it\n\nFor descriptions: write based on actual page content, 120-160 chars, include keywords.\nFor JSON-LD: generate Organization schema from page content.\nFor sitemaps: generate complete sitemap.xml with today's date.\n\nReturn ONLY a JSON array. No markdown fences.`,
       }],
-    }),
   })
 
   if (!resp.ok) return []
