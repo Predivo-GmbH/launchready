@@ -68,7 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       <span className="text-base font-extrabold tracking-[-0.02em] text-white">LaunchReady</span>
                     </div>
                     <p className="max-w-xs text-xs leading-relaxed text-zinc-400">Post-launch website audits with copy-paste AI fix code — in 60 seconds.</p>
-                    <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
+                    <p className="flex items-center gap-1.5 text-[10px] text-zinc-400">
                       <Shield className="h-3 w-3 shrink-0" aria-hidden="true" />
                       Swiss-made
                     </p>
@@ -76,7 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                   {/* Product */}
                   <nav aria-label="Product" className="flex flex-col gap-4">
-                    <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Product</h3>
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Product</h3>
                     <ul className="flex flex-col gap-3">
                       <li><Link href="/pricing" className="text-sm text-zinc-400 transition-colors hover:text-white">Pricing</Link></li>
                     </ul>
@@ -86,7 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <div className="my-8 border-t border-zinc-800" />
 
                 <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-                  <p className="text-xs text-zinc-500">© {new Date().getFullYear()} LaunchReady by Predivo GmbH. All rights reserved.</p>
+                  <p className="text-xs text-zinc-400">© {new Date().getFullYear()} LaunchReady by Predivo GmbH. All rights reserved.</p>
                   <nav aria-label="Legal" className="flex flex-wrap justify-center gap-x-5 gap-y-2">
                     <Link href="/privacy" className="text-xs text-zinc-400 transition-colors hover:text-white">Privacy</Link>
                     <Link href="/terms" className="text-xs text-zinc-400 transition-colors hover:text-white">Terms</Link>
