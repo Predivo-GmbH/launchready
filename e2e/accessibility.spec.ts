@@ -96,7 +96,7 @@ test.describe('Accessibility — Manual Checks', () => {
 
   test('footer navigation has aria-label', async ({ page }) => {
     await gotoPage(page, '/')
-    await expect(page.locator('nav[aria-label="Footer navigation"]')).toBeAttached()
+    await expect(page.locator('footer nav[aria-label]').first()).toBeAttached()
   })
 
   test('header navigation has aria-label', async ({ page }) => {

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Inter } from 'next/font/google'
-import { Zap } from 'lucide-react'
+import { Shield, Zap } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { PasswordGate } from '@/components/shared/PasswordGate'
 import './globals.css'
@@ -58,15 +58,41 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             <main id="main-content" className="flex-1 min-w-0">{children}</main>
 
-            <footer className="border-t border-zinc-800 py-8 px-4">
-              <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-2 text-zinc-400 text-sm"><Zap className="w-4 h-4" aria-hidden="true" />LaunchReady — Built by Predivo GmbH</div>
-                <nav aria-label="Footer navigation" className="flex flex-wrap items-center gap-4 text-sm text-zinc-400">
-                  <Link href="/pricing" className="hover:text-zinc-300 transition-colors min-h-[44px] inline-flex items-center">Pricing</Link>
-                  <Link href="/impressum" className="hover:text-zinc-300 transition-colors min-h-[44px] inline-flex items-center">Impressum</Link>
-                  <Link href="/privacy" className="hover:text-zinc-300 transition-colors min-h-[44px] inline-flex items-center">Privacy</Link>
-                  <Link href="/terms" className="hover:text-zinc-300 transition-colors min-h-[44px] inline-flex items-center">Terms</Link>
-                </nav>
+            <footer className="border-t border-zinc-800">
+              <div className="max-w-6xl mx-auto px-4 py-12">
+                <div className="grid grid-cols-1 gap-8 sm:grid-cols-[1.6fr_1fr]">
+                  {/* Brand */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-5 h-5 text-blue-500" aria-hidden="true" />
+                      <span className="text-base font-extrabold tracking-[-0.02em] text-white">LaunchReady</span>
+                    </div>
+                    <p className="max-w-xs text-xs leading-relaxed text-zinc-400">Post-launch website audits with copy-paste AI fix code — in 60 seconds.</p>
+                    <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
+                      <Shield className="h-3 w-3 shrink-0" aria-hidden="true" />
+                      Swiss-made
+                    </p>
+                  </div>
+
+                  {/* Product */}
+                  <nav aria-label="Product" className="flex flex-col gap-4">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Product</h3>
+                    <ul className="flex flex-col gap-3">
+                      <li><Link href="/pricing" className="text-sm text-zinc-400 transition-colors hover:text-white">Pricing</Link></li>
+                    </ul>
+                  </nav>
+                </div>
+
+                <div className="my-8 border-t border-zinc-800" />
+
+                <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+                  <p className="text-xs text-zinc-500">© {new Date().getFullYear()} LaunchReady by Predivo GmbH. All rights reserved.</p>
+                  <nav aria-label="Legal" className="flex flex-wrap justify-center gap-x-5 gap-y-2">
+                    <Link href="/privacy" className="text-xs text-zinc-400 transition-colors hover:text-white">Privacy</Link>
+                    <Link href="/terms" className="text-xs text-zinc-400 transition-colors hover:text-white">Terms</Link>
+                    <Link href="/impressum" className="text-xs text-zinc-400 transition-colors hover:text-white">Impressum</Link>
+                  </nav>
+                </div>
               </div>
             </footer>
           </div>

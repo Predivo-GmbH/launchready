@@ -335,7 +335,7 @@ test.describe('Accessibility', () => {
 
   test('footer navigation has aria-label', async ({ page }) => {
     await gotoPage(page, '/')
-    const footerNav = page.locator('nav[aria-label="Footer navigation"]')
+    const footerNav = page.locator('footer nav[aria-label]').first()
     await expect(footerNav).toBeAttached()
   })
 
