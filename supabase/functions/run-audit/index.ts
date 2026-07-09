@@ -116,7 +116,7 @@ serve(async (req: Request) => {
     let userId: string | null = null
     let userPlan = 'free'
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    const supabaseServiceKey = (Deno.env.get('SB_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error('Missing required env vars: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
       return new Response(JSON.stringify({ error: 'Server configuration error' }), {
