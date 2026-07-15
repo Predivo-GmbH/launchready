@@ -11,7 +11,10 @@ on:
 
 concurrency:
   group: deploy-production
-  cancel-in-progress: true
+  # Serialize deploys: queued, never cancelled mid-run — cancel-in-progress left
+  # prod half-applied when rapid pushes superseded each other mid-FTP-mirror
+  # (see standards/deploy-standard.md; Audits/BREAKAGE_ROOT_CAUSE_INVESTIGATION_2026-07-14.md §8).
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -22,7 +25,7 @@ jobs:
 
       - uses: actions/setup-node@v5
         with:
-          node-version: '24.13.0'
+          node-version: 22 # standards/deploy-standard.md §5 — Node 22 (package.json has no `engines` restriction)
           cache: npm
 
       - run: npm ci
@@ -73,23 +76,73 @@ jobs:
           echo "Site-id guard passed (remote='${REMOTE_ID:-<none>}')"
 
           # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
-          lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
+          # Retry loop (deploy-standard.md §3): mirror is resumable, so a transient
+          # blip just retries. A 530 (bad login) fails fast — it's a stale secret,
+          # not a transient network issue, so retrying wastes 100s for nothing.
+          n=0
+          until [ $n -ge 4 ]; do
+          OUT=$(lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF 2>&1
             $LFTP_SETTINGS
             mirror --reverse --no-perms --verbose ./out/_next/ /launchready.predivo.ch/_next/
             quit
           LFTP_EOF
+          )
+          RC=$?
+          echo "$OUT"
+          [ $RC -eq 0 ] && { echo "Step 1 (hashed assets) upload ok (attempt $((n+1)))"; break; }
+          echo "$OUT" | grep -qiE '530|login (incorrect|failed)' && { echo "::error::FTP auth failed (530) — stale FTP secret, not transient; not retrying."; exit 1; }
+          n=$((n+1)); [ $n -ge 4 ] && { echo "::error::Step 1 (hashed assets) upload failed after 4 attempts"; exit 1; }
+          echo "::warning::Step 1 attempt $n failed (transient); retrying in 25s..."; sleep 25
+          done
 
           # Step 2: Full mirror of everything (HTML, images, etc.)
           # --delete removes stale files on server.
-          lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
+          n=0
+          until [ $n -ge 4 ]; do
+          OUT=$(lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF 2>&1
             $LFTP_SETTINGS
             mirror --reverse --delete --no-perms --verbose ./out/ /launchready.predivo.ch/
             quit
           LFTP_EOF
+          )
+          RC=$?
+          echo "$OUT"
+          [ $RC -eq 0 ] && { echo "Step 2 (full mirror) upload ok (attempt $((n+1)))"; break; }
+          echo "$OUT" | grep -qiE '530|login (incorrect|failed)' && { echo "::error::FTP auth failed (530) — stale FTP secret, not transient; not retrying."; exit 1; }
+          n=$((n+1)); [ $n -ge 4 ] && { echo "::error::Step 2 (full mirror) upload failed after 4 attempts"; exit 1; }
+          echo "::warning::Step 2 attempt $n failed (transient); retrying in 25s..."; sleep 25
+          done
 
-          # Step 3: Verify deploy landed
-          lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
+          # Step 3: Verify file landed via FTP (cheap sanity check; the authoritative
+          # check is the HTTP-200 curl in the next step, which proves Apache actually
+          # serves the site — not just that the file was uploaded).
+          n=0
+          until [ $n -ge 4 ]; do
+          OUT=$(lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF 2>&1
             $LFTP_SETTINGS
             ls /launchready.predivo.ch/index.html
             quit
           LFTP_EOF
+          )
+          RC=$?
+          echo "$OUT"
+          [ $RC -eq 0 ] && { echo "Step 3 (FTP file check) ok (attempt $((n+1)))"; break; }
+          echo "$OUT" | grep -qiE '530|login (incorrect|failed)' && { echo "::error::FTP auth failed (530) — stale FTP secret, not transient; not retrying."; exit 1; }
+          n=$((n+1)); [ $n -ge 4 ] && { echo "::error::Step 3 (FTP file check) failed after 4 attempts"; exit 1; }
+          echo "::warning::Step 3 attempt $n failed (transient); retrying in 25s..."; sleep 25
+          done
+
+      - name: Verify site is live (HTTP 200)
+        # Real end-to-end proof: FTP "ls" only proves the file was uploaded, not
+        # that Apache is actually serving it (wrong .htaccess, permissions, or a
+        # 500 would still pass an FTP file-exists check). Retry loop per
+        # deploy-standard.md §3d — survives transient curl failures, not just non-200s.
+        run: |
+          for i in 1 2 3 4 5 6; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://launchready.predivo.ch/ --max-time 30 || echo 000)
+            if [ "$STATUS" = "200" ]; then echo "Production site is live (HTTP $STATUS, attempt $i)"; exit 0; fi
+            echo "::warning::Production check attempt $i/6 got HTTP $STATUS - retrying in 15s..."
+            sleep 15
+          done
+          echo "::error::https://launchready.predivo.ch/ returned HTTP $STATUS after 6 attempts - deploy landed but site is not serving 200."
+          exit 1
