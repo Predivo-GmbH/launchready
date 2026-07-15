@@ -58,6 +58,9 @@ jobs:
           FTP_USER: ${{ secrets.FTP_USER }}
           FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
+          # set +e: GitHub runs steps with bash -e, which aborts OUT=$(lftp…) on the
+          # first failure BEFORE the retry loops below can iterate (dead-retry, deploy-standard §3f).
+          set +e
           sudo apt-get update -qq && sudo apt-get install -y -qq lftp
           LFTP_SETTINGS="set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no; set ftp:passive-mode yes; set ftp:prefer-epsv no; set net:timeout 30; set net:max-retries 4; set net:persist-retries 4; set net:reconnect-interval-base 8; set mirror:parallel-transfer-count 4;"
 
