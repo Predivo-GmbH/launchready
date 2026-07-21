@@ -110,8 +110,8 @@ async function runCase(testCase: TestCase, apiKey: string, promptTemplate: strin
   const rawText = json.content?.find((b: Record<string, unknown>) => b.type === 'text')?.text as string ?? ''
   const promptTokens = json.usage?.input_tokens ?? 0
   const completionTokens = json.usage?.output_tokens ?? 0
-  // Haiku 4.5: $0.80/M input, $4/M output
-  const costUsd = (promptTokens * 0.8 + completionTokens * 4) / 1_000_000
+  // Haiku 4.5: $1/M input, $5/M output (matches _shared/log-usage.ts — the 0.80/4 figures were wrong)
+  const costUsd = (promptTokens * 1 + completionTokens * 5) / 1_000_000
 
   let jsonParsedClean = true
   let jsonRepaired = false
