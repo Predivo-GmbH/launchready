@@ -62,7 +62,7 @@ jobs:
           {
             echo 'AuthType Basic'
             echo 'AuthName "LaunchReady Staging"'
-            echo 'AuthUserFile /var/www/vhosts/launchready.predivo.ch/staging.launchready.predivo.ch/.htpasswd'
+            echo 'AuthUserFile /var/www/vhosts/predivo.ch/staging.launchready.predivo.ch/.htpasswd'
             echo 'Require valid-user'
             echo ''
             cat /tmp/prod.htaccess
