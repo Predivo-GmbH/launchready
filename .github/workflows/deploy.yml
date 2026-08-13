@@ -1,13 +1,18 @@
 name: Build & Deploy
 
+# STAGING-FIRST PIPELINE — production is a deliberate, gated promotion, never
+# an automatic side-effect of pushing to master. Pushes to `staging` deploy to
+# staging.launchready.predivo.ch (see deploy-staging.yml) for review; shipping
+# to production requires a manual workflow_dispatch with confirm="deploy" typed
+# in, exactly like Valrano/SignalScore. Same build/test/FTP machinery as before.
+
 on:
-  push:
-    branches: [master]
-    paths-ignore:
-      - '*.md'
-      - 'docs/**'
-      - 'LICENSE'
-      - '.gitignore'
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "deploy" to confirm PRODUCTION deploy'
+        required: true
+        default: ''
 
 concurrency:
   group: deploy-production
@@ -18,6 +23,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'deploy'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

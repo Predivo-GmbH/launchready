@@ -1,0 +1,128 @@
+name: Deploy to Staging
+
+# Staging environment for staging.launchready.predivo.ch — hosts work-in-progress
+# for review BEFORE it reaches production. Triggered by pushing to the `staging`
+# branch. Production is a SEPARATE workflow (deploy.yml) and is only shipped via
+# a manual, confirmed workflow_dispatch — never touched by this one.
+#
+# Protection: the deployed .htaccess adds HTTP Basic auth (creds live in the
+# server-side .htpasswd at the docroot, placed once and excluded from the FTP
+# mirror) plus X-Robots-Tag noindex, and robots.txt disallows all — so staging
+# is never publicly reachable or indexed.
+
+on:
+  push:
+    branches: [staging]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.gitignore'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build static export for staging
+        run: npm run build
+        env:
+          # Dedicated staging Supabase project (full data isolation from prod).
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.STAGING_NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.STAGING_NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          # Sentry reuses the SAME project as production; environment is tagged
+          # by hostname at runtime (see src/instrumentation-client.ts), so this
+          # DSN produces "staging.launchready.predivo.ch"-tagged events here.
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+
+      - name: Prepare staging .htaccess (basic-auth + noindex)
+        run: |
+          # Reuse the REAL production .htaccess (copied verbatim from public/ into
+          # the static export by `next build`) so staging catches the same
+          # Apache/rewrite behaviour, then prepend Basic auth and append a
+          # noindex header. Do NOT hand-write a divergent ruleset here.
+          mv out/.htaccess /tmp/prod.htaccess
+          {
+            echo 'AuthType Basic'
+            echo 'AuthName "LaunchReady Staging"'
+            echo 'AuthUserFile /var/www/vhosts/launchready.predivo.ch/staging.launchready.predivo.ch/.htpasswd'
+            echo 'Require valid-user'
+            echo ''
+            cat /tmp/prod.htaccess
+            echo ''
+            echo '# --- Staging overrides ---'
+            echo '<IfModule mod_headers.c>'
+            echo '  Header always set X-Robots-Tag "noindex, nofollow"'
+            echo '</IfModule>'
+          } > out/.htaccess
+
+      - name: Staging robots.txt (disallow all)
+        run: |
+          printf 'User-agent: *\nDisallow: /\n' > out/robots.txt
+
+      - name: Deploy staging via FTP
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: |
+          # set +e: GitHub runs steps with bash -e, which would abort OUT=$(lftp…)
+          # on the first failure BEFORE the retry loop below can iterate.
+          set +e
+          sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+          LFTP_SETTINGS="set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no; set ftp:passive-mode yes; set ftp:prefer-epsv no; set net:timeout 30; set net:max-retries 4; set net:persist-retries 4; set net:reconnect-interval-base 8; set net:reconnect-interval-multiplier 1; set mirror:parallel-transfer-count 4;"
+
+          # Distinct site-id from production ('launchready') so the prod
+          # site-id guard in deploy.yml can never be satisfied by a staging
+          # remote, and vice versa.
+          echo "launchready-staging" > ./out/.site-id
+
+          # Verify deploy target (site-id guard) before mirroring anything.
+          REMOTE_ID=$(lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" -e "$LFTP_SETTINGS cat /staging.launchready.predivo.ch/.site-id; quit" 2>/dev/null)
+          RC=$?
+          if [ $RC -ne 0 ]; then
+            REMOTE_ID=""
+          fi
+          if [ -n "$REMOTE_ID" ] && [ "$REMOTE_ID" != "launchready-staging" ]; then
+            echo "::error::DEPLOY ABORTED — remote .site-id is '$REMOTE_ID', expected 'launchready-staging'. Wrong FTP target!"
+            exit 1
+          fi
+          echo "Site-id guard passed (remote='${REMOTE_ID:-<none>}')"
+
+          CMDS="$LFTP_SETTINGS mirror --reverse --delete --no-perms --verbose --exclude .htpasswd --exclude cgi-bin/ ./out/ staging.launchready.predivo.ch/; bye"
+          n=0
+          until [ $n -ge 4 ]; do
+            if timeout 420 lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" -e "$CMDS"; then
+              echo "Staging FTP deploy succeeded (attempt $((n+1)))"; exit 0
+            fi
+            n=$((n + 1)); echo "::warning::Staging FTP attempt $n failed (transient FTPS data-channel blip); retrying in 25s..."; sleep 25
+          done
+          echo "::error::Staging FTP deploy failed after 4 attempts"; exit 1
+
+      - name: Verify staging is alive (catches .htaccess errors + confirms auth)
+        run: |
+          for i in 1 2 3 4 5 6; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.STAGING_HTPASSWD_USER }}:${{ secrets.STAGING_HTPASSWD_PASS }}" https://staging.launchready.predivo.ch/ --max-time 30 || echo 000)
+            if [ "$STATUS" = "200" ]; then echo "Staging health check passed (HTTP $STATUS, attempt $i)"; exit 0; fi
+            echo "::warning::Staging check attempt $i/6 got HTTP $STATUS - retrying in 15s..."
+            sleep 15
+          done
+          echo "::error::Staging returned HTTP $STATUS after 6 attempts - likely .htaccess error or auth misconfig."
+          exit 1

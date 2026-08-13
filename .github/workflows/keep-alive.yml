@@ -28,3 +28,22 @@ jobs:
           fi
 
           echo "Supabase project pinged successfully"
+
+      - name: Ping Staging Supabase (real DB query via GraphQL)
+        run: |
+          echo "=== Staging GraphQL ping (real DB query via pg_graphql) ==="
+          gql_response=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.STAGING_SUPABASE_URL }}/graphql/v1" \
+            -X POST \
+            -H "apikey: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.STAGING_SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"query":"{ __typename }"}')
+          echo "GraphQL response: $gql_response"
+
+          if [ "$gql_response" != "200" ]; then
+            echo "::error::Staging GraphQL ping returned $gql_response — database may be paused"
+            exit 1
+          fi
+
+          echo "Staging Supabase project pinged successfully"
