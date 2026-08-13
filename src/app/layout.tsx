@@ -29,11 +29,14 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // Derive the Supabase preconnect from the build-time env so staging preconnects
+  // to the staging project rather than a hardcoded prod host.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   return (
     <html lang="en">
       <head>
-        <link rel="dns-prefetch" href="https://hcfeoescybfngjsphekq.supabase.co" />
-        <link rel="preconnect" href="https://hcfeoescybfngjsphekq.supabase.co" />
+        {supabaseUrl && <link rel="dns-prefetch" href={supabaseUrl} />}
+        {supabaseUrl && <link rel="preconnect" href={supabaseUrl} />}
         <link rel="icon" href="/favicon.ico" sizes="32x32" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
