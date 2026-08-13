@@ -12,7 +12,7 @@ Header always set X-XSS-Protection "1; mode=block"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
 Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
 Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co; frame-ancestors 'none'"
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://*.ingest.de.sentry.io https://*.sentry.io; frame-ancestors 'none'"
 
 # ── Caching ──
 # Immutable hashed assets (JS, CSS in _next/static/) — cache 1 year
