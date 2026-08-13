@@ -1,6 +1,13 @@
 'use client'
 
-export default function Error({ error: _error, reset }: { error: Error; reset: () => void }) {
+import * as Sentry from '@sentry/nextjs'
+import { useEffect } from 'react'
+
+export default function Error({ error, reset }: { error: Error; reset: () => void }) {
+  useEffect(() => {
+    Sentry.captureException(error)
+  }, [error])
+
   return (
     <section className="py-16 sm:py-24 px-4" role="alert">
       <div className="max-w-md mx-auto text-center space-y-4">

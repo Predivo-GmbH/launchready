@@ -19,6 +19,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sentry/nextjs": "^10.70.0",
     "@supabase/supabase-js": "^2.99.0",
     "@types/node": "^25.4.0",
     "@types/react": "^19.2.14",
