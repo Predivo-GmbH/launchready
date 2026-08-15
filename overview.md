@@ -27,7 +27,7 @@ Post-launch website audit SaaS. Paste a URL, get a 17-check scored audit with AI
 
 | Item | Value |
 |------|-------|
-| GitHub | `https://github.com/Arivioo/launchready` (private) |
+| GitHub | `https://github.com/Predivo-GmbH/launchready` (private) |
 | Branch | `master` |
 | Commits | 32 |
 | Supabase project | `hcfeoescybfngjsphekq` |
