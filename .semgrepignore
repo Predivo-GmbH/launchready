@@ -1,7 +1,5 @@
-# Semgrep scan scope (fleet-hardening Wave 2). SAST reads OUR code for injection / XSS /
-# hardcoded secrets — a different layer than `npm audit` (deps) and gitleaks (secrets in git).
-# EXCLUDED = non-runtime code that carries example tokens / fixtures / dev-only patterns that
-# semgrep mistakes for real findings (verified 2026-08-17). Scan real product code only.
+# Semgrep scan scope (fleet-hardening Wave 3). SAST reads OUR code for injection / XSS /
+# hardcoded secrets. EXCLUDED = non-runtime code with example tokens / fixtures.
 *.test.ts
 *.test.tsx
 *.test.mjs
@@ -15,12 +13,11 @@ tests/
 e2e/
 *.stories.tsx
 *.stories.ts
-# dev/utility scripts (not shipped): docs helper scripts + eval harnesses
 docs/
 *-eval/
 scripts/
-# build output + vendored code (semgrep skips node_modules by default; listed for clarity)
 dist/
 build/
 node_modules/
 coverage/
+.next/

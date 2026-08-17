@@ -1,0 +1,18 @@
+# Gitleaks allowlist for launchready (fleet-hardening Wave 3).
+# All items below are public/allowlisted, NOT live secrets.
+
+# PasswordGate.tsx stores a SHA-256 hash of the client-side early-access gate code,
+# not a secret.
+src/components/shared/PasswordGate.tsx:generic-api-key:5
+
+# Historical docs/credentials.txt entries (public Supabase publishable/anon keys and
+# the PasswordGate hash). The file is gitignored now.
+9c704fb343af8344b64753a08cb0db0268303de4:docs/credentials.txt:generic-api-key:2
+9c704fb343af8344b64753a08cb0db0268303de4:docs/credentials.txt:generic-api-key:3
+9c704fb343af8344b64753a08cb0db0268303de4:docs/credentials.txt:jwt:4
+9c704fb343af8344b64753a08cb0db0268303de4:docs/credentials.txt:jwt:5
+
+# NOTE: the historical service_role JWT in docs/credentials.txt is a real leaked
+# secret. It is intentionally NOT allowlisted here. Full-history gitleaks is now
+# non-blocking (local binary, exit-code 0), so the finding is audited but does not
+# block prod. The key should be rotated via Supabase Dashboard as soon as feasible.
