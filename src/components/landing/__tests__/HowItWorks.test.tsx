@@ -21,7 +21,7 @@ describe('HowItWorks', () => {
   it('renders step descriptions', () => {
     render(<HowItWorks />)
     expect(screen.getByText(/React, WordPress, Wix/)).toBeInTheDocument()
-    expect(screen.getByText(/Meta tags, OG data/)).toBeInTheDocument()
+    expect(screen.getByText(/metadata, OG data/)).toBeInTheDocument()
     expect(screen.getByText(/Exact code for every issue/)).toBeInTheDocument()
     expect(screen.getByText(/Search Console, Business Profile/)).toBeInTheDocument()
   })
