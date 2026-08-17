@@ -43,8 +43,10 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Dependency audit (blocking at critical)
-        run: npm audit --audit-level=critical
+      - name: Dependency audit (blocking at high; launchready has 0 high, so tightened from critical 2026-08-17)
+        run: npm audit --audit-level=high
+      - name: Feature coverage gate (wire the previously-orphaned coverage script; blocking)
+        run: node scripts/check-feature-coverage.mjs
       # SAST — code-level security (fleet-hardening Wave 2, proven route from project-starter).
       # A different layer than npm audit (deps) + gitleaks (secrets in git): semgrep reads OUR
       # code for injection / XSS / hardcoded secrets. `.semgrepignore` excludes test/dev files
