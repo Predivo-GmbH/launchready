@@ -24,8 +24,8 @@ concurrency:
 jobs:
   # ===========================================================================
   # SECURITY GATE (G3, deploy-standard §4d) — blocks prod promotion. gitleaks
-  # full-history secret scan + `npm audit --audit-level=critical`. AI
-  # security-review stays advisory. Fleet retrofit 2026-08-15 (clean at critical).
+  # full-history secret scan + `npm audit --audit-level=high`. AI
+  # security-review stays advisory. Fleet retrofit 2026-08-17 (clean at high).
   # ===========================================================================
   gate-security:
     if: github.event_name != 'push'
