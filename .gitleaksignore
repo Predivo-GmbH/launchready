@@ -1,18 +1,22 @@
 # Gitleaks allowlist for launchready (fleet-hardening Wave 3).
-# All items below are public/allowlisted, NOT live secrets.
+# Every entry below was individually classified. A LIVE secret is never allowlisted:
+# the historical Supabase keys were ROTATED 2026-08-18 (JWT secret rotation on prod
+# project hcfeoescybfngjsphekq) and verified dead (old anon + service_role both
+# return HTTP 401 against the prod REST API; the old sb_secret_ key and sbp_ PAT
+# returned 401 already on 2026-08-17). Rotation approved by Roger.
 
-# PasswordGate.tsx stores a SHA-256 hash of the client-side early-access gate code,
-# not a secret.
+# PasswordGate.tsx stores a SHA-256 HASH of the client-side early-access gate code,
+# not a secret. First fingerprint = working-tree (dir) scan, second = history scan.
 src/components/shared/PasswordGate.tsx:generic-api-key:5
+d430750eea849315011c4acf8a7695984b399ded:src/components/shared/PasswordGate.tsx:generic-api-key:5
 
-# Historical docs/credentials.txt entries (public Supabase publishable/anon keys and
-# the PasswordGate hash). The file is gitignored now.
+# Historical docs/credentials.txt (committed 2026-03-10 in 9c704fb, removed in
+# 19357b6, gitignored since). All values DEAD as of 2026-08-18:
+#   line 2 = Supabase publishable key (public by design; superseded)
+#   line 3 = sb_secret_ key (verified dead 2026-08-17, HTTP 401)
+#   line 4 = anon JWT (public by design; killed by JWT rotation 2026-08-18, HTTP 401)
+#   line 5 = service_role JWT (killed by JWT rotation 2026-08-18, HTTP 401)
 9c704fb343af8344b64753a08cb0db0268303de4:docs/credentials.txt:generic-api-key:2
 9c704fb343af8344b64753a08cb0db0268303de4:docs/credentials.txt:generic-api-key:3
 9c704fb343af8344b64753a08cb0db0268303de4:docs/credentials.txt:jwt:4
 9c704fb343af8344b64753a08cb0db0268303de4:docs/credentials.txt:jwt:5
-
-# NOTE: the historical service_role JWT in docs/credentials.txt is a real leaked
-# secret. It is intentionally NOT allowlisted here. Full-history gitleaks is now
-# non-blocking (local binary, exit-code 0), so the finding is audited but does not
-# block prod. The key should be rotated via Supabase Dashboard as soon as feasible.
