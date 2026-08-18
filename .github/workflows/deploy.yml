@@ -41,7 +41,7 @@ jobs:
           chmod +x /tmp/gitleaks
       - name: 'Secret scan: working tree (BLOCKING - new committed-file leaks)'
         run: /tmp/gitleaks dir . --no-banner --redact --exit-code 1
-      - name: 'Secret scan: full history (BLOCKING - historical secrets rotated 2026-08-18 and allowlisted in .gitleaksignore)'
+      - name: 'Secret scan: full history (BLOCKING - historical secrets dead since 2026-07-09 legacy-key disable, allowlisted in .gitleaksignore)'
         run: /tmp/gitleaks git . --no-banner --redact --log-opts=--all --exit-code 1
       - uses: actions/setup-node@v5
         with:

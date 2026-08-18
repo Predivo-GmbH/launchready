@@ -1,9 +1,10 @@
 # Gitleaks allowlist for launchready (fleet-hardening Wave 3).
-# Every entry below was individually classified. A LIVE secret is never allowlisted:
-# the historical Supabase keys were ROTATED 2026-08-18 (JWT secret rotation on prod
-# project hcfeoescybfngjsphekq) and verified dead (old anon + service_role both
-# return HTTP 401 against the prod REST API; the old sb_secret_ key and sbp_ PAT
-# returned 401 already on 2026-08-17). Rotation approved by Roger.
+# Every entry below was individually classified. A LIVE secret is never allowlisted.
+# The historical Supabase values are all DEAD: the project's legacy anon/service_role
+# JWT keys were DISABLED on 2026-07-09 (verified via the API gateway message
+# "Legacy API keys are disabled ... on 2026-07-09" and HTTP 401 on every old value);
+# the old sb_secret_ key returns "Invalid API key" and the old sbp_ PAT returns 401
+# (both verified 2026-08-17). The app now uses the new publishable key.
 
 # PasswordGate.tsx stores a SHA-256 HASH of the client-side early-access gate code,
 # not a secret. First fingerprint = working-tree (dir) scan, second = history scan.
@@ -13,9 +14,9 @@ d430750eea849315011c4acf8a7695984b399ded:src/components/shared/PasswordGate.tsx:
 # Historical docs/credentials.txt (committed 2026-03-10 in 9c704fb, removed in
 # 19357b6, gitignored since). All values DEAD as of 2026-08-18:
 #   line 2 = Supabase publishable key (public by design; superseded)
-#   line 3 = sb_secret_ key (verified dead 2026-08-17, HTTP 401)
-#   line 4 = anon JWT (public by design; killed by JWT rotation 2026-08-18, HTTP 401)
-#   line 5 = service_role JWT (killed by JWT rotation 2026-08-18, HTTP 401)
+#   line 3 = sb_secret_ key (verified dead 2026-08-17, "Invalid API key")
+#   line 4 = anon JWT (legacy, disabled 2026-07-09, HTTP 401)
+#   line 5 = service_role JWT (legacy, disabled 2026-07-09, HTTP 401)
 9c704fb343af8344b64753a08cb0db0268303de4:docs/credentials.txt:generic-api-key:2
 9c704fb343af8344b64753a08cb0db0268303de4:docs/credentials.txt:generic-api-key:3
 9c704fb343af8344b64753a08cb0db0268303de4:docs/credentials.txt:jwt:4
