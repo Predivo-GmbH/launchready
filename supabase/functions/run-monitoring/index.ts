@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
+import { logError } from '../_shared/error-log.ts'
 
 // This function is called by pg_cron weekly to re-audit all active monitored sites.
 // It calls the run-audit function for each site and updates scores.
@@ -93,6 +94,7 @@ serve(async (req: Request) => {
         results.push({ url: site.url, score: null, error: `HTTP ${resp.status}` })
       }
     } catch (err) {
+      await logError('run-monitoring', 'site-check', err)
       results.push({
         url: site.url,
         score: null,

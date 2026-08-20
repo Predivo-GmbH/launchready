@@ -3,6 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
 import * as cheerio from 'https://esm.sh/cheerio@1.0.0'
 import { logAnthropicUsage } from '../_shared/log-usage.ts'
 import { anthropicMessages } from '../_shared/anthropic-model.ts'
+import { logError } from '../_shared/error-log.ts'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -247,6 +248,7 @@ serve(async (req: Request) => {
       headers: { ...cors, 'Content-Type': 'application/json' },
     })
   } catch (err) {
+    await logError('run-audit', 'audit', err)
     const cors = getCorsHeaders(req)
     const rawMessage = err instanceof Error ? err.message : 'Audit failed'
     console.error('Audit error:', rawMessage)
