@@ -36,6 +36,11 @@ jobs:
           node-version: 22
           cache: npm
 
+      # Coverage gate FIRST: fail the staging deploy before build/FTP if the
+      # feature registry parses to zero covered features or a suite is fully skipped.
+      - name: Feature coverage gate
+        run: node scripts/check-feature-coverage.mjs
+
       # Database BEFORE build/FTP: apply pending SQL migrations to the staging
       # Supabase project (BackOffice pattern, 2026-08-21).
       - name: Apply database migrations (staging)

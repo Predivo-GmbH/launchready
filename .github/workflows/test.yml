@@ -30,6 +30,11 @@ jobs:
           node-version: 22
           cache: npm
 
+      # Coverage gate FIRST: a feature registry that parses to zero covered
+      # features, or a fully-skipped suite, fails the pipeline before we build.
+      - name: Feature coverage gate
+        run: node scripts/check-feature-coverage.mjs
+
       - run: npm ci
 
       - name: Build static export
