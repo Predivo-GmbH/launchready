@@ -1,6 +1,10 @@
 -- ===================================================================
 -- LaunchReady: User Plans + Monitoring Tables
--- Run this in Supabase SQL Editor (Dashboard → SQL → New Query)
+-- Applied automatically by scripts/apply-migrations.mjs in CI (deploy
+-- workflows) via the Supabase Management API. Do NOT run manually in the
+-- Supabase SQL Editor — manual application bypasses the
+-- supabase_migrations.schema_migrations ledger and recreates the drift this
+-- pipeline exists to prevent.
 -- ===================================================================
 
 -- 1. User Plans table
@@ -14,6 +18,7 @@ CREATE TABLE IF NOT EXISTS user_plans (
 
 ALTER TABLE user_plans ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can read own plan" ON user_plans;
 CREATE POLICY "Users can read own plan"
   ON user_plans FOR SELECT
   USING (auth.uid() = user_id);
@@ -53,6 +58,7 @@ CREATE TABLE IF NOT EXISTS monitored_sites (
 
 ALTER TABLE monitored_sites ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own monitored sites" ON monitored_sites;
 CREATE POLICY "Users can manage own monitored sites"
   ON monitored_sites FOR ALL
   USING (auth.uid() = user_id)
