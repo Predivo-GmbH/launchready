@@ -1,0 +1,48 @@
+{
+  "case_id": "T1",
+  "case_name": "SaaS site missing meta + social tags",
+  "model": "kimi-k2.6",
+  "prompt_version": "prod_v1",
+  "fixes": [
+    {
+      "id": "meta-description",
+      "fix_code": "<meta name=\"description\" content=\"Acme SaaS helps growing teams plan, track, and ship projects faster. Intuitive project management software with real-time collaboration and automation.\">",
+      "fix_explanation": "A meta description helps search engines understand your page and appears in search results, improving click-through rates from organic listings.",
+      "fix_location": "Inside the <head> tag, after the viewport meta tag and before the title tag or stylesheet links."
+    },
+    {
+      "id": "og-title",
+      "fix_code": "<meta property=\"og:title\" content=\"Acme SaaS — Project Management for Growing Teams\">",
+      "fix_explanation": "The og:title tag controls how your page title appears when shared on Facebook, LinkedIn, and other social platforms that use Open Graph protocol.",
+      "fix_location": "Inside the <head> tag, after the title tag."
+    },
+    {
+      "id": "og-description",
+      "fix_code": "<meta property=\"og:description\" content=\"Acme SaaS helps growing teams plan, track, and ship projects faster. Intuitive project management software with real-time collaboration and automation.\">",
+      "fix_explanation": "The og:description provides a preview snippet when your page is shared socially, encouraging more engagement and clicks from social media users.",
+      "fix_location": "Inside the <head> tag, after the og:title meta tag."
+    },
+    {
+      "id": "og-image",
+      "fix_code": "<meta property=\"og:image\" content=\"https://acme-saas.com/images/og-image.jpg\">",
+      "fix_explanation": "An og:image ensures your social shares include a compelling visual, which dramatically increases engagement compared to text-only links.",
+      "fix_location": "Inside the <head> tag, after the og:description meta tag. You must create and upload a 1200×630px image to /images/og-image.jpg."
+    },
+    {
+      "id": "twitter-card",
+      "fix_code": "<meta name=\"twitter:card\" content=\"summary_large_image\">",
+      "fix_explanation": "The twitter:card meta tag enables rich media previews on Twitter/X, allowing your shared links to display with large images and descriptions.",
+      "fix_location": "Inside the <head> tag, after the Open Graph tags."
+    }
+  ],
+  "expected_fix_count": 5,
+  "actual_fix_count": 5,
+  "json_parsed_clean": true,
+  "json_repaired": false,
+  "prompt_tokens": 309,
+  "completion_tokens": 441,
+  "cost_usd": 0.00205755,
+  "duration_ms": 16983,
+  "timestamp": "2026-07-22T21:24:13.118Z",
+  "raw_text": "[{\"id\":\"meta-description\",\"fix_code\":\"<meta name=\\\"description\\\" content=\\\"Acme SaaS helps growing teams plan, track, and ship projects faster. Intuitive project management software with real-time collaboration and automation.\\\">\",\"fix_explanation\":\"A meta description helps search engines understand your page and appears in search results, improving click-through rates from organic listings.\",\"fix_location\":\"Inside the <head> tag, after the viewport meta tag and before the title tag or stylesheet links.\"},{\"id\":\"og-title\",\"fix_code\":\"<meta property=\\\"og:title\\\" content=\\\"Acme SaaS — Project Management for Growing Teams\\\">\",\"fix_explanation\":\"The og:title tag controls how your page title appears when shared on Facebook, LinkedIn, and other social platforms that use Open Graph protocol.\",\"fix_location\":\"Inside the <head> tag, after the title tag.\"},{\"id\":\"og-description\",\"fix_code\":\"<meta property=\\\"og:description\\\" content=\\\"Acme SaaS helps growing teams plan, track, and ship projects faster. Intuitive project management software with real-time collaboration and automation.\\\">\",\"fix_explanation\":\"The og:description provides a preview snippet when your page is shared socially, encouraging more engagement and clicks from social media users.\",\"fix_location\":\"Inside the <head> tag, after the og:title meta tag.\"},{\"id\":\"og-image\",\"fix_code\":\"<meta property=\\\"og:image\\\" content=\\\"https://acme-saas.com/images/og-image.jpg\\\">\",\"fix_explanation\":\"An og:image ensures your social shares include a compelling visual, which dramatically increases engagement compared to text-only links.\",\"fix_location\":\"Inside the <head> tag, after the og:description meta tag. You must create and upload a 1200×630px image to /images/og-image.jpg.\"},{\"id\":\"twitter-card\",\"fix_code\":\"<meta name=\\\"twitter:card\\\" content=\\\"summary_large_image\\\">\",\"fix_explanation\":\"The twitter:card meta tag enables rich media previews on Twitter/X, allowing your shared links to display with large images and descriptions.\",\"fix_location\":\"Inside the <head> tag, after the Open Graph tags.\"}]"
+}

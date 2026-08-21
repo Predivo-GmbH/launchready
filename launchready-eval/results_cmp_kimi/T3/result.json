@@ -1,0 +1,42 @@
+{
+  "case_id": "T3",
+  "case_name": "E-commerce missing canonical + JSON-LD + security headers",
+  "model": "kimi-k2.6",
+  "prompt_version": "prod_v1",
+  "fixes": [
+    {
+      "id": "meta-canonical",
+      "fix_code": "<link rel=\"canonical\" href=\"https://shop.example.com/products/widget-pro\">",
+      "fix_explanation": "A canonical tag tells search engines which URL is the preferred version of this page, preventing duplicate content issues and consolidating ranking signals.",
+      "fix_location": "Inside the <head> element, after the existing <meta> tags and before the stylesheet link."
+    },
+    {
+      "id": "jsonld",
+      "fix_code": "<script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"Product\",\"name\":\"Widget Pro\",\"image\":\"https://shop.example.com/images/widget-pro.jpg\",\"description\":\"The Widget Pro is our flagship product. Built with precision engineering and available in 5 colors. Free shipping on orders over $50.\",\"brand\":{\"@type\":\"Brand\",\"name\":\"Example Shop\"},\"offers\":{\"@type\":\"Offer\",\"url\":\"https://shop.example.com/products/widget-pro\",\"priceCurrency\":\"USD\",\"availability\":\"https://schema.org/InStock\",\"shippingDetails\":{\"@type\":\"OfferShippingDetails\",\"shippingRate\":{\"@type\":\"MonetaryAmount\",\"value\":\"0\",\"currency\":\"USD\"},\"shippingDestination\":{\"@type\":\"DefinedRegion\",\"addressCountry\":\"US\"},\"doesNotShip\":\"false\",\"shippingLabel\":\"Free shipping on orders over $50\"}}}</script>",
+      "fix_explanation": "JSON-LD structured data helps search engines understand your product details and can enable rich results like price, availability, and review stars in search listings.",
+      "fix_location": "Inside the <head> element, preferably after the canonical link and before the closing </head> tag."
+    },
+    {
+      "id": "header-xcto",
+      "fix_code": "X-Content-Type-Options: nosniff",
+      "fix_explanation": "This HTTP response header prevents browsers from MIME-type sniffing, which protects against certain XSS and content injection attacks.",
+      "fix_location": "Add to your web server configuration or application headers (not in HTML). For Apache: Header set X-Content-Type-Options \"nosniff\". For Nginx: add_header X-Content-Type-Options \"nosniff\" always;. For Express.js: res.set('X-Content-Type-Options', 'nosniff')."
+    },
+    {
+      "id": "header-xfo",
+      "fix_code": "X-Frame-Options: DENY",
+      "fix_explanation": "This HTTP response header prevents your page from being embedded in iframes on other sites, protecting against clickjacking attacks.",
+      "fix_location": "Add to your web server configuration or application headers (not in HTML). For Apache: Header always append X-Frame-Options \"DENY\". For Nginx: add_header X-Frame-Options \"DENY\" always;. For Express.js: res.set('X-Frame-Options', 'DENY')."
+    }
+  ],
+  "expected_fix_count": 4,
+  "actual_fix_count": 4,
+  "json_parsed_clean": true,
+  "json_repaired": false,
+  "prompt_tokens": 382,
+  "completion_tokens": 566,
+  "cost_usd": 0.0026269,
+  "duration_ms": 20703,
+  "timestamp": "2026-07-22T21:26:40.546Z",
+  "raw_text": "[{\"id\":\"meta-canonical\",\"fix_code\":\"<link rel=\\\"canonical\\\" href=\\\"https://shop.example.com/products/widget-pro\\\">\",\"fix_explanation\":\"A canonical tag tells search engines which URL is the preferred version of this page, preventing duplicate content issues and consolidating ranking signals.\",\"fix_location\":\"Inside the <head> element, after the existing <meta> tags and before the stylesheet link.\"},{\"id\":\"jsonld\",\"fix_code\":\"<script type=\\\"application/ld+json\\\">{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"Product\\\",\\\"name\\\":\\\"Widget Pro\\\",\\\"image\\\":\\\"https://shop.example.com/images/widget-pro.jpg\\\",\\\"description\\\":\\\"The Widget Pro is our flagship product. Built with precision engineering and available in 5 colors. Free shipping on orders over $50.\\\",\\\"brand\\\":{\\\"@type\\\":\\\"Brand\\\",\\\"name\\\":\\\"Example Shop\\\"},\\\"offers\\\":{\\\"@type\\\":\\\"Offer\\\",\\\"url\\\":\\\"https://shop.example.com/products/widget-pro\\\",\\\"priceCurrency\\\":\\\"USD\\\",\\\"availability\\\":\\\"https://schema.org/InStock\\\",\\\"shippingDetails\\\":{\\\"@type\\\":\\\"OfferShippingDetails\\\",\\\"shippingRate\\\":{\\\"@type\\\":\\\"MonetaryAmount\\\",\\\"value\\\":\\\"0\\\",\\\"currency\\\":\\\"USD\\\"},\\\"shippingDestination\\\":{\\\"@type\\\":\\\"DefinedRegion\\\",\\\"addressCountry\\\":\\\"US\\\"},\\\"doesNotShip\\\":\\\"false\\\",\\\"shippingLabel\\\":\\\"Free shipping on orders over $50\\\"}}}</script>\",\"fix_explanation\":\"JSON-LD structured data helps search engines understand your product details and can enable rich results like price, availability, and review stars in search listings.\",\"fix_location\":\"Inside the <head> element, preferably after the canonical link and before the closing </head> tag.\"},{\"id\":\"header-xcto\",\"fix_code\":\"X-Content-Type-Options: nosniff\",\"fix_explanation\":\"This HTTP response header prevents browsers from MIME-type sniffing, which protects against certain XSS and content injection attacks.\",\"fix_location\":\"Add to your web server configuration or application headers (not in HTML). For Apache: Header set X-Content-Type-Options \\\"nosniff\\\". For Nginx: add_header X-Content-Type-Options \\\"nosniff\\\" always;. For Express.js: res.set('X-Content-Type-Options', 'nosniff').\"},{\"id\":\"header-xfo\",\"fix_code\":\"X-Frame-Options: DENY\",\"fix_explanation\":\"This HTTP response header prevents your page from being embedded in iframes on other sites, protecting against clickjacking attacks.\",\"fix_location\":\"Add to your web server configuration or application headers (not in HTML). For Apache: Header always append X-Frame-Options \\\"DENY\\\". For Nginx: add_header X-Frame-Options \\\"DENY\\\" always;. For Express.js: res.set('X-Frame-Options', 'DENY').\"}]"
+}

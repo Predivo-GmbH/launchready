@@ -1,0 +1,60 @@
+{
+  "case_id": "T5",
+  "case_name": "Minimal site missing almost everything",
+  "model": "claude-sonnet-4-6",
+  "prompt_version": "prod_v1",
+  "fixes": [
+    {
+      "id": "meta-description",
+      "fix_code": "<meta name=\"description\" content=\"LaunchPad helps startups ship a production-ready MVP in just 48 hours. Fast, focused, and built to validate your idea. Start building today.\">",
+      "fix_explanation": "A meta description summarizes the page for search engines and appears in search result snippets. This 150-character description includes relevant keywords like MVP, startups, and 48 hours to improve click-through rates.",
+      "fix_location": "Inside the <head> element, after the <meta name=\"viewport\"> tag"
+    },
+    {
+      "id": "meta-canonical",
+      "fix_code": "<link rel=\"canonical\" href=\"https://startup-mvp.io/\">",
+      "fix_explanation": "A canonical tag tells search engines the preferred URL for this page, preventing duplicate content issues. Place it in the <head> to ensure Google indexes the correct version of your URL.",
+      "fix_location": "Inside the <head> element, after the meta description tag"
+    },
+    {
+      "id": "og-title",
+      "fix_code": "<meta property=\"og:title\" content=\"LaunchPad — Ship Your MVP in 48 Hours\">",
+      "fix_explanation": "The og:title tag controls the title shown when your page is shared on social platforms like Facebook, LinkedIn, and Slack. It should match or closely mirror your page's main title tag.",
+      "fix_location": "Inside the <head> element, after the canonical link tag"
+    },
+    {
+      "id": "og-description",
+      "fix_code": "<meta property=\"og:description\" content=\"LaunchPad helps startups ship a production-ready MVP in just 48 hours. Fast, focused, and built to validate your idea. Start building today.\">",
+      "fix_explanation": "The og:description tag provides the summary text shown in social media link previews. Using a compelling, keyword-rich description increases engagement when your page is shared.",
+      "fix_location": "Inside the <head> element, after the og:title tag"
+    },
+    {
+      "id": "og-image",
+      "fix_code": "<meta property=\"og:image\" content=\"https://startup-mvp.io/og-image.png\">\n<meta property=\"og:image:width\" content=\"1200\">\n<meta property=\"og:image:height\" content=\"630\">\n<meta property=\"og:image:alt\" content=\"LaunchPad — Ship Your MVP in 48 Hours\">",
+      "fix_explanation": "The og:image tag defines the image displayed when your page is shared on social media. Upload a 1200x630px branded image to /og-image.png and update the URL if your image lives elsewhere.",
+      "fix_location": "Inside the <head> element, after the og:description tag"
+    },
+    {
+      "id": "sitemap-exists",
+      "fix_code": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n  <url>\n    <loc>https://startup-mvp.io/</loc>\n    <lastmod>2025-01-31</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>\n</urlset>",
+      "fix_explanation": "A sitemap.xml helps search engines discover and crawl all pages on your site efficiently. Save this file as sitemap.xml in your root directory and submit the URL to Google Search Console.",
+      "fix_location": "Save as a standalone file at https://startup-mvp.io/sitemap.xml (root of your web server)"
+    },
+    {
+      "id": "jsonld",
+      "fix_code": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Organization\",\n  \"name\": \"LaunchPad\",\n  \"url\": \"https://startup-mvp.io\",\n  \"logo\": \"https://startup-mvp.io/logo.png\",\n  \"description\": \"LaunchPad helps startups ship a production-ready MVP in just 48 hours. Fast, focused, and built to validate your idea.\",\n  \"sameAs\": [],\n  \"contactPoint\": {\n    \"@type\": \"ContactPoint\",\n    \"contactType\": \"customer support\",\n    \"url\": \"https://startup-mvp.io/contact\"\n  }\n}\n</script>",
+      "fix_explanation": "JSON-LD structured data gives search engines machine-readable context about your organization, enabling rich results and improved entity recognition in Google Search. Update the logo URL and sameAs array with your actual social profile URLs.",
+      "fix_location": "Inside the <head> element, as the last item before the closing </head> tag"
+    }
+  ],
+  "expected_fix_count": 7,
+  "actual_fix_count": 7,
+  "json_parsed_clean": true,
+  "json_repaired": false,
+  "prompt_tokens": 391,
+  "completion_tokens": 1231,
+  "cost_usd": 0.019638,
+  "duration_ms": 16389,
+  "timestamp": "2026-07-22T21:25:33.961Z",
+  "raw_text": "[\n  {\n    \"id\": \"meta-description\",\n    \"fix_code\": \"<meta name=\\\"description\\\" content=\\\"LaunchPad helps startups ship a production-ready MVP in just 48 hours. Fast, focused, and built to validate your idea. Start building today.\\\">\",\n    \"fix_explanation\": \"A meta description summarizes the page for search engines and appears in search result snippets. This 150-character description includes relevant keywords like MVP, startups, and 48 hours to improve click-through rates.\",\n    \"fix_location\": \"Inside the <head> element, after the <meta name=\\\"viewport\\\"> tag\"\n  },\n  {\n    \"id\": \"meta-canonical\",\n    \"fix_code\": \"<link rel=\\\"canonical\\\" href=\\\"https://startup-mvp.io/\\\">\",\n    \"fix_explanation\": \"A canonical tag tells search engines the preferred URL for this page, preventing duplicate content issues. Place it in the <head> to ensure Google indexes the correct version of your URL.\",\n    \"fix_location\": \"Inside the <head> element, after the meta description tag\"\n  },\n  {\n    \"id\": \"og-title\",\n    \"fix_code\": \"<meta property=\\\"og:title\\\" content=\\\"LaunchPad — Ship Your MVP in 48 Hours\\\">\",\n    \"fix_explanation\": \"The og:title tag controls the title shown when your page is shared on social platforms like Facebook, LinkedIn, and Slack. It should match or closely mirror your page's main title tag.\",\n    \"fix_location\": \"Inside the <head> element, after the canonical link tag\"\n  },\n  {\n    \"id\": \"og-description\",\n    \"fix_code\": \"<meta property=\\\"og:description\\\" content=\\\"LaunchPad helps startups ship a production-ready MVP in just 48 hours. Fast, focused, and built to validate your idea. Start building today.\\\">\",\n    \"fix_explanation\": \"The og:description tag provides the summary text shown in social media link previews. Using a compelling, keyword-rich description increases engagement when your page is shared.\",\n    \"fix_location\": \"Inside the <head> element, after the og:title tag\"\n  },\n  {\n    \"id\": \"og-image\",\n    \"fix_code\": \"<meta property=\\\"og:image\\\" content=\\\"https://startup-mvp.io/og-image.png\\\">\\n<meta property=\\\"og:image:width\\\" content=\\\"1200\\\">\\n<meta property=\\\"og:image:height\\\" content=\\\"630\\\">\\n<meta property=\\\"og:image:alt\\\" content=\\\"LaunchPad — Ship Your MVP in 48 Hours\\\">\",\n    \"fix_explanation\": \"The og:image tag defines the image displayed when your page is shared on social media. Upload a 1200x630px branded image to /og-image.png and update the URL if your image lives elsewhere.\",\n    \"fix_location\": \"Inside the <head> element, after the og:description tag\"\n  },\n  {\n    \"id\": \"sitemap-exists\",\n    \"fix_code\": \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>\\n<urlset xmlns=\\\"http://www.sitemaps.org/schemas/sitemap/0.9\\\">\\n  <url>\\n    <loc>https://startup-mvp.io/</loc>\\n    <lastmod>2025-01-31</lastmod>\\n    <changefreq>weekly</changefreq>\\n    <priority>1.0</priority>\\n  </url>\\n</urlset>\",\n    \"fix_explanation\": \"A sitemap.xml helps search engines discover and crawl all pages on your site efficiently. Save this file as sitemap.xml in your root directory and submit the URL to Google Search Console.\",\n    \"fix_location\": \"Save as a standalone file at https://startup-mvp.io/sitemap.xml (root of your web server)\"\n  },\n  {\n    \"id\": \"jsonld\",\n    \"fix_code\": \"<script type=\\\"application/ld+json\\\">\\n{\\n  \\\"@context\\\": \\\"https://schema.org\\\",\\n  \\\"@type\\\": \\\"Organization\\\",\\n  \\\"name\\\": \\\"LaunchPad\\\",\\n  \\\"url\\\": \\\"https://startup-mvp.io\\\",\\n  \\\"logo\\\": \\\"https://startup-mvp.io/logo.png\\\",\\n  \\\"description\\\": \\\"LaunchPad helps startups ship a production-ready MVP in just 48 hours. Fast, focused, and built to validate your idea.\\\",\\n  \\\"sameAs\\\": [],\\n  \\\"contactPoint\\\": {\\n    \\\"@type\\\": \\\"ContactPoint\\\",\\n    \\\"contactType\\\": \\\"customer support\\\",\\n    \\\"url\\\": \\\"https://startup-mvp.io/contact\\\"\\n  }\\n}\\n</script>\",\n    \"fix_explanation\": \"JSON-LD structured data gives search engines machine-readable context about your organization, enabling rich results and improved entity recognition in Google Search. Update the logo URL and sameAs array with your actual social profile URLs.\",\n    \"fix_location\": \"Inside the <head> element, as the last item before the closing </head> tag\"\n  }\n]"
+}

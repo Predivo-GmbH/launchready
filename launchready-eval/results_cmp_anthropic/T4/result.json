@@ -1,0 +1,36 @@
+{
+  "case_id": "T4",
+  "case_name": "Portfolio missing viewport + H1 + meta description",
+  "model": "claude-sonnet-4-6",
+  "prompt_version": "prod_v1",
+  "fixes": [
+    {
+      "id": "viewport",
+      "fix_code": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+      "fix_explanation": "This tag tells mobile browsers to scale the page to the device's screen width instead of rendering it at desktop size. Without it, the site will appear zoomed out and unreadable on phones and tablets.",
+      "fix_location": "Paste inside <head>, immediately after <meta charset=\"utf-8\">"
+    },
+    {
+      "id": "heading-h1",
+      "fix_code": "<h1>Jane Doe — UX Designer &amp; Illustrator</h1>",
+      "fix_explanation": "Every page needs exactly one H1 that describes its primary topic; search engines use it as a strong relevance signal. Place it as the first visible heading in your page's <body>, typically above your intro paragraph or hero section.",
+      "fix_location": "Paste as the first element inside <body>, before any other headings or content"
+    },
+    {
+      "id": "meta-description",
+      "fix_code": "<meta name=\"description\" content=\"Jane Doe is a UX Designer &amp; Illustrator crafting intuitive digital experiences and bold visual art. Explore her portfolio of UI design and illustration work.\">",
+      "fix_explanation": "The meta description is the snippet shown under your page title in search results; a compelling, keyword-rich description (120–160 characters) improves click-through rates. This one is 154 characters and highlights Jane's core disciplines.",
+      "fix_location": "Paste inside <head>, after the <title> tag and before the existing Open Graph meta tags"
+    }
+  ],
+  "expected_fix_count": 3,
+  "actual_fix_count": 3,
+  "json_parsed_clean": true,
+  "json_repaired": false,
+  "prompt_tokens": 361,
+  "completion_tokens": 408,
+  "cost_usd": 0.007203,
+  "duration_ms": 8489,
+  "timestamp": "2026-07-22T21:25:16.563Z",
+  "raw_text": "[\n  {\n    \"id\": \"viewport\",\n    \"fix_code\": \"<meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1\\\">\",\n    \"fix_explanation\": \"This tag tells mobile browsers to scale the page to the device's screen width instead of rendering it at desktop size. Without it, the site will appear zoomed out and unreadable on phones and tablets.\",\n    \"fix_location\": \"Paste inside <head>, immediately after <meta charset=\\\"utf-8\\\">\"\n  },\n  {\n    \"id\": \"heading-h1\",\n    \"fix_code\": \"<h1>Jane Doe — UX Designer &amp; Illustrator</h1>\",\n    \"fix_explanation\": \"Every page needs exactly one H1 that describes its primary topic; search engines use it as a strong relevance signal. Place it as the first visible heading in your page's <body>, typically above your intro paragraph or hero section.\",\n    \"fix_location\": \"Paste as the first element inside <body>, before any other headings or content\"\n  },\n  {\n    \"id\": \"meta-description\",\n    \"fix_code\": \"<meta name=\\\"description\\\" content=\\\"Jane Doe is a UX Designer &amp; Illustrator crafting intuitive digital experiences and bold visual art. Explore her portfolio of UI design and illustration work.\\\">\",\n    \"fix_explanation\": \"The meta description is the snippet shown under your page title in search results; a compelling, keyword-rich description (120–160 characters) improves click-through rates. This one is 154 characters and highlights Jane's core disciplines.\",\n    \"fix_location\": \"Paste inside <head>, after the <title> tag and before the existing Open Graph meta tags\"\n  }\n]"
+}

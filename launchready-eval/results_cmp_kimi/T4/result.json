@@ -1,0 +1,36 @@
+{
+  "case_id": "T4",
+  "case_name": "Portfolio missing viewport + H1 + meta description",
+  "model": "kimi-k2.6",
+  "prompt_version": "prod_v1",
+  "fixes": [
+    {
+      "id": "viewport",
+      "fix_code": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+      "fix_explanation": "This tag tells mobile browsers to set the page width to the device width and prevents automatic zooming, making the site responsive on phones and tablets.",
+      "fix_location": "Inside the <head> element, after the charset meta tag and before the <title> tag."
+    },
+    {
+      "id": "heading-h1",
+      "fix_code": "<h1>Jane Doe — UX Designer & Illustrator</h1>",
+      "fix_explanation": "Every page needs one H1 heading to tell search engines and screen readers the main topic; it should match or closely reflect the page title.",
+      "fix_location": "Inside the <body> element, preferably as the first visible heading near the top of the page, above or within the site header."
+    },
+    {
+      "id": "meta-description",
+      "fix_code": "<meta name=\"description\" content=\"Portfolio of Jane Doe, a UX designer and illustrator crafting intuitive digital experiences and visual storytelling for brands worldwide.\">",
+      "fix_explanation": "The meta description appears in search results below the page title and helps users decide to click; it should summarize the page and include key terms.",
+      "fix_location": "Inside the <head> element, after the <title> tag and before the Open Graph meta tags."
+    }
+  ],
+  "expected_fix_count": 3,
+  "actual_fix_count": 3,
+  "json_parsed_clean": true,
+  "json_repaired": false,
+  "prompt_tokens": 309,
+  "completion_tokens": 269,
+  "cost_usd": 0.00136955,
+  "duration_ms": 7291,
+  "timestamp": "2026-07-22T21:26:48.854Z",
+  "raw_text": "[{\"id\":\"viewport\",\"fix_code\":\"<meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1\\\">\",\"fix_explanation\":\"This tag tells mobile browsers to set the page width to the device width and prevents automatic zooming, making the site responsive on phones and tablets.\",\"fix_location\":\"Inside the <head> element, after the charset meta tag and before the <title> tag.\"},{\"id\":\"heading-h1\",\"fix_code\":\"<h1>Jane Doe — UX Designer & Illustrator</h1>\",\"fix_explanation\":\"Every page needs one H1 heading to tell search engines and screen readers the main topic; it should match or closely reflect the page title.\",\"fix_location\":\"Inside the <body> element, preferably as the first visible heading near the top of the page, above or within the site header.\"},{\"id\":\"meta-description\",\"fix_code\":\"<meta name=\\\"description\\\" content=\\\"Portfolio of Jane Doe, a UX designer and illustrator crafting intuitive digital experiences and visual storytelling for brands worldwide.\\\">\",\"fix_explanation\":\"The meta description appears in search results below the page title and helps users decide to click; it should summarize the page and include key terms.\",\"fix_location\":\"Inside the <head> element, after the <title> tag and before the Open Graph meta tags.\"}]"
+}

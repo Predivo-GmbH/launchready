@@ -1,0 +1,48 @@
+{
+  "case_id": "T1",
+  "case_name": "SaaS site missing meta + social tags",
+  "model": "claude-sonnet-4-6",
+  "prompt_version": "prod_v1",
+  "fixes": [
+    {
+      "id": "meta-description",
+      "fix_code": "<meta name=\"description\" content=\"Acme SaaS is the project management platform built for growing teams. Streamline workflows, boost collaboration, and ship projects faster.\">",
+      "fix_explanation": "A meta description summarizes the page for search engines and users. Adding this 150-character description improves click-through rates in search results by giving searchers a clear preview of what Acme SaaS offers.",
+      "fix_location": "Paste inside the <head> element, directly after the <title> tag."
+    },
+    {
+      "id": "og-title",
+      "fix_code": "<meta property=\"og:title\" content=\"Acme SaaS — Project Management for Growing Teams\">",
+      "fix_explanation": "The og:title tag controls the headline shown when this page is shared on social platforms like Facebook and LinkedIn. It mirrors the page title so shared links are accurately and attractively labelled.",
+      "fix_location": "Paste inside the <head> element, after the meta description tag."
+    },
+    {
+      "id": "og-description",
+      "fix_code": "<meta property=\"og:description\" content=\"Acme SaaS is the project management platform built for growing teams. Streamline workflows, boost collaboration, and ship projects faster.\">",
+      "fix_explanation": "The og:description tag provides the supporting text shown beneath the title when the page is shared on social media. This improves engagement by giving potential visitors context before they click.",
+      "fix_location": "Paste inside the <head> element, directly after the og:title tag."
+    },
+    {
+      "id": "og-image",
+      "fix_code": "<meta property=\"og:image\" content=\"https://acme-saas.com/images/og-image.png\">\n<meta property=\"og:image:width\" content=\"1200\">\n<meta property=\"og:image:height\" content=\"630\">\n<meta property=\"og:image:alt\" content=\"Acme SaaS — Project Management for Growing Teams\">",
+      "fix_explanation": "The og:image tag defines the preview image displayed when this page is shared on social platforms. Use a 1200x630 px image (PNG or JPG) hosted at the specified URL; replace the path with your actual social share image.",
+      "fix_location": "Paste inside the <head> element, directly after the og:description tag."
+    },
+    {
+      "id": "twitter-card",
+      "fix_code": "<meta name=\"twitter:card\" content=\"summary_large_image\">\n<meta name=\"twitter:title\" content=\"Acme SaaS — Project Management for Growing Teams\">\n<meta name=\"twitter:description\" content=\"Acme SaaS is the project management platform built for growing teams. Streamline workflows, boost collaboration, and ship projects faster.\">\n<meta name=\"twitter:image\" content=\"https://acme-saas.com/images/og-image.png\">\n<meta name=\"twitter:image:alt\" content=\"Acme SaaS — Project Management for Growing Teams\">",
+      "fix_explanation": "Twitter Card tags control how the page appears when shared on X (Twitter), enabling a rich preview card with a large image, title, and description. The summary_large_image type displays the most prominent and engaging card format.",
+      "fix_location": "Paste inside the <head> element, directly after the og:image tags, before the closing </head> tag."
+    }
+  ],
+  "expected_fix_count": 5,
+  "actual_fix_count": 5,
+  "json_parsed_clean": true,
+  "json_repaired": false,
+  "prompt_tokens": 355,
+  "completion_tokens": 845,
+  "cost_usd": 0.01374,
+  "duration_ms": 12685,
+  "timestamp": "2026-07-22T21:24:38.066Z",
+  "raw_text": "[\n  {\n    \"id\": \"meta-description\",\n    \"fix_code\": \"<meta name=\\\"description\\\" content=\\\"Acme SaaS is the project management platform built for growing teams. Streamline workflows, boost collaboration, and ship projects faster.\\\">\",\n    \"fix_explanation\": \"A meta description summarizes the page for search engines and users. Adding this 150-character description improves click-through rates in search results by giving searchers a clear preview of what Acme SaaS offers.\",\n    \"fix_location\": \"Paste inside the <head> element, directly after the <title> tag.\"\n  },\n  {\n    \"id\": \"og-title\",\n    \"fix_code\": \"<meta property=\\\"og:title\\\" content=\\\"Acme SaaS — Project Management for Growing Teams\\\">\",\n    \"fix_explanation\": \"The og:title tag controls the headline shown when this page is shared on social platforms like Facebook and LinkedIn. It mirrors the page title so shared links are accurately and attractively labelled.\",\n    \"fix_location\": \"Paste inside the <head> element, after the meta description tag.\"\n  },\n  {\n    \"id\": \"og-description\",\n    \"fix_code\": \"<meta property=\\\"og:description\\\" content=\\\"Acme SaaS is the project management platform built for growing teams. Streamline workflows, boost collaboration, and ship projects faster.\\\">\",\n    \"fix_explanation\": \"The og:description tag provides the supporting text shown beneath the title when the page is shared on social media. This improves engagement by giving potential visitors context before they click.\",\n    \"fix_location\": \"Paste inside the <head> element, directly after the og:title tag.\"\n  },\n  {\n    \"id\": \"og-image\",\n    \"fix_code\": \"<meta property=\\\"og:image\\\" content=\\\"https://acme-saas.com/images/og-image.png\\\">\\n<meta property=\\\"og:image:width\\\" content=\\\"1200\\\">\\n<meta property=\\\"og:image:height\\\" content=\\\"630\\\">\\n<meta property=\\\"og:image:alt\\\" content=\\\"Acme SaaS — Project Management for Growing Teams\\\">\",\n    \"fix_explanation\": \"The og:image tag defines the preview image displayed when this page is shared on social platforms. Use a 1200x630 px image (PNG or JPG) hosted at the specified URL; replace the path with your actual social share image.\",\n    \"fix_location\": \"Paste inside the <head> element, directly after the og:description tag.\"\n  },\n  {\n    \"id\": \"twitter-card\",\n    \"fix_code\": \"<meta name=\\\"twitter:card\\\" content=\\\"summary_large_image\\\">\\n<meta name=\\\"twitter:title\\\" content=\\\"Acme SaaS — Project Management for Growing Teams\\\">\\n<meta name=\\\"twitter:description\\\" content=\\\"Acme SaaS is the project management platform built for growing teams. Streamline workflows, boost collaboration, and ship projects faster.\\\">\\n<meta name=\\\"twitter:image\\\" content=\\\"https://acme-saas.com/images/og-image.png\\\">\\n<meta name=\\\"twitter:image:alt\\\" content=\\\"Acme SaaS — Project Management for Growing Teams\\\">\",\n    \"fix_explanation\": \"Twitter Card tags control how the page appears when shared on X (Twitter), enabling a rich preview card with a large image, title, and description. The summary_large_image type displays the most prominent and engaging card format.\",\n    \"fix_location\": \"Paste inside the <head> element, directly after the og:image tags, before the closing </head> tag.\"\n  }\n]"
+}

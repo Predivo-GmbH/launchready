@@ -1,0 +1,42 @@
+{
+  "case_id": "T3",
+  "case_name": "E-commerce missing canonical + JSON-LD + security headers",
+  "model": "claude-sonnet-4-6",
+  "prompt_version": "prod_v1",
+  "fixes": [
+    {
+      "id": "meta-canonical",
+      "fix_code": "<link rel=\"canonical\" href=\"https://shop.example.com/products/widget-pro\">",
+      "fix_explanation": "A canonical tag tells search engines this is the authoritative URL for the page, preventing duplicate-content issues if the page is accessible via multiple URLs (e.g., with query strings or trailing slashes).",
+      "fix_location": "Inside the <head> element, after the existing <meta name=\"description\"> tag."
+    },
+    {
+      "id": "jsonld",
+      "fix_code": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Product\",\n  \"name\": \"Widget Pro\",\n  \"description\": \"The Widget Pro is our flagship product. Built with precision engineering and available in 5 colors. Free shipping on orders over $50.\",\n  \"image\": \"https://shop.example.com/images/widget-pro.jpg\",\n  \"url\": \"https://shop.example.com/products/widget-pro\",\n  \"brand\": {\n    \"@type\": \"Brand\",\n    \"name\": \"Example Shop\"\n  },\n  \"offers\": {\n    \"@type\": \"Offer\",\n    \"url\": \"https://shop.example.com/products/widget-pro\",\n    \"priceCurrency\": \"USD\",\n    \"availability\": \"https://schema.org/InStock\",\n    \"seller\": {\n      \"@type\": \"Organization\",\n      \"name\": \"Example Shop\",\n      \"url\": \"https://shop.example.com\"\n    }\n  }\n}\n</script>",
+      "fix_explanation": "JSON-LD structured data using the Product schema gives search engines rich, machine-readable information about the Widget Pro, making it eligible for Google rich results such as product panels and price snippets.",
+      "fix_location": "Inside the <head> element, just before the closing </head> tag."
+    },
+    {
+      "id": "header-xcto",
+      "fix_code": "X-Content-Type-Options: nosniff",
+      "fix_explanation": "This HTTP response header stops browsers from MIME-sniffing a response away from the declared content type, reducing the risk of drive-by download attacks and certain cross-site scripting vectors. Add it to your server configuration (e.g., nginx, Apache, or CDN/edge rules) so it is sent with every response.",
+      "fix_location": "Server-level HTTP response header. For nginx add 'add_header X-Content-Type-Options \"nosniff\" always;' inside your server {} or location {} block. For Apache add 'Header always set X-Content-Type-Options \"nosniff\"' in your .htaccess or VirtualHost config."
+    },
+    {
+      "id": "header-xfo",
+      "fix_code": "X-Frame-Options: SAMEORIGIN",
+      "fix_explanation": "The X-Frame-Options header prevents the page from being embedded in an <iframe> on a third-party domain, protecting users against clickjacking attacks. SAMEORIGIN allows framing only by pages on the same origin, which is appropriate for most e-commerce sites.",
+      "fix_location": "Server-level HTTP response header. For nginx add 'add_header X-Frame-Options \"SAMEORIGIN\" always;' inside your server {} or location {} block. For Apache add 'Header always set X-Frame-Options \"SAMEORIGIN\"' in your .htaccess or VirtualHost config."
+    }
+  ],
+  "expected_fix_count": 4,
+  "actual_fix_count": 4,
+  "json_parsed_clean": true,
+  "json_repaired": false,
+  "prompt_tokens": 441,
+  "completion_tokens": 913,
+  "cost_usd": 0.015018,
+  "duration_ms": 13030,
+  "timestamp": "2026-07-22T21:25:07.064Z",
+  "raw_text": "[\n  {\n    \"id\": \"meta-canonical\",\n    \"fix_code\": \"<link rel=\\\"canonical\\\" href=\\\"https://shop.example.com/products/widget-pro\\\">\",\n    \"fix_explanation\": \"A canonical tag tells search engines this is the authoritative URL for the page, preventing duplicate-content issues if the page is accessible via multiple URLs (e.g., with query strings or trailing slashes).\",\n    \"fix_location\": \"Inside the <head> element, after the existing <meta name=\\\"description\\\"> tag.\"\n  },\n  {\n    \"id\": \"jsonld\",\n    \"fix_code\": \"<script type=\\\"application/ld+json\\\">\\n{\\n  \\\"@context\\\": \\\"https://schema.org\\\",\\n  \\\"@type\\\": \\\"Product\\\",\\n  \\\"name\\\": \\\"Widget Pro\\\",\\n  \\\"description\\\": \\\"The Widget Pro is our flagship product. Built with precision engineering and available in 5 colors. Free shipping on orders over $50.\\\",\\n  \\\"image\\\": \\\"https://shop.example.com/images/widget-pro.jpg\\\",\\n  \\\"url\\\": \\\"https://shop.example.com/products/widget-pro\\\",\\n  \\\"brand\\\": {\\n    \\\"@type\\\": \\\"Brand\\\",\\n    \\\"name\\\": \\\"Example Shop\\\"\\n  },\\n  \\\"offers\\\": {\\n    \\\"@type\\\": \\\"Offer\\\",\\n    \\\"url\\\": \\\"https://shop.example.com/products/widget-pro\\\",\\n    \\\"priceCurrency\\\": \\\"USD\\\",\\n    \\\"availability\\\": \\\"https://schema.org/InStock\\\",\\n    \\\"seller\\\": {\\n      \\\"@type\\\": \\\"Organization\\\",\\n      \\\"name\\\": \\\"Example Shop\\\",\\n      \\\"url\\\": \\\"https://shop.example.com\\\"\\n    }\\n  }\\n}\\n</script>\",\n    \"fix_explanation\": \"JSON-LD structured data using the Product schema gives search engines rich, machine-readable information about the Widget Pro, making it eligible for Google rich results such as product panels and price snippets.\",\n    \"fix_location\": \"Inside the <head> element, just before the closing </head> tag.\"\n  },\n  {\n    \"id\": \"header-xcto\",\n    \"fix_code\": \"X-Content-Type-Options: nosniff\",\n    \"fix_explanation\": \"This HTTP response header stops browsers from MIME-sniffing a response away from the declared content type, reducing the risk of drive-by download attacks and certain cross-site scripting vectors. Add it to your server configuration (e.g., nginx, Apache, or CDN/edge rules) so it is sent with every response.\",\n    \"fix_location\": \"Server-level HTTP response header. For nginx add 'add_header X-Content-Type-Options \\\"nosniff\\\" always;' inside your server {} or location {} block. For Apache add 'Header always set X-Content-Type-Options \\\"nosniff\\\"' in your .htaccess or VirtualHost config.\"\n  },\n  {\n    \"id\": \"header-xfo\",\n    \"fix_code\": \"X-Frame-Options: SAMEORIGIN\",\n    \"fix_explanation\": \"The X-Frame-Options header prevents the page from being embedded in an <iframe> on a third-party domain, protecting users against clickjacking attacks. SAMEORIGIN allows framing only by pages on the same origin, which is appropriate for most e-commerce sites.\",\n    \"fix_location\": \"Server-level HTTP response header. For nginx add 'add_header X-Frame-Options \\\"SAMEORIGIN\\\" always;' inside your server {} or location {} block. For Apache add 'Header always set X-Frame-Options \\\"SAMEORIGIN\\\"' in your .htaccess or VirtualHost config.\"\n  }\n]"
+}

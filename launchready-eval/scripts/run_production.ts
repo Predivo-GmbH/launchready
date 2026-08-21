@@ -20,10 +20,10 @@ function loadEnv(): string {
   if (!fs.existsSync(envPath)) throw new Error(`.env.eval not found at ${envPath}`)
   const content = fs.readFileSync(envPath, 'utf-8')
   for (const line of content.split('\n')) {
-    const match = line.match(/^ANTHROPIC_API_KEY\s*=\s*(.+)/)
+    const match = line.match(AI_PROVIDER === 'kimi' ? /^MOONSHOT_API_KEY\s*=\s*(.+)/ : /^ANTHROPIC_API_KEY\s*=\s*(.+)/)
     if (match) return match[1].trim()
   }
-  throw new Error('ANTHROPIC_API_KEY not found in .env.eval')
+  throw new Error(`${AI_PROVIDER === 'kimi' ? 'MOONSHOT_API_KEY' : 'ANTHROPIC_API_KEY'} not found in .env.eval`)
 }
 
 // ── Prompt ──
@@ -53,7 +53,26 @@ function buildPrompt(template: string, testCase: TestCase): string {
 
 // ── API call ──
 
-const MODEL = 'claude-haiku-4-5-20251001'
+// Provider comparison (2026-07-22). Anthropic baseline = the tier PRODUCTION calls.
+// Kimi MUST have thinking disabled or the response carries no text block.
+const AI_PROVIDER = (process.env.AI_PROVIDER === 'kimi' ? 'kimi' : 'anthropic') as 'anthropic' | 'kimi'
+const PROVIDER_CFG = {
+  anthropic: {
+    url: 'https://api.anthropic.com/v1/messages',
+    model: process.env.AI_MODEL ?? 'claude-sonnet-4-6',
+    price: { in: 3, out: 15 },
+    headers: (k: string) => ({ 'x-api-key': k, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' }),
+    extra: {} as Record<string, unknown>,
+  },
+  kimi: {
+    url: 'https://api.moonshot.ai/anthropic/v1/messages',
+    model: process.env.AI_MODEL ?? 'kimi-k2.6',
+    price: { in: 0.95, out: 4 },
+    headers: (k: string) => ({ Authorization: `Bearer ${k}`, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' }),
+    extra: { thinking: { type: 'disabled' } } as Record<string, unknown>,
+  },
+}[AI_PROVIDER]
+const MODEL = PROVIDER_CFG.model
 const MAX_TOKENS = 2000
 
 interface FixResult {
@@ -85,14 +104,11 @@ async function runCase(testCase: TestCase, apiKey: string, promptTemplate: strin
   const prompt = buildPrompt(promptTemplate, testCase)
   const start = Date.now()
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch(PROVIDER_CFG.url, {
     method: 'POST',
-    headers: {
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
-    },
+    headers: PROVIDER_CFG.headers(apiKey),
     body: JSON.stringify({
+      ...PROVIDER_CFG.extra,
       model: MODEL,
       max_tokens: MAX_TOKENS,
       messages: [{ role: 'user', content: prompt }],
@@ -111,7 +127,7 @@ async function runCase(testCase: TestCase, apiKey: string, promptTemplate: strin
   const promptTokens = json.usage?.input_tokens ?? 0
   const completionTokens = json.usage?.output_tokens ?? 0
   // Haiku 4.5: $1/M input, $5/M output (matches _shared/log-usage.ts — the 0.80/4 figures were wrong)
-  const costUsd = (promptTokens * 1 + completionTokens * 5) / 1_000_000
+  const costUsd = (promptTokens * PROVIDER_CFG.price.in + completionTokens * PROVIDER_CFG.price.out) / 1_000_000
 
   let jsonParsedClean = true
   let jsonRepaired = false
