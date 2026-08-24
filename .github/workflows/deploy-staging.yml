@@ -134,6 +134,13 @@ jobs:
           printf 'User-agent: *\nDisallow: /\n' > out/robots.txt
 
       - name: Deploy staging via FTP
+        # Zero-downtime, matching this repo's own production job. A single
+        # `mirror --delete` uploads and deletes in ONE pass, so mid-mirror the new
+        # index.html can be live while its hashed chunks are not yet uploaded and the old
+        # ones are already gone: every chunk 404s and the page renders BLANK. Proven
+        # 2026-08-23 in ReplyFlow run 32662317038 (index.html 200, five chunks 404, blank
+        # screenshot) where it failed an E2E gate and read as a flaky test. Assets first
+        # without --delete, so new chunks exist before anything references them.
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
@@ -171,7 +178,7 @@ jobs:
           fi
           echo "Site-id guard passed (remote='${REMOTE_ID:-<none>}')"
 
-          CMDS="$LFTP_SETTINGS mirror --reverse --delete --no-perms --verbose --exclude .htpasswd --exclude cgi-bin/ ./out/ staging.launchready.predivo.ch/; bye"
+          CMDS="$LFTP_SETTINGS mirror --reverse --no-perms --verbose ./out/_next/ staging.launchready.predivo.ch/_next/; mirror --reverse --delete --no-perms --verbose --exclude .htpasswd --exclude cgi-bin/ ./out/ staging.launchready.predivo.ch/; bye"
           n=0
           until [ $n -ge 4 ]; do
             if timeout 420 lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" -e "$CMDS"; then
