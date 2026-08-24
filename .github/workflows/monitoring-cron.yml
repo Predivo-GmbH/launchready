@@ -7,7 +7,7 @@ on:
 
 jobs:
   run-monitoring:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 10
     steps:
       - name: Trigger monitoring re-audits
