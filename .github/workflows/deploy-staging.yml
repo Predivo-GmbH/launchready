@@ -183,7 +183,13 @@ jobs:
           fi
           echo "Site-id guard passed (remote='${REMOTE_ID:-<none>}')"
 
-          CMDS="$LFTP_SETTINGS mirror --reverse --no-perms --verbose ./out/_next/ staging.launchready.predivo.ch/_next/; mirror --reverse --delete --no-perms --verbose --exclude .htpasswd --exclude cgi-bin/ ./out/ staging.launchready.predivo.ch/; bye"
+          # The full-tree --delete mirror below EXCLUDES _next/: a browser tab still
+          # running an OLD index.html fetches the OLD hashed chunks (lazily, on the next
+          # navigation), and deleting them at deploy time turns that into "Failed to fetch
+          # dynamically imported module". Old chunks are pruned by AGE (14 days) in the
+          # step below — the separate _next/ upload above already put the new chunks in
+          # place before index.html references them.
+          CMDS="$LFTP_SETTINGS mirror --reverse --no-perms --verbose ./out/_next/ staging.launchready.predivo.ch/_next/; mirror --reverse --delete --no-perms --verbose --exclude '^(_next)/' --exclude .htpasswd --exclude cgi-bin/ ./out/ staging.launchready.predivo.ch/; bye"
           n=0
           until [ $n -ge 4 ]; do
             if timeout 420 lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" -e "$CMDS"; then
@@ -203,3 +209,101 @@ jobs:
           done
           echo "::error::Staging returned HTTP $STATUS after 6 attempts - likely .htaccess error or auth misconfig."
           exit 1
+
+      - name: Prune stale assets (14-day retention)
+        # Age-based cleanup of the hashed chunks the asset-retention exclusion above
+        # leaves behind. lftp has no find -mtime (only -max-depth/-ls — verified against
+        # the 4.8.1 man page), so this probes each file's mtime over raw FTP MDTM
+        # (RFC 3659, supported by the ProFTPD on this host) and deletes files older than
+        # 14 days. 14 days ≫ any realistically open tab, so stale-tab chunk fetches 404
+        # only for sessions older than the retention window.
+        #
+        # Never fails the deploy: a cleanup hiccup must not block promotion-relevant
+        # runs; it logs ::error:: (red annotation, run still green) and the next deploy
+        # retries. Capped at 1000 deletions per run so a logic bug cannot mass-delete
+        # and a long outage self-heals progressively over successive deploys.
+        continue-on-error: true
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+          ASSETS_DIR: staging.launchready.predivo.ch/_next
+        run: |
+          set -u
+          export TZ=UTC
+          DAYS=14
+          CUTOFF=$(date -u -d "$DAYS days ago" +%Y%m%d%H%M%S)
+          SETTINGS="set ftp:ssl-force yes
+          set ssl:verify-certificate no; set ftp:ssl-protect-data no
+          set ftp:passive-mode yes; set net:timeout 60"
+
+          LIST=$(timeout 180 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
+          $SETTINGS
+          find $ASSETS_DIR
+          quit
+          SCRIPT
+          )
+          if [ $? -ne 0 ]; then
+            echo "::error::Asset prune: listing $ASSETS_DIR failed - leaving cleanup to the next deploy. Output: $(echo "$LIST" | head -3)"
+            exit 0
+          fi
+          if [ -z "$(echo "$LIST" | tr -d '[:space:]')" ]; then
+            echo "Asset prune: $ASSETS_DIR is empty - nothing to do."
+            exit 0
+          fi
+
+          # Probe every file's mtime in ONE lftp session: echo a PROBE: name line before
+          # each quote MDTM so reply lines stay paired with their file even when a file
+          # vanishes (550) between listing and probing.
+          PROBE_SCRIPT=$(mktemp)
+          {
+            echo "$SETTINGS"
+            # find prints full remote paths ("$ASSETS_DIR/<nested>/file", recursively —
+            # nested chunk dirs like _next/static/chunks are covered too); normalize to a
+            # path relative to ASSETS_DIR so either output format is safe.
+            echo "$LIST" | while IFS= read -r p; do
+              p="${p%$'\r'}"
+              [ "$p" = "$ASSETS_DIR" ] && continue
+              rel="${p#"$ASSETS_DIR"/}"
+              # Hashed asset names only ([A-Za-z0-9._/-], no spaces/globs) — anything
+              # else is skipped, never deleted.
+              [[ "$rel" =~ ^[A-Za-z0-9._/-]+$ ]] || continue
+              echo "echo \"PROBE:$ASSETS_DIR/$rel\""
+              echo "quote MDTM $ASSETS_DIR/$rel"
+            done
+            echo "quit"
+          } > "$PROBE_SCRIPT"
+
+          OUT=$(timeout 420 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" -f "$PROBE_SCRIPT" 2>&1)
+          rm -f "$PROBE_SCRIPT"
+
+          # Pair each PROBE: line with the following 213/550 reply; 14-digit UTC
+          # timestamps compare correctly as plain strings against the 14-digit cutoff.
+          PAIRED=$(awk '
+            /^PROBE:/ { file=substr($0, 7); next }
+            file != "" {
+              if ($1 == "213" && $2 ~ /^[0-9]{14}$/) print $2, file
+              file=""
+            }' <<< "$OUT")
+          if [ -z "$PAIRED" ]; then
+            echo "::error::Asset prune: no MDTM replies from $ASSETS_DIR (server may not support RFC 3659 MDTM) - leaving cleanup to the next deploy."
+            exit 0
+          fi
+
+          OLD=$(sort -n <<< "$PAIRED" | awk -v cutoff="$CUTOFF" '$1 < cutoff {print $2}' | head -1000)
+          COUNT=$(echo "$OLD" | grep -c . || true)
+          if [ "$COUNT" -eq 0 ]; then echo "Asset prune: nothing older than $DAYS days in $ASSETS_DIR."; exit 0; fi
+
+          DEL_SCRIPT=$(mktemp)
+          {
+            echo "$SETTINGS"
+            # lftp rm does NOT glob-expand - hashed names are passed verbatim.
+            # $OLD already holds full remote paths (the PROBE: values).
+            echo "$OLD" | while IFS= read -r f; do echo "rm $f"; done
+            echo "quit"
+          } > "$DEL_SCRIPT"
+          DEL_OUT=$(timeout 300 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" -f "$DEL_SCRIPT" 2>&1)
+          rm -f "$DEL_SCRIPT"
+          echo "$DEL_OUT"
+          echo "Asset prune: deleted $COUNT file(s) older than $DAYS days from $ASSETS_DIR."
+          exit 0
