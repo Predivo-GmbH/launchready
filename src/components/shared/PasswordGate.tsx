@@ -2,7 +2,7 @@
 
 import { useState, useEffect, type ReactNode } from 'react'
 
-const GATE_PASSWORD_HASH = 'c242083ca6d82fc8648765266b3440366e8137085065150e573715dbd57b6ca7'
+const GATE_PASSWORD_HASH = '32d43275fd4146b8820205cc69833cc2fd81ad9cdf84ffad1140b87e88fa89a8'
 const STORAGE_KEY = 'launchready-unlocked'
 
 async function sha256(message: string): Promise<string> {

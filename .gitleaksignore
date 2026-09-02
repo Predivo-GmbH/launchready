@@ -21,3 +21,11 @@ d430750eea849315011c4acf8a7695984b399ded:src/components/shared/PasswordGate.tsx:
 9c704fb343af8344b64753a08cb0db0268303de4:docs/credentials.txt:generic-api-key:3
 9c704fb343af8344b64753a08cb0db0268303de4:docs/credentials.txt:jwt:4
 9c704fb343af8344b64753a08cb0db0268303de4:docs/credentials.txt:jwt:5
+
+# e2e/qa.spec.ts held the early-access gate password in clear text for exactly two
+# commits on 2026-09-02 (introduced cf6399d, removed c3faf6e). That value was ROTATED
+# OUT the same hour and is dead: the live gate no longer accepts it, and the working
+# value now lives only in the repo secret LAUNCHREADY_GATE_PASSWORD and in the
+# gitignored docs/Credentials.txt. Allowlisted so the blocking history scan can pass;
+# a LIVE secret is still never allowlisted here.
+cf6399daac4628fc2bb6e9acad1632df430b8a12:e2e/qa.spec.ts:generic-api-key:3
