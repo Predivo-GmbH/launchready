@@ -175,6 +175,17 @@ jobs:
             npx playwright install --with-deps chromium
           fi
 
+      - name: Pick a free dev-server port
+        # ~24 runners for 14 repositories share ONE network namespace on the self-hosted host,
+        # so a fixed 3001 collides with any leftover or concurrent server. Ask the OS for a free
+        # port instead. playwright.config.ts reads E2E_PORT and passes --no-port-switching, so a
+        # port taken in the gap before the server binds fails the run loudly rather than silently
+        # testing whatever else is listening. See standards/deploy-standard.md RULE 3.
+        run: |
+          PORT=$(node -e "const s=require('net').createServer();s.listen(0,()=>{const p=s.address().port;s.close(()=>console.log(p))})")
+          echo "E2E_PORT=$PORT" >> "$GITHUB_ENV"
+          echo "dev server port: $PORT"
+
       - name: Run e2e tests against static export
         run: npx playwright test
         env:
