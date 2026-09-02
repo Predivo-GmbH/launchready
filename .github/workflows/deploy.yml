@@ -190,6 +190,7 @@ jobs:
         run: npx playwright test
         env:
           CI: true
+          LAUNCHREADY_GATE_PASSWORD: ${{ secrets.LAUNCHREADY_GATE_PASSWORD }}
 
       - name: Deploy via FTP (zero-downtime)
         env:

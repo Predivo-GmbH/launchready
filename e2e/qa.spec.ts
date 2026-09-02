@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 
-const GATE_PASSWORD = 'Cx6ZUK89frUGpJdcxVJg'
+const GATE_PASSWORD = process.env.LAUNCHREADY_GATE_PASSWORD ?? ''
 
 // All public pages to test
 const PAGES = [
