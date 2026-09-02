@@ -43,10 +43,16 @@ jobs:
         run: /tmp/gitleaks dir . --no-banner --redact -v --exit-code 1
       - name: 'Secret scan: full history (BLOCKING - historical secrets dead since 2026-07-09 legacy-key disable, allowlisted in .gitleaksignore)'
         run: /tmp/gitleaks git . --no-banner --redact --log-opts=--all --exit-code 1
+      # NO `cache: npm` here, deliberately. This job never runs `npm ci` — `npm audit` reads
+      # package-lock.json and the coverage script needs no node_modules — so the cache saved
+      # nothing and bought a post-step that HANGS on the shared self-hosted runner and blows the
+      # job's ceiling during cleanup. GitHub records that as "cancelled", which reads like a
+      # person pressed a button; it was the npm cache save. Run 33664843636 lost a production
+      # promotion to it with every real step green, because deploy `needs: gate-security`.
+      # Diagnosis: standards/PROMPT_ci_jobs_killed_by_npm_cache_post_step.md
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: npm
       - name: Dependency audit (blocking at high; launchready has 0 high, so tightened from critical 2026-08-17)
         run: npm audit --audit-level=high
       - name: Feature coverage gate (wire the previously-orphaned coverage script; blocking)
