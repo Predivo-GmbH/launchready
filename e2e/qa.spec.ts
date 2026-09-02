@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 
-const GATE_PASSWORD = 'predivo2026'
+const GATE_PASSWORD = 'Cx6ZUK89frUGpJdcxVJg'
 
 // All public pages to test
 const PAGES = [
