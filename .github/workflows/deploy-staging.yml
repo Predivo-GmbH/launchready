@@ -83,7 +83,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: npm
+          # cache: npm removed deliberately - see the "NPM CACHE / self-hosted runner" note in deploy.yml
 
       # Coverage gate FIRST: fail the staging deploy before build/FTP if the
       # feature registry parses to zero covered features or a suite is fully skipped.
