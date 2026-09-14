@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { X, Loader2, Mail, ArrowLeft, KeyRound, Lock } from 'lucide-react'
+import TurnstileWidget, { type TurnstileHandle } from './TurnstileWidget'
 
 interface AuthModalProps {
   onClose: () => void
@@ -32,6 +33,12 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const otpRefs = useRef<(HTMLInputElement | null)[]>([])
+  // Cloudflare Turnstile token — threaded into every captcha-protected GoTrue call below
+  // (signInWithOtp, signInWithPassword, resetPasswordForEmail). It is a NO-OP until the server-side
+  // Auth-settings switch (security_captcha_enabled) is flipped, and NEXT_PUBLIC_TURNSTILE_SITE_KEY
+  // is unset today, so TurnstileWidget renders nothing and this stays undefined — see TurnstileWidget.tsx.
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const turnstileRef = useRef<TurnstileHandle>(null)
 
   function reset(nextStep: Step) {
     setError(null)
@@ -73,12 +80,16 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
     setLoading(true)
     try {
       const { supabase } = await import('@/lib/supabase')
-      const { error } = await supabase.auth.signInWithOtp({ email })
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        ...(captchaToken ? { options: { captchaToken } } : {}),
+      })
       if (error) throw error
       setStep('signup-otp')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send code')
     } finally {
+      turnstileRef.current?.reset()
       setLoading(false)
     }
   }
@@ -131,12 +142,17 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
     setLoading(true)
     try {
       const { supabase } = await import('@/lib/supabase')
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+        ...(captchaToken ? { options: { captchaToken } } : {}),
+      })
       if (error) throw error
       onSuccess()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid credentials')
     } finally {
+      turnstileRef.current?.reset()
       setLoading(false)
     }
   }
@@ -147,12 +163,16 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
     setLoading(true)
     try {
       const { supabase } = await import('@/lib/supabase')
-      const { error } = await supabase.auth.signInWithOtp({ email })
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        ...(captchaToken ? { options: { captchaToken } } : {}),
+      })
       if (error) throw error
       setStep('login-otp-sent')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send login code')
     } finally {
+      turnstileRef.current?.reset()
       setLoading(false)
     }
   }
@@ -166,12 +186,14 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
       const { supabase } = await import('@/lib/supabase')
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
+        ...(captchaToken ? { captchaToken } : {}),
       })
       if (error) throw error
       setStep('forgot-sent')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send reset link')
     } finally {
+      turnstileRef.current?.reset()
       setLoading(false)
     }
   }
@@ -182,13 +204,17 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
     setLoading(true)
     try {
       const { supabase } = await import('@/lib/supabase')
-      const { error } = await supabase.auth.signInWithOtp({ email })
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        ...(captchaToken ? { options: { captchaToken } } : {}),
+      })
       if (error) throw error
       setOtp(['', '', '', '', '', ''])
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to resend code')
     } finally {
+      turnstileRef.current?.reset()
       setLoading(false)
     }
   }
@@ -212,6 +238,8 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
             {' '}and{' '}
             <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 inline-flex items-center min-h-[44px]">Privacy Policy</a>.
           </p>
+
+          <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} />
 
           <button type="submit" disabled={loading} className={BTN_PRIMARY}>
             {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
@@ -248,6 +276,8 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
             Verify email
           </button>
         </form>
+
+        <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} />
 
         <p className="text-xs text-zinc-400 mt-4 text-center">
           Didn&apos;t receive it?{' '}
@@ -299,6 +329,8 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
           <input type="email" inputMode="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" aria-label="Email" autoComplete="email" autoFocus className={INPUT} />
           {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
 
+          <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} />
+
           <button onClick={() => { if (!email.trim()) { setError('Enter your email'); return }; sendLoginOtp() }} disabled={loading} className={BTN_PRIMARY}>
             {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
             <Mail className="w-4 h-4" aria-hidden="true" />
@@ -344,6 +376,8 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
           Enter code manually
         </button>
 
+        <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} />
+
         <p className="text-xs text-zinc-400 mt-4 text-center">
           Didn&apos;t receive it?{' '}
           <button onClick={resendOtp} disabled={loading} className="text-blue-400 hover:text-blue-300 disabled:text-zinc-600 min-h-[44px]">Resend</button>
@@ -370,6 +404,8 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
             Log in
           </button>
         </form>
+
+        <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} />
 
         <p className="text-xs text-zinc-400 mt-4 text-center">
           Didn&apos;t receive it?{' '}
@@ -398,6 +434,8 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
 
           {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
 
+          <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} />
+
           <button type="submit" disabled={loading} className={BTN_PRIMARY}>
             {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
             Log in
@@ -418,6 +456,7 @@ export function AuthModal({ onClose, onSuccess, initialMode = 'login' }: AuthMod
         <form onSubmit={sendResetLink} className="space-y-4">
           <input type="email" inputMode="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" aria-label="Email" required autoComplete="email" autoFocus className={INPUT} />
           {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
+          <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} />
           <button type="submit" disabled={loading} className={BTN_PRIMARY}>
             {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
             Send reset link
