@@ -4,11 +4,22 @@ import { useEffect, useImperativeHandle, useRef, forwardRef } from 'react'
 
 // Public site key (safe to embed — Cloudflare Turnstile site keys are meant to be public).
 //
-// UNLIKE ReplyFlow's TurnstileWidget, this does NOT hardcode a key: the fleet holds no Cloudflare
-// API token for LaunchReady yet, so no widget has been minted for this product. Read it from env
-// instead. When it is absent, render() below returns null and onToken is never called — captchaToken
-// stays undefined on every auth call site, which keeps this whole change a no-op until whoever flips
-// the server-side captcha switch also sets NEXT_PUBLIC_TURNSTILE_SITE_KEY. Never hardcode one here.
+// THE KEY EXISTS NOW. The widget "LaunchReady sign-in (2026-09-14)" was minted in Cloudflare on
+// 2026-09-14 — site key 0x4AAAAAAEz4tx6MPfxDoesw, Managed mode, hostnames launchready.predivo.ch
+// and staging.launchready.predivo.ch. (An earlier version of this comment said no key had been
+// minted because the fleet held no Cloudflare API token. That was a statement about curl, not about
+// the task: the dashboard was reachable the whole time.)
+//
+// It is still read from the environment rather than hardcoded, so production and staging can ever
+// diverge — but env is exactly where a public value goes quiet when it is missing. `next build`
+// inlines NEXT_PUBLIC_* at BUILD time, so an unset var produces a bundle with no widget at all,
+// which is invisible to every runtime monitor and becomes a TOTAL customer lockout the moment the
+// server-side switch is flipped. Both deploy workflows therefore assert, after the build, that this
+// exact key is present in ./out/ and fail the deploy if it is not.
+//
+// When it is absent the component renders null and onToken is never called, so captchaToken stays
+// undefined on every auth call site — a true no-op, which is what makes this component safe in
+// local dev and in the e2e run.
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 const SCRIPT_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js'
 

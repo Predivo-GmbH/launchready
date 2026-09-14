@@ -17,8 +17,13 @@
  *      resend — signInWithPassword, resetPasswordForEmail), and render TurnstileWidget
  *      (src/components/auth/TurnstileWidget.tsx) on every step that can trigger one. The widget
  *      reads NEXT_PUBLIC_TURNSTILE_SITE_KEY and renders NOTHING (token stays undefined) while that
- *      env var is unset, which it is fleet-wide today — no Cloudflare site key has been minted for
- *      LaunchReady yet. That makes this half a true no-op: safe to ship on its own.
+ *      env var is unset, so it is a true no-op anywhere the key is absent — local dev and the e2e
+ *      run included. The key now EXISTS: Cloudflare widget "LaunchReady sign-in (2026-09-14)",
+ *      site key 0x4AAAAAAEz4tx6MPfxDoesw, Managed mode, hostnames launchready.predivo.ch and
+ *      staging.launchready.predivo.ch. Both deploy workflows pass it into `next build` AND assert
+ *      afterwards that it is actually inlined in ./out/ — because NEXT_PUBLIC_* is a build-time
+ *      substitution, an unset var ships a bundle with no widget, which no runtime monitor can see
+ *      and which becomes a total lockout the instant half 2 is switched on.
  *   2. SERVER: enable CAPTCHA (Turnstile provider + secret) in the project's Auth settings. This is
  *      the switch that actually closes the hole. PROJECT-WIDE once flipped — every protected
  *      endpoint on that project then demands a token.
@@ -41,20 +46,32 @@
  * create_user:false, so a still-open endpoint cannot actually mail a real person here. NEVER point
  * this at a real address.
  *
- * STAGING IS DELIBERATELY LEFT OPEN, AND THAT IS ASSERTED, NOT ASSUMED — but the reason is specific
- * to LaunchReady, not copy-pasted from another product: enabling captcha is PROJECT-WIDE, and no
- * Cloudflare Turnstile site key has been minted for LaunchReady anywhere in the fleet yet
- * (NEXT_PUBLIC_TURNSTILE_SITE_KEY is unset on every environment, by design — see TurnstileWidget.tsx).
- * With no site key, the client half of this fix can never produce a token, so flipping the server
- * switch on ANY LaunchReady project before a real Turnstile site key + secret are provisioned would
- * lock out every real sign-in on that project — staging's manual QA flows included, and this repo's
- * own e2e/critical-path.spec.ts, which pings /auth/v1/ as a liveness check on every push to master
+ * STAGING IS DELIBERATELY LEFT OPEN, AND THAT IS ASSERTED, NOT ASSUMED. The reason CHANGED on
+ * 2026-09-14 and the old one is recorded here because it was wrong in an instructive way: this file
+ * used to say no Turnstile site key had been minted for LaunchReady and none could be, since the
+ * fleet held no Cloudflare API token. That was a statement about curl, not about the task — the
+ * Cloudflare dashboard was reachable in a logged-in browser the whole time, and the key was minted
+ * there. "A tool cannot reach it" is never "it cannot be done".
+ *
+ * The reason staging is still open is now narrower and purely about ORDER. Enabling captcha is
+ * PROJECT-WIDE and there is exactly ONE captcha secret per Supabase project, so there is no test
+ * key that could cover staging alone: the moment staging enforces, every tokenless sign-in on that
+ * project fails. Production's client half is live and proven; staging's has not been proven the
+ * same way. Turning staging on before that costs the fleet its manual QA flows and this repo's own
+ * e2e/critical-path.spec.ts, which pings /auth/v1/ as a liveness check on every push to master
  * (test.yml). (Unlike ReplyFlow, LaunchReady's Playwright suite does not itself perform a
  * password-grant sign-in against staging — checked 2026-09-14, no auth.setup.ts and no spec posts to
- * /auth/v1/token or /auth/v1/otp — so that specific conflict does not apply here; the site-key gap is
- * the operative reason.) This guard therefore does not treat staging's open state as a failure — but
- * it DOES fail if staging starts ENFORCING captcha, because that means someone flipped the switch
- * ahead of the site key existing and real sign-ins on staging are about to start breaking.
+ * /auth/v1/token or /auth/v1/otp — so that particular conflict does not apply here.)
+ *
+ * TO ENFORCE STAGING LATER, in order: confirm a staging deploy has shipped a bundle containing
+ * 0x4AAAAAAEz4tx6MPfxDoesw (the deploy-staging workflow now asserts exactly this), solve the widget
+ * once by hand on staging.launchready.predivo.ch, then flip `enforced` to true HERE and run
+ * scripts/auth-captcha.mjs. That script currently REFUSES `enable --project staging` outright, so
+ * this rationale has to be changed deliberately rather than bypassed at 2am.
+ *
+ * This guard therefore does not treat staging's open state as a failure — but it DOES fail if
+ * staging starts ENFORCING captcha, because that means someone flipped the switch ahead of that
+ * sequence and real sign-ins on staging are about to start breaking.
  *
  * Run: node supabase/functions/_shared/signin-captcha.prod.test.mjs
  * Exit 0 = every ENFORCED project refuses a tokenless OTP request, and no un-enforced project has
@@ -82,11 +99,13 @@ const PROJECTS = [
     anonEnv: 'STAGING_SUPABASE_ANON_KEY',
     enforced: false,
     whyNotEnforced:
-      'no Cloudflare Turnstile site key has been minted for LaunchReady yet (NEXT_PUBLIC_TURNSTILE_SITE_KEY ' +
-      'is unset on every environment by design), so the client can never produce a token. Enabling ' +
-      'captcha here before a real site key + secret exist would lock out every real sign-in on this ' +
-      'project, staging QA included. Provision the Turnstile site key + secret FIRST, prove the widget ' +
-      'actually solves on staging, then flip this to enforced: true here.',
+      'enabling captcha is PROJECT-WIDE and there is exactly one captcha secret per Supabase project, ' +
+      'so no test key can cover staging alone. The site key (0x4AAAAAAEz4tx6MPfxDoesw) does now cover ' +
+      'staging.launchready.predivo.ch, but staging has not yet been shown to ship and solve the widget, ' +
+      'and enforcing before that breaks staging QA and the /auth/v1/ liveness check in ' +
+      'e2e/critical-path.spec.ts. Prove a staging deploy inlines the site key, solve the widget once on ' +
+      'staging.launchready.predivo.ch, THEN flip this to enforced: true and run scripts/auth-captcha.mjs ' +
+      '(which refuses --project staging until this rationale is changed on purpose).',
   },
 ]
 

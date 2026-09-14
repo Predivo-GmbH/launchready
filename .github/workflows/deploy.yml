@@ -150,10 +150,29 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
           NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+
+      - name: Assert the Turnstile site key actually landed in the bundle (blocking)
+        # A captcha that the client cannot answer is a worse outage than the hole it closes.
+        # NEXT_PUBLIC_* is inlined by `next build` at BUILD time, so an empty or wrong
+        # secret produces a bundle with no widget — and every monitor stays green while real
+        # customers are locked out the moment security_captcha_enabled is flipped. ReplyFlow hit
+        # exactly this. The site key is PUBLIC, so we can pin the expected value and compare.
+        run: |
+          set -euo pipefail
+          expected='0x4AAAAAAEz4tx6MPfxDoesw'
+          if ! grep -rq "$expected" ./out/; then
+            echo "FAIL - the Turnstile site key ($expected) is NOT in the production bundle."
+            echo "       next build inlines NEXT_PUBLIC_* at build time; the secret"
+            echo "       NEXT_PUBLIC_TURNSTILE_SITE_KEY is empty, wrong, or was not passed to the"
+            echo "       build step. Shipping this would render no captcha widget at all."
+            exit 1
+          fi
+          echo "ok - Turnstile site key is present in the production bundle ($(grep -rl "$expected" ./out/ | wc -l) file(s))."
 
       - name: Cache Playwright browsers
         id: playwright-cache
