@@ -80,8 +80,40 @@ jobs:
       - name: Prove it against the live project
         # Also on the schedule: a daily read that never probes would report the SETTING and not the
         # BEHAVIOUR, and it is the behaviour that went stale for twelve hours on ReplyFlow.
+        #
+        # THE PROBE RACES GoTrue, AND A RED RUN THAT MEANS "CHECKED TOO EARLY" IS WORSE THAN NO RUN.
+        # This step used to call the prod test once, immediately. GoTrue does not apply
+        # security_captcha_enabled instantly, so the probe lands before the gate exists and reports
+        # the project as OPEN. It happened here on 2026-09-14 (fixed by re-running, not by fixing)
+        # and again on Beize Jass Tour on 2026-09-15, where the enable run concluded FAILURE ~0.6s
+        # after a PATCH that had completely succeeded — the same three endpoints answered
+        # 400 captcha_failed a minute later.
+        #
+        # That failure mode is indistinguishable from a real one, so whoever reads it next either
+        # rolls back a healthy switch or learns to ignore a red enable run. Both are worse than
+        # waiting ten seconds. This file is the template the whole fleet ports, so it is fixed here.
+        #
+        # THE RETRY IS DELIBERATELY NOT INSIDE signin-captcha.prod.test.mjs. That file is ALSO the
+        # daily standing guard, and a retry loop in there would start papering over a genuine
+        # regression. Here it is bounded to 60s and still FAILS at the end — a project that is
+        # really open is still open a minute later, so this can hide nothing.
         if: inputs.mode == 'enable' || github.event_name == 'schedule'
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           STAGING_SUPABASE_ANON_KEY: ${{ (inputs.project == 'staging' || github.event_name == 'schedule') && secrets.STAGING_SUPABASE_ANON_KEY || '' }}
-        run: node supabase/functions/_shared/signin-captcha.prod.test.mjs
+        run: |
+          set -uo pipefail
+          # The scheduled read is not racing anything, so it gets one attempt and an honest verdict.
+          attempts=1
+          if [ "${{ inputs.mode }}" = "enable" ]; then attempts=6; fi
+          for i in $(seq 1 "$attempts"); do
+            if node supabase/functions/_shared/signin-captcha.prod.test.mjs; then exit 0; fi
+            if [ "$i" -lt "$attempts" ]; then
+              echo "--- the switch is set but the gate has not propagated yet (attempt $i of $attempts); waiting 10s"
+              sleep 10
+            fi
+          done
+          echo "FAIL - the project still does not refuse a tokenless request. On an enable run that"
+          echo "       means 60 seconds after the PATCH, which is long past propagation: treat it as"
+          echo "       a real failure and roll back with mode=disable."
+          exit 1
