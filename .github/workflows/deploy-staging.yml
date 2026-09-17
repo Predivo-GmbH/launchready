@@ -87,6 +87,11 @@ jobs:
 
       # Coverage gate FIRST: fail the staging deploy before build/FTP if the
       # feature registry parses to zero covered features or a suite is fully skipped.
+      # Nothing new ships untested (installed 2026-09-17). BLOCKING - never continue-on-error.
+      # What counts as a functionality: docs/WHAT-COUNTS-AS-A-FUNCTIONALITY.md
+      - name: Nothing new shipped without its test (BLOCKING)
+        run: node scripts/check-new-functionality-registered.mjs
+
       - name: Feature coverage gate
         run: node scripts/check-feature-coverage.mjs
 

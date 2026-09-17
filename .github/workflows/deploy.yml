@@ -105,6 +105,11 @@ jobs:
         # not looser. Proven still to refuse: launchready a0b3a12^ (next 16.3.0 + sharp 0.35.3, both in
         # the production tree) exits 1 under this exact command.
         run: npm audit --omit=dev --audit-level=high
+      # Nothing new ships untested (installed 2026-09-17). BLOCKING - never continue-on-error.
+      # What counts as a functionality: docs/WHAT-COUNTS-AS-A-FUNCTIONALITY.md
+      - name: Nothing new shipped without its test (BLOCKING)
+        run: node scripts/check-new-functionality-registered.mjs
+
       - name: Feature coverage gate (wire the previously-orphaned coverage script; blocking)
         run: node scripts/check-feature-coverage.mjs
       # SAST — code-level security (fleet-hardening Wave 2, proven route from project-starter).
