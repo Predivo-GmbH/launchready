@@ -35,6 +35,11 @@ jobs:
       PLAYWRIGHT_HOST_PLATFORM_OVERRIDE: ubuntu24.04-x64
     steps:
       - uses: actions/checkout@v5
+        with:
+          # The functionality gate below diffs against HEAD~1 (the previous commit on a push, the
+          # base branch on a pull request's merge commit). The default depth of 1 has no HEAD~1, so
+          # the gate died with "git diff HEAD~1" on every pull request (PR 7, 2026-10-15).
+          fetch-depth: 2
 
       - uses: actions/setup-node@v5
         with:
