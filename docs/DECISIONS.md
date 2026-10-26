@@ -28,7 +28,7 @@
 
 | ID | Date | Decision | Why | Rejected alternative | Decided by | Status |
 |---|---|---|---|---|---|---|
-| D-001 |  |  |  |  |  | active |
+| D-001 | 2026-10-26 | Patch Next to 16.4.3, Sentry to 10.75.2 and Vitest/coverage to 4.1.12; refresh their lockfile dependencies within the existing major versions | The dependency alarm includes high and critical advisories. The updated lockfile's audit reports zero findings. npm 11 resolves the npm 10 Arborist peer-graph crash; the resulting lockfile is synchronized with npm 10 for CI compatibility | A forced audit fix or a Sentry major upgrade would expand the compatibility change beyond the repair | Codex, under Roger's instruction to finish the workboard repairs | active |
 
 <!--
 Example row, delete when the first real one is added:
