@@ -11,6 +11,13 @@ on:
   pull_request:
     branches: [master]
   workflow_dispatch:
+  # Called by security-autofix.yml with the exact commit it wants tested before it merges anything
+  # (Roger 2026-10-26). Empty on every other event, where checkout keeps its normal ref.
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        default: ''
 
 # Collapse superseded runs: when several pushes land in a row only the
 # newest commit needs testing. Safe here — these jobs never write to prod.
@@ -36,6 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          ref: ${{ inputs.ref }} # the commit security-autofix.yml asks for; '' = the normal ref
           # The functionality gate below diffs against HEAD~1 (the previous commit on a push, the
           # base branch on a pull request's merge commit). The default depth of 1 has no HEAD~1, so
           # the gate died with "git diff HEAD~1" on every pull request (PR 7, 2026-10-15).
