@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   deploy-staging:
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-24.04' }}
     timeout-minutes: 20
     steps:
       - name: Verify FTP credentials (fail fast on a stale secret)
