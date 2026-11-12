@@ -53,4 +53,5 @@ jobs:
           chmod +x "$RUNNER_TEMP/gitleaks"
           CFG=""
           if [ -f .gitleaks.toml ]; then CFG="--config .gitleaks.toml"; fi
-          "$RUNNER_TEMP/gitleaks" dir . --no-banner --redact --exit-code 1 $CFG
+          export PATH="$RUNNER_TEMP:$PATH"
+          gitleaks dir . --no-banner --redact --exit-code 1 $CFG
